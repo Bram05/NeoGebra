@@ -2,8 +2,8 @@
 
 struct WindowCreationOptions
 {
-	std::string name;
 	int width, height;
+	std::string title;
 };
 
 struct GLFWwindow;
@@ -14,8 +14,10 @@ public:
 	Window(const WindowCreationOptions& options);
 	~Window();
 
+	bool ShouldClose() const;
+	void Update();
+
 	std::pair<int, int> GetSize() const;
-	const char* GetWindowName() const;
 
 private:
 	GLFWwindow* m_Window;

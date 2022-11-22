@@ -6,6 +6,7 @@ cmake_minimum_required (VERSION 3.8)
 
 # Libraries
 add_subdirectory ("Lib/glfw")
+add_subdirectory ("Lib/glad")
 add_subdirectory ("PostulateVerifier")
 add_subdirectory ("Tests")
 
