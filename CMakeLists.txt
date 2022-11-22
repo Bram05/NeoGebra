@@ -3,7 +3,12 @@
 #
 cmake_minimum_required (VERSION 3.8)
 
-project ("NietEuclidischeGeogebra")
+
+# Libraries
+add_subdirectory ("Lib/glfw")
+add_subdirectory ("PostulateVerifier")
+add_subdirectory ("Tests")
 
 # Include sub-projects.
+project ("NietEuclidischeGeogebra")
 add_subdirectory ("NietEuclidischeGeogebra")
