@@ -1,3 +1,3 @@
 #pragma once
 
-std::string getValue();
+#include "Point.h"

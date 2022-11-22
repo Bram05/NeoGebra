@@ -2,5 +2,6 @@
 
 int main()
 {
-	std::cout << getValue() << '\n';
+	Point p(5, 3);
+	std::cout << p.getX() << '\n';
 }

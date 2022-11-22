@@ -1,9 +1,9 @@
 project ("PostulateVerifier")
 
-add_library ("PostulateVerifier" STATIC "src/main.cpp" "include/PostulateVerifier/PostulateVerifier.h")
+add_library ("PostulateVerifier" STATIC "src/main.cpp" "include/PostulateVerifier/PostulateVerifier.h" "src/Point.h")
 
 target_precompile_headers (${PROJECT_NAME} PRIVATE "<iostream>" "<algorithm>" "<string>")
-
+target_include_directories(${PROJECT_NAME} PRIVATE "src")
 target_link_libraries(${PROJECT_NAME} glfw)
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
