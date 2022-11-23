@@ -1,3 +1,8 @@
+// Standard library files and some others are automatically included from the precompiled header
+// https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
+
+#include "Window.h"
+#include "Window.h"
 #include "Window.h"
 
 #include <glad/glad.h>
@@ -9,39 +14,40 @@ Window::Window(const WindowCreationOptions& options)
 {
 	if (s_Initialized)
 	{
-		std::cerr << "Error! A window was already created.\n";
-		throw std::run
+		throw std::runtime_error("A window was already created");
 	}
 
 	if (!glfwInit())
 	{
-		std::cerr << "Error! GLFW failed to initialize\n";
-		std::exit(-1);
+		throw std::runtime_error("GLFW failed to initialize");
 	}
+	s_Initialized = true;
 
-	m_Window = glfwCreateWindow(1080, 720, getValue().c_str(), nullptr, nullptr);
+	m_Window = glfwCreateWindow(options.width, options.height, options.title.c_str(), nullptr, nullptr);
+	std::cout << "Created window with width " << options.width << ", height " << options.height << " and title " << options.title << '\n';
 	glfwMakeContextCurrent(m_Window);
-
-	int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-	if (status == 0)
-	{
-		std::cerr << "Error! Glad failed to initialize. Make sure your drivers support OpenGL 4.0.\n";
-		
-	}
-	std::cout << "Loaded GL version " << glGetString(GL_VERSION) << '\n';
 }
 
 Window::~Window()
 {
+	glfwDestroyWindow(m_Window);
+	glfwTerminate();
+}
+
+bool Window::ShouldClose() const
+{
+	return glfwWindowShouldClose(m_Window);
+}
+
+void Window::Update()
+{
+	glfwPollEvents();
+	glfwSwapBuffers(m_Window);
 }
 
 std::pair<int, int> Window::GetSize() const
 {
-	int x, y;
-	glfwGetWindowAttrib()
-}
-
-const char* Window::GetWindowName() const
-{
-	return nullptr;
+	int width, height;
+	glfwGetWindowSize(m_Window, &width, &height);
+	return {width, height};
 }
