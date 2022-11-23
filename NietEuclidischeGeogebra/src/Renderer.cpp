@@ -14,15 +14,25 @@ Renderer::Renderer()
 		throw std::runtime_error("Glad failed to initialize.Make sure your drivers support OpenGL 4.0.");
 	}
 	std::cout << "Loaded GL version " << glGetString(GL_VERSION) << '\n';
+	m_LineRenderer = new LineRenderer;
+
 }
 
 Renderer::~Renderer()
 {
+	delete m_LineRenderer;
 	// I couldn't find cleanup calls for glad
 }
 
-void Renderer::Update(float r, float g, float b, float a)
+void Renderer::AddLine(const Line& line)
+{
+	
+}
+
+void Renderer::Render(float r, float g, float b, float a)
 {
 	glClearColor(r, g, b, a);
 	glClear(GL_COLOR_BUFFER_BIT);
+
+	m_LineRenderer->Render();
 }
