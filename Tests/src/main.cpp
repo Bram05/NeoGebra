@@ -1,8 +1,11 @@
 #include "PostulateVerifier/PostulateVerifier.h"
+#include "z3++.h"
+
 
 int main()
 {
-	std::vector<std::string> tmp{ "(assert (and (>= p1 1) (<= p1 3))" };
+	std::vector<std::string> tmp{ "(assert (and (<= p1 3) (>= p1 1) ))" };
+	std::vector<std::string> tmp2{ "(assert (or (= p1 1) (= p1 2) (= p1 3) ))", " (assert (or (= p2 1) (= p2 2) (= p2 3) ))", " (assert (!= p1 p2))" };
 
 	// Poincaré model
 	// 
@@ -36,7 +39,7 @@ int main()
 	// 
 	//
 
-	Model g(1, &tmp, nullptr, 2, nullptr, nullptr, nullptr);
+	Model g(1, &tmp, nullptr, 2, &tmp2, nullptr, nullptr);
 	line l1 = g.newLine(std::vector<int>{1,2});
 	line l2 = g.newLine(std::vector<int>{2,1});
 	point p = g.newPoint(std::vector<int>{3});

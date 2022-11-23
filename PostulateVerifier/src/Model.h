@@ -8,13 +8,13 @@ struct line { std::vector<int> indentifiers; Model* g; };
 
 class Model {
 	//Class for defining geometries
-	std::vector<std::string>* m_PointContstraints;
-	std::vector<std::string>* m_LineContstraints;
+	std::vector<std::string>* m_PointConstraints;
+	std::vector<std::string>* m_LineConstraints;
 
-	std::vector<std::string>* m_PointEqualContstraints;
-	std::vector<std::string>* m_LineEqualContstraints;
+	std::vector<std::string>* m_PointEqualConstraints;
+	std::vector<std::string>* m_LineEqualConstraints;
 	
-	std::vector<std::string>* m_IncidenceContstraints;
+	std::vector<std::string>* m_IncidenceConstraints;
 	
 	unsigned int m_PointIdentifiers;
 	unsigned int m_LineIdentifiers;
@@ -25,11 +25,11 @@ class Model {
 public:
 	Model(unsigned int pointIdentifiers, 
 		std::vector<std::string>* pointConstraints,
-		std::vector<std::string>* pointEqualContstraints,
+		std::vector<std::string>* pointEqualConstraints,
 		unsigned int lineIdentifiers,
 		std::vector<std::string>* lineConstraints,
-		std::vector<std::string>* lineEqualContstraints,
-		std::vector<std::string>* incidenceContstraints);
+		std::vector<std::string>* lineEqualConstraints,
+		std::vector<std::string>* incidenceConstraints);
 
 	point newPoint(std::vector<int> identifiers);
 	line newLine(std::vector<int> identifiers);

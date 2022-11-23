@@ -1,31 +1,35 @@
 #include "Model.h"
+#include "Z3Tools.h"
+
 
 Model::Model(unsigned int pointIdentifiers,
 	std::vector<std::string>* pointConstraints,
-	std::vector<std::string>* pointEqualContstraints,
+	std::vector<std::string>* pointEqualConstraints,
 	unsigned int lineIdentifiers,
 	std::vector<std::string>* lineConstraints,
-	std::vector<std::string>* lineEqualContstraints,
-	std::vector<std::string>* incidenceContstraints) 
+	std::vector<std::string>* lineEqualConstraints,
+	std::vector<std::string>* incidenceConstraints) 
 	: 
 	m_PointIdentifiers{ pointIdentifiers },
-	m_PointContstraints{ pointConstraints },
-	m_PointEqualContstraints{ pointEqualContstraints },
+	m_PointConstraints{ pointConstraints },
+	m_PointEqualConstraints{ pointEqualConstraints },
 	m_LineIdentifiers{ lineIdentifiers },
-	m_LineContstraints{ lineConstraints },
-	m_LineEqualContstraints{ lineEqualContstraints },
-	m_IncidenceContstraints{ incidenceContstraints }
+	m_LineConstraints{ lineConstraints },
+	m_LineEqualConstraints{ lineEqualConstraints },
+	m_IncidenceConstraints{ incidenceConstraints }
 {
 
 };
 
 point Model::newPoint(std::vector<int> identifiers) {
+	//Creates a new point and returns the identifier
 	if (identifiers.size() != m_PointIdentifiers) {
 		throw std::invalid_argument("Invalid point");
 	}
 
-	for (int i{}; i < m_PointContstraints->size(); ++i) {
-		std::string constraint = m_PointContstraints->at(i);
+	//Check additional constraints
+	for (int i{}; i < m_PointConstraints->size(); ++i) {
+		std::string constraint = m_PointConstraints->at(i);
 		for (unsigned int p{ 1 }; p <= m_PointIdentifiers; ++p) {
 
 
@@ -35,9 +39,13 @@ point Model::newPoint(std::vector<int> identifiers) {
 				loc = constraint.find('p' + std::to_string(p));
 			}
 		}
-		std::cout << constraint << std::endl;
+		if (!verifyString(constraint)) {
+			std::cout << "Invalid point:\n" << constraint << std::endl;
+			throw std::invalid_argument("Invalid point");
+		}
 	}
 
+	//Check if point already exists
 	point p{ identifiers, this };
 	for (point p2 : m_Points) {
 		if (p == p2) {
@@ -49,9 +57,30 @@ point Model::newPoint(std::vector<int> identifiers) {
 }
 
 line Model::newLine(std::vector<int> identifiers) {
+	//Creates a new line and returns the identifier
 	if (identifiers.size() != m_LineIdentifiers) {
 		throw std::invalid_argument("Invalid line");
 	}
+
+	//Check additional constraints
+	for (int i{}; i < m_LineConstraints->size(); ++i) {
+		std::string constraint = m_LineConstraints->at(i);
+		for (unsigned int p{ 1 }; p <= m_LineIdentifiers; ++p) {
+
+
+			std::size_t loc = constraint.find('p' + std::to_string(p));
+			while (loc != std::string::npos) {
+				constraint.replace(loc, 2, std::to_string(identifiers[p - 1]));
+				loc = constraint.find('p' + std::to_string(p));
+			}
+		}
+		if (!verifyString(constraint)) {
+			std::cout << "Invalid line:\n" << constraint << std::endl;
+			throw std::invalid_argument("Invalid line");
+		}
+	}
+
+	//Check if line already exists
 	line l{ identifiers, this };
 	for (line l2 : m_Lines) {
 		if (l == l2) {
