@@ -5,8 +5,10 @@ cmake_minimum_required (VERSION 3.8)
 
 
 # Libraries
-add_subdirectory ("Lib/glfw")
 add_subdirectory ("Lib/glad")
+set (Z3_BUILD_LIBZ3_SHARED Off)
+add_subdirectory ("Lib/Z3")
+add_subdirectory ("Lib/glfw")
 add_subdirectory ("PostulateVerifier")
 add_subdirectory ("Tests")
 

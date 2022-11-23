@@ -1,3 +1,6 @@
 [submodule "Lib/glfw"]
 	path = Lib/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "Lib/Z3"]
+	path = Lib/Z3
+	url = https://github.com/Z3Prover/z3.git
