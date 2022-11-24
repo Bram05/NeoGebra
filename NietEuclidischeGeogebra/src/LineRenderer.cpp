@@ -2,8 +2,8 @@
 
 constexpr float BufferData[]
 {
-	1.0f, 1.0f,
-	-1.0f, -1.0f
+	0.2f, 0.0f,
+	0.0f, 0.2f
 };
 
 LineRenderer::LineRenderer()
@@ -28,9 +28,15 @@ LineRenderer::~LineRenderer()
 
 void LineRenderer::Render()
 {
-	glDrawArrays(GL_LINES, 0, 2);
+	glLineWidth(10.0f);
+	for (const Line& l : lines)
+	{
+		m_Shader.SetUniform("u_Mat", l.transformationMat);
+		glDrawArrays(GL_LINES, 0, 2);
+	}
 }
 
 void LineRenderer::AddLine(const Line& l)
 {
+	lines.push_back(l);
 }

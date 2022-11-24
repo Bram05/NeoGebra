@@ -15,7 +15,7 @@ Renderer::Renderer()
 	}
 	std::cout << "Loaded GL version " << glGetString(GL_VERSION) << '\n';
 	m_LineRenderer = new LineRenderer;
-
+	m_LineRenderer->AddLine({2.0f, 0.0f, 0.0f, 2.0f});
 }
 
 Renderer::~Renderer()
@@ -35,4 +35,9 @@ void Renderer::Render(float r, float g, float b, float a)
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	m_LineRenderer->Render();
+}
+
+void Renderer::Resize(int width, int height)
+{
+	glViewport(0, 0, width, height);
 }

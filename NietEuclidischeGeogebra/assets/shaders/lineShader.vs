@@ -1,9 +1,10 @@
-#version 400
+#version 400 core
 
 layout(location = 0) in vec2 pos;
-out vec4 o_Pos;
+
+uniform mat2 u_Mat;
 
 void main()
 {
-	o_Pos = vec4(pos, 0.0, 0.0);
+	gl_Position = vec4(u_Mat * pos, 0.0, 1.0);
 }

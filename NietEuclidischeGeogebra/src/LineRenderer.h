@@ -3,6 +3,7 @@
 #include <glad/glad.h>
 
 #include "Shader.h"
+#include "Maths/Matrix.h"
 
 struct Point
 {
@@ -11,7 +12,7 @@ struct Point
 
 struct Line
 {
-	Point p1, p2;
+	Maths::Matrix<2, 2> transformationMat;
 };
 
 class LineRenderer

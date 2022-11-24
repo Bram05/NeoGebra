@@ -7,6 +7,7 @@
 #include <glfw/glfw3.h>
 
 #include "Constants.h"
+#include "Application.h"
 
 bool Window::s_Initialized{false};
 
@@ -29,6 +30,8 @@ Window::Window(const WindowCreationOptions& options)
 	Action::released = GLFW_RELEASE;
 	s_Initialized = true;
 
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+
 	m_Window = glfwCreateWindow(options.width, options.height, options.title.c_str(), nullptr, nullptr);
 	std::cout << "Created window with width " << options.width << ", height " << options.height << " and title " << options.title << '\n';
 	glfwMakeContextCurrent(m_Window);
@@ -45,6 +48,11 @@ Window::Window(const WindowCreationOptions& options)
 		Window* handledWindow = (Window*)glfwGetWindowUserPointer(window);
 		if (handledWindow->m_KeyCallback)
 			handledWindow->m_KeyCallback(key, scancode, action, mods);
+	});
+
+	glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
+		Application* app{Application::GetApplication()};
+		app->GetRenderer()->Resize(width, height);
 	});
 }
 

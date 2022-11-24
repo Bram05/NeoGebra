@@ -10,6 +10,7 @@ enum ShaderType
 static int CompileShader(ShaderType type, const std::string &path);
 
 Shader::Shader(const std::string name)
+	: m_Name{name}
 {
 	m_Shader = glCreateProgram();
 	int vs = CompileShader(VERTEX_SHADER, AssetsFolder + "/shaders/" + name + ".vs");
@@ -28,8 +29,11 @@ Shader::Shader(const std::string name)
 		glGetProgramInfoLog(m_Shader, length, &length, log);
 		throw std::runtime_error(std::string("Failed to link shader ") + name + ": " + log);
 	}
+	glDetachShader(m_Shader, vs);
+	glDetachShader(m_Shader, fs);
 	glDeleteShader(vs);
 	glDeleteShader(fs);
+	glUseProgram(m_Shader);
 }
 
 Shader::~Shader()
@@ -45,6 +49,12 @@ void Shader::Bind()
 void Shader::UnBind()
 {
 	glUseProgram(0);
+}
+
+void Shader::SetUniform(const std::string& name, const Maths::Matrix<2, 2>& mat) const
+{
+	int loc = GetUniformLocation(name);
+	glUniformMatrix2fv(loc, 1, GL_FALSE, &mat.m_Data[0]);
 }
 
 static int CompileShader(ShaderType type, const std::string& path)
@@ -87,4 +97,18 @@ static int CompileShader(ShaderType type, const std::string& path)
 		throw std::runtime_error(std::string("Failed to compile ") + (type == VERTEX_SHADER ? "vertex" : "fragment") + " shader (" + path + "): " + log);
 	}
 	return shader;
+}
+
+int Shader::GetUniformLocation(const std::string& name) const
+{
+	auto it = m_UniformLocations.find(name);
+	if (it == m_UniformLocations.end())
+	{
+		int loc = glGetUniformLocation(m_Shader, name.c_str());
+		if (loc == -1)
+			throw std::runtime_error("Uniform " + name + " for shader " + m_Name + " was not found");
+		m_UniformLocations.insert({name, loc});
+		return loc;
+	}
+	return it->second;
 }
