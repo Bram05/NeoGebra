@@ -7,12 +7,27 @@
 
 struct Point
 {
-	int x, y;
+	float x, y;
 };
 
-struct Line
+class LineRenderer;
+
+class Line
 {
-	Maths::Matrix<2, 2> transformationMat;
+public:
+	Line(Point begin, Point end);
+	~Line();
+
+	Point GetBegin() const { return m_Begin; }
+	Point GetEnd() const { return m_End; }
+
+	void SetLocation(Point newBegin, Point newEnd);
+
+private:
+	Point m_Begin, m_End;
+	GLuint m_Vao;
+	GLuint m_Vb;
+	friend LineRenderer;
 };
 
 class LineRenderer
@@ -21,13 +36,10 @@ public:
 	LineRenderer();
 	~LineRenderer();
 
-	void Render();
+	void AddToRenderQueue(std::shared_ptr<Line> line);
 
-	void AddLine(const Line& l);
+	void RenderQueue();
 private:
-	std::vector<Line> lines;
-
-	GLuint m_VertexBuffer;
-	GLuint m_VertexArrayObject;
+	std::queue<std::shared_ptr<Line>> m_RenderQueue;
 	Shader m_Shader;
 };

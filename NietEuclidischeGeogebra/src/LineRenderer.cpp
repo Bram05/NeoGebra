@@ -1,42 +1,65 @@
 #include "LineRenderer.h"
 
-constexpr float BufferData[]
-{
-	0.2f, 0.0f,
-	0.0f, 0.2f
-};
+#include "Application.h"
 
 LineRenderer::LineRenderer()
 	: m_Shader("lineShader")
 {
-	glGenVertexArrays(1, &m_VertexArrayObject);
-	glBindVertexArray(m_VertexArrayObject);
+}
 
-	glGenBuffers(1, &m_VertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, m_VertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(BufferData), BufferData, GL_STATIC_DRAW);
+LineRenderer::~LineRenderer()
+{
+}
+
+void LineRenderer::AddToRenderQueue(std::shared_ptr<Line> line)
+{
+	m_RenderQueue.push(line);
+}
+
+void LineRenderer::RenderQueue()
+{
+	m_Shader.Bind();
+	glLineWidth(10.0f);
+	while (m_RenderQueue.size() != 0)
+	{
+		std::shared_ptr<Line> l = m_RenderQueue.front();
+		m_RenderQueue.pop();
+
+		glBindVertexArray(l->m_Vao);
+		glDrawArrays(GL_LINES, 0, 2);
+	}
+}
+
+Line::Line(Point begin, Point end)
+	: m_Begin{begin}, m_End{end}
+{
+	float buffer[4] = {
+		begin.x, begin.y,
+		end.x, end.y
+	};
+	glGenVertexArrays(1, &m_Vao);
+	glBindVertexArray(m_Vao);
+
+	glGenBuffers(1, &m_Vb);
+	glBindBuffer(GL_ARRAY_BUFFER, m_Vb);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(buffer), buffer, GL_STATIC_DRAW);
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
 }
 
-LineRenderer::~LineRenderer()
+Line::~Line()
 {
-	glDeleteBuffers(1, &m_VertexBuffer);
-	glDeleteVertexArrays(1, &m_VertexArrayObject);
+	glDeleteBuffers(1, &m_Vb);
+	glDeleteVertexArrays(1, &m_Vao);
 }
 
-void LineRenderer::Render()
+void Line::SetLocation(Point newBegin, Point newEnd)
 {
-	glLineWidth(10.0f);
-	for (const Line& l : lines)
-	{
-		m_Shader.SetUniform("u_Mat", l.transformationMat);
-		glDrawArrays(GL_LINES, 0, 2);
-	}
-}
-
-void LineRenderer::AddLine(const Line& l)
-{
-	lines.push_back(l);
+	float buffer[4] = {
+		newBegin.x, newBegin.y,
+		newEnd.x, newEnd.y
+	};
+	glBindBuffer(GL_ARRAY_BUFFER, m_Vb);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(buffer), buffer);
 }

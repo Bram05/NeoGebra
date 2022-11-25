@@ -15,7 +15,6 @@ Renderer::Renderer()
 	}
 	std::cout << "Loaded GL version " << glGetString(GL_VERSION) << '\n';
 	m_LineRenderer = new LineRenderer;
-	m_LineRenderer->AddLine({2.0f, 0.0f, 0.0f, 2.0f});
 }
 
 Renderer::~Renderer()
@@ -29,15 +28,20 @@ void Renderer::AddLine(const Line& line)
 	
 }
 
-void Renderer::Render(float r, float g, float b, float a)
+void Renderer::BeginRenderPass(float r, float g, float b, float a)
 {
 	glClearColor(r, g, b, a);
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	m_LineRenderer->Render();
+	m_LineRenderer->RenderQueue();
 }
 
 void Renderer::Resize(int width, int height)
 {
 	glViewport(0, 0, width, height);
+}
+
+void Renderer::Render(std::shared_ptr<Line> line)
+{
+	m_LineRenderer->AddToRenderQueue(line);
 }

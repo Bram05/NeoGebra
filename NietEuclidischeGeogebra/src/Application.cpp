@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h> // I don't like this
 
 Application* Application::s_Instance = nullptr;
+constexpr int numFpsAverage = 60;
 
 static void MouseClickCallback(int mouseButton, int action, int mods)
 {
@@ -17,7 +18,7 @@ static void KeyCallback(int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_ESCAPE)
 	{
-		Application::GetApplication()->GetWindow()->SetShouldClose(true);
+		Application::Get()->GetWindow()->SetShouldClose(true);
 	}
 }
 
@@ -36,14 +37,42 @@ Application::~Application()
 
 void Application::Run()
 {
+	double m_LastFrameTime{ glfwGetTime() };
+	std::shared_ptr<Line> line{ std::make_shared<Line>(Point(0.2f, 0.2f), Point( - 0.5f, -0.5f))};
 	while (!m_Window->ShouldClose())
 	{
-		m_Renderer->Render(0.5f, 0.3f, 0.2f, 1.0f);
+		m_Renderer->GetLineRenderer()->AddToRenderQueue(line);
+		m_Renderer->BeginRenderPass(0.5f, 0.3f, 0.2f, 1.0f);
 		m_Window->Update();
+
+		UpdateFrameTimes();
 	}
 }
 
-Application* Application::GetApplication()
+void Application::UpdateFrameTimes()
+{
+	double endTime{ glfwGetTime() };
+	double diff = endTime - m_LastFrameTime;
+	double fps = 1 / diff;
+	m_TimeSinceLastFpsUpdate += diff;
+	m_LastFpss.push(fps);
+
+	if (m_TimeSinceLastFpsUpdate > g_NumSecondsForFpsAverage)
+	{
+		double sum{ 0.0 };
+		int size = m_LastFpss.size();
+		while (m_LastFpss.size() != 0)
+		{
+			sum += m_LastFpss.top();
+			m_LastFpss.pop();
+		}
+		std::cout << "\rAverage FPS (over " << g_NumSecondsForFpsAverage << " seconds): " << sum / size;
+		m_TimeSinceLastFpsUpdate = 0.0;
+	}
+	m_LastFrameTime = endTime;
+}
+
+Application* Application::Get()
 {
 	return s_Instance;
 }
