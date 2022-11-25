@@ -24,7 +24,7 @@ static void KeyCallback(int key, int scancode, int action, int mods)
 
 Application::Application()
 {
-	AssetsFolder = "NietEuclidischeGeogebra/assets";
+	AssetsFolder = "../../../../NietEuclidischeGeogebra/assets";
 	m_Window = new Window(WindowCreationOptions(1080, 720, "Hello World", MouseClickCallback, KeyCallback));
 	m_Renderer = new Renderer; // this takes significantly more time but I think it is fine here
 }
@@ -38,10 +38,18 @@ Application::~Application()
 void Application::Run()
 {
 	double m_LastFrameTime{ glfwGetTime() };
-	std::shared_ptr<Line> line{ std::make_shared<Line>(Point(0.2f, 0.2f), Point( - 0.5f, -0.5f))};
+	std::shared_ptr<Line> line1{ std::make_shared<Line>(Point(1.0f, -1.0f), Point(-1.0f, 1.0f)) };
+	std::shared_ptr<Line> line2{ std::make_shared<Line>(Point(1.0f, 1.0f), Point(-1.0f, -1.0f)) };
+	std::shared_ptr<Line> line3{ std::make_shared<Line>(Point(0.2f, 0.2f), Point(-0.5f, -0.5f)) };
+	std::shared_ptr<Line> line4{ std::make_shared<Line>(Point(-0.4f, 0.5f), Point( 0.5f, -0.5f)) };
+	std::shared_ptr<Line> line5{ std::make_shared<Line>(Point(-0.9f, 0.9f), Point(0.5f,  0.5f))};
 	while (!m_Window->ShouldClose())
 	{
-		m_Renderer->GetLineRenderer()->AddToRenderQueue(line);
+		m_Renderer->GetLineRenderer()->AddToRenderQueue(line1);
+		m_Renderer->GetLineRenderer()->AddToRenderQueue(line2);
+		m_Renderer->GetLineRenderer()->AddToRenderQueue(line3);
+		m_Renderer->GetLineRenderer()->AddToRenderQueue(line4);
+		m_Renderer->GetLineRenderer()->AddToRenderQueue(line5);
 		m_Renderer->BeginRenderPass(0.5f, 0.3f, 0.2f, 1.0f);
 		m_Window->Update();
 

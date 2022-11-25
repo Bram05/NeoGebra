@@ -30,7 +30,10 @@ Window::Window(const WindowCreationOptions& options)
 	Action::released = GLFW_RELEASE;
 	s_Initialized = true;
 
-	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+
+	//glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
 	m_Window = glfwCreateWindow(options.width, options.height, options.title.c_str(), nullptr, nullptr);
 	std::cout << "Created window with width " << options.width << ", height " << options.height << " and title " << options.title << '\n';

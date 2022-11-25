@@ -10,7 +10,6 @@ private:
 	Renderer();
 
 public:
-	void AddLine(const Line& line);
 	void BeginRenderPass(float r, float g, float b, float a);
 
 	void Resize(int width, int height);
