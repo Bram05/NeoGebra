@@ -4,46 +4,23 @@
 
 int main()
 {
-	std::vector<std::string> tmp{ "(assert (and (<= p1 3) (>= p1 1) ))" };
-	std::vector<std::string> tmp2{ "(assert (or (= p1 1) (= p1 2) (= p1 3) ))", " (assert (or (= p2 1) (= p2 2) (= p2 3) ))", " (assert (!= p1 p2))" };
+	//nog ff kijken naar syntax van "p$"
+	//Simpel 3 punts model
+	std::string SpointConstr{ "p$ p0 = 1 | p0 = 2 | p0 = 3" };
+	std::string SpointEq{ "p$q$ p0 = q0" };
+	std::string SlineConstr{ "p$ (p0 = 1 | p0 = 2 | p0 = 3) & (p1 = 1 | p1 = 2 | p1 = 3) & p0 != p1" };
+	std::string SlineEq{ "l$m$ (l0 = m0 & l1 = m1) | (l0 = m1 & l1 = m0)" };
+	std::string Sincidence{ "p$l$ p0 = l0 | p0 = l1" };
 
-	// Poincaré model
-	// 
-	// punt:
-	// 
-	// x^2 + y^2 < 1
-	// 
-	// 
-	// lijn:
-	// 
-	// E: x1 x2 y1 y2
-	// 
-	// (x1-a)^2 + (y1-b)^2 = r^2
-	// x1c^2 + y1c^2 = 1
-	// 
-	// (x2-a)^2 + (y2-b)^2 = r^2
-	// x2c^2 + y2c^2 = 1
-	// 
-	// -x1/y1 * -(x1-a)/(x1-b) = -1
-	// -x2/y2 * -(x2-a)/(x2-b) = -1
-	// 
-	// !(x1 = x2 && y1 = y2)
-	// 
-	//
-	// out: a en b (2 parameters)
-	// 
-	// incidence: 
-	// (x-a)^2 + (y-b)^2 = r^2
-	// x^2 + y^2 < 1
-	// 
-	// 
-	//
+	//Poincaré model
+	std::string PpointConstr{ "p$ p0^2 + p1^2 < 1" };
+	std::string PpointEq{ "p$q$ p0 = q0 & p1 = q1" };
+	std::string PlineConstr{ "l$ l0^2 + l1^2 > 1" };
+	std::string PlineEq{ "l$m$ l0 = m0 & l1 = m1" };
+	std::string Pincidence{ "p$l$ (p0-l0)^2 + (p1-l1)^2 = (1 / (-2*(~(l0^2+l1^2))-2*~((~(l0^2+l1^2))^2-1)) + 0.5*(~(l0^2+l1^2)) + 0.5* ~((~(l0^2+l1^2))^2-1))^2" };
 
-	Model g(1, &tmp, nullptr, 2, &tmp2, nullptr, nullptr);
-	line l1 = g.newLine(std::vector<int>{1,2});
-	line l2 = g.newLine(std::vector<int>{2,1});
-	point p = g.newPoint(std::vector<int>{3});
-	
-	
-	std::cout << (p >> l1) << '\n';
-}
+	Model g(2, PpointConstr, PpointEq, 2, PlineConstr, PlineEq, Pincidence);
+	point p = g.newPoint(std::vector<float>{0.5, 0});
+	line l = g.newLine(std::vector<float>{1.25, 0});
+	std::cout << (p >> l) << '\n';
+}	
