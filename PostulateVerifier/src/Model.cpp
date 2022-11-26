@@ -3,44 +3,34 @@
 
 
 Model::Model(unsigned int pointIdentifiers,
-	std::string pointConstraints,
-	std::string pointEqualConstraints,
+	const std::string& pointDef,
 	unsigned int lineIdentifiers,
-	std::string lineConstraints,
-	std::string lineEqualConstraints,
-	std::string incidenceConstraints) 
+	const std::string& lineDef,
+	const std::string& incidenceConstr)
 	: 
 	m_PointIdentifiers{ pointIdentifiers },
-	m_PointConstraints{ pointConstraints },
-	m_PointEqualConstraints{ pointEqualConstraints },
+	m_PointDef{ pointDef },
 	m_LineIdentifiers{ lineIdentifiers },
-	m_LineConstraints{ lineConstraints },
-	m_LineEqualConstraints{ lineEqualConstraints },
-	m_IncidenceConstraints{ incidenceConstraints }
+	m_LineDef{ lineDef },
+	m_IncidenceConstr{ incidenceConstr }
 {
 
 };
 
-Model::Model(Model& g) {
+Model::Model(const Model& g) {
 	m_PointIdentifiers = g.m_PointIdentifiers;
-	m_PointConstraints = g.m_PointConstraints;
-	m_PointEqualConstraints = g.m_PointEqualConstraints;
+	m_PointDef = g.m_PointDef;
 	m_LineIdentifiers = g.m_LineIdentifiers;
-	m_LineConstraints = g.m_LineConstraints;
-	m_LineEqualConstraints = g.m_LineEqualConstraints;
-	m_IncidenceConstraints = g.m_IncidenceConstraints;
+	m_LineDef = g.m_LineDef;
+	m_IncidenceConstr = g.m_IncidenceConstr;
 }
 
-point Model::newPoint(std::vector<float> identifiers) {
-	//Creates a new point and returns the identifier
+point Model::newPoint(const std::vector<float>& identifiers) {
 	if (identifiers.size() != m_PointIdentifiers) {
 		throw std::invalid_argument("Invalid point");
 	}
 
-	//Check additional constraints
-	std::string eq = m_PointConstraints;
-	if (!Z3Tools::eval(eq, Z3Tools::Z3Tools::extractVars(eq, std::vector<std::vector<float>>{identifiers}))) {
-		std::cout << "Invalid point:\n" << eq << std::endl;
+	if (!Z3Tools::isSolvable(m_PointDef, { identifiers })) {
 		throw std::invalid_argument("Invalid point");
 	}
 
@@ -51,65 +41,70 @@ point Model::newPoint(std::vector<float> identifiers) {
 			return p2;
 		}
 	}
+
 	m_Points.push_back(p);
 	return p;
 }
 
-line Model::newLine(std::vector<float> identifiers) {
-	//Creates a new line and returns the identifier
+//point newPoint(line l1, line l2) {
+//	
+//}
+
+line Model::newLine(const std::vector<float>& identifiers) {
 	if (identifiers.size() != m_LineIdentifiers) {
 		throw std::invalid_argument("Invalid line");
 	}
 
-	//Check additional constraints
-	std::string eq = m_LineConstraints;
-	if (!Z3Tools::eval(eq, Z3Tools::extractVars(eq, std::vector<std::vector<float>>{identifiers}))) {
-		std::cout << "Invalid point:\n" << eq << std::endl;
-		throw std::invalid_argument("Invalid point");
+	if (!Z3Tools::isSolvable(m_LineDef, { identifiers })) {
+		throw std::invalid_argument("Invalid line");
 	}
 
-	//Check if line already exists
+	//Check if point already exists
 	line l{ identifiers, this };
 	for (line l2 : m_Lines) {
 		if (l == l2) {
 			return l2;
 		}
 	}
+
 	m_Lines.push_back(l);
 	return l;
 }
 
+//line newLine(point p1, point p2) {
+//
+//}
+
 bool operator==(const point lhs, const point rhs) {
-	if (lhs.g != rhs.g) {
+	if (lhs.m != rhs.m) {
 		//Later isomorphism
 		return false;
 	}
 
-	//Custom condition, maybe later problems with float comparison
-	std::string eq = (*lhs.g).m_PointEqualConstraints;
-	return Z3Tools::eval(eq, Z3Tools::extractVars(eq, std::vector<std::vector<float>>{lhs.identifiers, rhs.identifiers}));
+	//ToDo If not (x, y) exists such that lhs.m_PointDef == true & yhs.m_PointDef != true and the opposite
+	return false;
 }
 
 bool operator==(const line lhs, const line rhs) {
-	if (lhs.g != rhs.g) {
+	if (lhs.m != rhs.m) {
 		//Later isomorphism
 		return false;
 	}
 
-	//Custom condition, maybe later problems with float comparison
-	std::string eq = (*lhs.g).m_LineEqualConstraints;
-	return Z3Tools::eval(eq, Z3Tools::extractVars(eq, std::vector<std::vector<float>>{lhs.identifiers, rhs.identifiers}));
+	//ToDo If not (x, y) exists such that lhs.m_PointDef == true & yhs.m_PointDef != true and the opposite
+	return false;
 }
 
 bool operator!=(const point lhs, const point rhs) { return !(lhs == rhs); }
 bool operator!=(const line lhs, const line rhs) { return !(lhs == rhs); }
 
 bool operator>>(const point p, const line l) {
-	if (p.g != l.g) {
+	if (p.m != l.m) {
 		//Later isomorphism
 		return false;
 	}
-	//Custom condition, maybe later problems with float comparison
-	std::string eq = (*p.g).m_IncidenceConstraints;
+
+	//Custom condition
+	std::string eq = (*p.m).m_IncidenceConstr;
 	return Z3Tools::eval(eq, Z3Tools::extractVars(eq, std::vector<std::vector<float>>{p.identifiers, l.identifiers}));
 }

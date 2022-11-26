@@ -20,6 +20,9 @@ class Z3Tools {
 	* @param to[in] Substring to replace 'from' with. 
 	*/
 	static bool replace(std::string& str, const std::string& from, const std::string& to);
+
+	static std::string recToLisp(const std::string& s, const std::map<std::string, float>& vars, std::vector<std::string>& toDefine, std::vector<std::pair<std::string, std::string>>& sqrts);
+
 public:
 	/**
 	* Extracts variable names stored at the beginning of the equation. 
@@ -43,4 +46,6 @@ public:
 	* @return Returns float with 1 or 0 (true or false).
 	*/
 	static float eval(const std::string& s, const std::map<std::string, float>& vars);
+	static bool isSolvable(std::string s, const std::vector<std::vector<float>>& identifiers);
+	static std::string toLisp(const std::string& s, const std::map<std::string, float>& vars);
 };
