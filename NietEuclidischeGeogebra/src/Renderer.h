@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LineRenderer.h"
+#include "UI/WindowUI.h"
 
 class Application;
 
@@ -22,4 +23,5 @@ public:
 
 private:
 	LineRenderer* m_LineRenderer;
+	WindowUI* m_WindowUI;
 };
