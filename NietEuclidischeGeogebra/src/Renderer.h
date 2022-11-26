@@ -1,6 +1,7 @@
 #pragma once
 
 #include "LineRenderer.h"
+#include "UI/WindowUI.h"
 
 class Application;
 
@@ -10,7 +11,6 @@ private:
 	Renderer();
 
 public:
-	void AddLine(const Line& line);
 	void BeginRenderPass(float r, float g, float b, float a);
 
 	void Resize(int width, int height);
@@ -23,4 +23,5 @@ public:
 
 private:
 	LineRenderer* m_LineRenderer;
+	WindowUI* m_WindowUI;
 };

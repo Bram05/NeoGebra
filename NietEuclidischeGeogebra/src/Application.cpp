@@ -24,13 +24,15 @@ static void KeyCallback(int key, int scancode, int action, int mods)
 
 Application::Application()
 {
-	AssetsFolder = "NietEuclidischeGeogebra/assets";
+	AssetsFolder = "../../../../NietEuclidischeGeogebra/assets";
 	m_Window = new Window(WindowCreationOptions(1080, 720, "Hello World", MouseClickCallback, KeyCallback));
 	m_Renderer = new Renderer; // this takes significantly more time but I think it is fine here
+	m_WindowUI = new WindowUI;
 }
 
 Application::~Application()
 {
+	delete m_WindowUI;
 	delete m_Renderer;
 	delete m_Window;
 }
@@ -38,10 +40,9 @@ Application::~Application()
 void Application::Run()
 {
 	double m_LastFrameTime{ glfwGetTime() };
-	std::shared_ptr<Line> line{ std::make_shared<Line>(Point(0.2f, 0.2f), Point( - 0.5f, -0.5f))};
 	while (!m_Window->ShouldClose())
 	{
-		m_Renderer->GetLineRenderer()->AddToRenderQueue(line);
+		m_WindowUI->RenderPass();
 		m_Renderer->BeginRenderPass(0.5f, 0.3f, 0.2f, 1.0f);
 		m_Window->Update();
 

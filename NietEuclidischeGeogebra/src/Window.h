@@ -4,6 +4,7 @@ class Window;
 
 typedef void(*MouseButtonCallbackType)(int, int, int);
 typedef void(*KeyCallbackType)(int, int, int, int);
+typedef void(*ResizeCallbackType)(int, int, int, int);
 
 struct WindowCreationOptions
 {

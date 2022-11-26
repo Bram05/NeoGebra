@@ -6,6 +6,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "Application.h"
+
 Renderer::Renderer()
 {
 	int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
@@ -23,11 +25,6 @@ Renderer::~Renderer()
 	// I couldn't find cleanup calls for glad
 }
 
-void Renderer::AddLine(const Line& line)
-{
-	
-}
-
 void Renderer::BeginRenderPass(float r, float g, float b, float a)
 {
 	glClearColor(r, g, b, a);
@@ -39,6 +36,8 @@ void Renderer::BeginRenderPass(float r, float g, float b, float a)
 void Renderer::Resize(int width, int height)
 {
 	glViewport(0, 0, width, height);
+	//BeginRenderPass(0.5f, 0.3f, 0.2f, 1.0f);
+	Application::Get()->GetWindow()->Update();
 }
 
 void Renderer::Render(std::shared_ptr<Line> line)
