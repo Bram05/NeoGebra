@@ -11,7 +11,8 @@ constexpr int numFpsAverage = 60;
 
 static void MouseClickCallback(int mouseButton, int action, int mods)
 {
-	std::cout << (mouseButton == MouseButton::left ? "Left" : mouseButton == MouseButton::right ? "Right" : "Middle") << "mouse button was " << (action == Action::pressed ? "pressed" : "released") << '\n';
+	std::cout << (mouseButton == MouseButton::left ? "Left" : mouseButton == MouseButton::right ? "Right" : "Middle")
+		<< "mouse button was " << (action == Action::pressed ? "pressed" : "released") << '\n';
 }
 
 static void KeyCallback(int key, int scancode, int action, int mods)
@@ -26,7 +27,7 @@ Application::Application()
 {
 	AssetsFolder = "../../../../NietEuclidischeGeogebra/assets";
 	m_Window = new Window(WindowCreationOptions(1080, 720, "Hello World", MouseClickCallback, KeyCallback));
-	m_Renderer = new Renderer; // this takes significantly more time but I think it is fine here
+	m_Renderer = new Renderer;
 	m_WindowUI = new WindowUI;
 }
 

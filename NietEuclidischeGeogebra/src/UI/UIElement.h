@@ -1,5 +1,8 @@
+// Standard library files and some others are automatically included from the precompiled header
+// https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
 #pragma once
 
+// Base class for a subpart of the UI
 class UIElement
 {
 public:
@@ -13,5 +16,6 @@ public:
 
 	virtual void RenderPass() = 0;
 protected:
+	// The bounds of this element
 	double m_LeftX, m_RightX, m_TopY, m_BottomY;
 };

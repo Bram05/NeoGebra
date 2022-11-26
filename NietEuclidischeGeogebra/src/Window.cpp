@@ -55,7 +55,6 @@ Window::Window(const WindowCreationOptions& options)
 
 	glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
 		Application::Get()->GetRenderer()->Resize(width, height);
-		//Application::Get()->GetWindow()->Update();
 	});
 }
 
