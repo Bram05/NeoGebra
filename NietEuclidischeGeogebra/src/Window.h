@@ -12,6 +12,7 @@ struct WindowCreationOptions
 	std::string title = "Default title";
 
 	MouseButtonCallbackType mouseButtonCallback = nullptr;
+	KeyCallbackType keyCallback = nullptr;
 };
 
 struct GLFWwindow;
