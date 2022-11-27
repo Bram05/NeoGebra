@@ -1,6 +1,18 @@
 #pragma once
 
 #include "z3++.h"
+#include <regex>
+#include <set>
+
+struct equation { 
+	std::vector<std::string> vars; 
+	std::string eq; 
+	equation(const equation& e1, const equation& e2); 
+	equation(std::vector<std::string> vars, std::string eq);
+};
+
+equation operator+(const equation e1, const equation e2);
+equation operator!(const equation e);
 
 /**
 * Static class with tools that help with solving equations (mostly in string form). 
@@ -21,7 +33,7 @@ class Z3Tools {
 	*/
 	static bool replace(std::string& str, const std::string& from, const std::string& to);
 
-	static std::string recToLisp(const std::string& s, const std::map<std::string, float>& vars, std::vector<std::string>& toDefine, std::vector<std::pair<std::string, std::string>>& sqrts);
+	static std::string recToLisp(const std::string& s, const std::map<std::string, float>& vars, std::set<std::string>& toDefine, std::vector<std::pair<std::string, std::string>>& sqrts);
 
 public:
 	/**
@@ -36,7 +48,7 @@ public:
 	* @param identifiers[in] Vector containing vector of floats for every variable name, if the variable names p and q are used in p0, p1 and q0, identifiers would be { {0.5, 0.1}, {0.3} }. 
 	* @return Returns map of variable names and their values. 
 	*/
-	static std::map<std::string, float> extractVars(std::string& s, const std::vector<std::vector<float>>& identifiers);
+	static std::map<std::string, float> extractVars(equation& s, const std::vector<std::vector<float>>& identifiers);
 	
 	/**
 	* Recursive function used to check if equation in string form is true. Input string must not contain spaces. 
@@ -46,6 +58,9 @@ public:
 	* @return Returns float with 1 or 0 (true or false).
 	*/
 	static float eval(const std::string& s, const std::map<std::string, float>& vars);
-	static bool isSolvable(std::string s, const std::vector<std::vector<float>>& identifiers);
+	static bool isSolvable(equation s, const std::vector<std::vector<float>>& identifiers);
+	std::string mergeEq(std::string s1, std::string s2);
 	static std::string toLisp(const std::string& s, const std::map<std::string, float>& vars);
+	static void replaceVar(std::string& s, const std::string& from, const std::string& to);
+	friend equation;
 };

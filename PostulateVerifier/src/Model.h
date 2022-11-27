@@ -1,5 +1,7 @@
 #pragma once
 #include <vector>
+#include <string>
+#include "Z3Tools.h"
 
 class Model;
 
@@ -22,9 +24,10 @@ class Model {
 	std::vector<point> m_Points;
 	std::vector<line> m_Lines;
 
-	std::string m_PointDef;
-	std::string m_LineDef;
-	std::string m_IncidenceConstr;
+	equation m_PointDef;
+	equation m_LineDef;
+	equation m_IncidenceConstr;
+	equation m_BetweennessConstr;
 
 	unsigned int m_PointIdentifiers;
 	unsigned int m_LineIdentifiers;
@@ -41,11 +44,12 @@ public:
 	* @param lineEqualConstr A string with the condition for two lines to be called equal. 
 	* @param incidenceConstr A string with the condition for a point to lie on a line, tested using operator>>. 
 	*/
-	Model(unsigned int pointIdentifiers, 
-		const std::string& pointDef,
+	Model(unsigned int pointIdentifiers,
+		const equation& pointDef,
 		unsigned int lineIdentifiers,
-		const std::string& lineDef,
-		const std::string& incidenceConstr);
+		const equation& lineDef,
+		const equation& incidenceConstr,
+		const equation& betweennessConstr = { {}, ""});
 
 	/// Copy an existing Model object. 
 	Model(const Model& g);
@@ -71,6 +75,7 @@ public:
 	friend bool operator==(const point lhs, const point rhs);
 	friend bool operator==(const line lhs, const line rhs);
 	friend bool operator>>(const point p, const line l);
+	friend bool isBetween(const point p1, const point p2, const point p3);
 };
 
 bool operator==(const point lhs, const point rhs);
@@ -80,3 +85,4 @@ bool operator!=(const line lhs, const line rhs);
 
 /// Incidence check: Checks if point p lies on line l. 
 bool operator>>(const point p, const line l);
+bool isBetween(const point p1, const point p2, const point p3);
