@@ -31,6 +31,7 @@ public:
 	bool ShouldClose() const;
 	void SetShouldClose(bool val);
 	std::pair<int, int> GetSize() const;
+	std::pair<int, int> GetMouseLocation() const;
 
 	// Update the window (swap buffers and poll GLFW events
 	void Update();

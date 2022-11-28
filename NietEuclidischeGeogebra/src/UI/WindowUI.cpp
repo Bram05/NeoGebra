@@ -7,8 +7,8 @@
 
 WindowUI::WindowUI()
 {
-	m_UIElements.push_back(std::make_shared<EquationUI>(-1.0f, 1.0f, -0.5f, -1.0f));
-	m_UIElements.push_back(std::make_shared<PostulateVerifierResultUI>( 1.0f, 1.0f,  0.5f, -1.0f));
+	m_UIElements.push_back(std::make_shared<EquationUI>(-1.0f, -0.5f, 1.0f, -1.0f));
+	m_UIElements.push_back(std::make_shared<PostulateVerifierResultUI>(0.5f, 1.0f, 1.0f, -1.0f));
 }
 
 WindowUI::~WindowUI()
@@ -21,4 +21,16 @@ void WindowUI::RenderPass(Renderer* r)
 	{
 		element->RenderPass(r);
 	}
+}
+
+std::shared_ptr<UIElement> WindowUI::Hit(float x, float y)
+{
+	for (const std::shared_ptr<UIElement>& element : m_UIElements)
+	{
+		if (x > element->GetLeftX() && x < element->GetRightX() && y > element->GetBottomY() && y < element->GetTopY())
+		{
+			return element;
+		}
+	}
+	return nullptr;
 }

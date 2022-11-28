@@ -6,7 +6,7 @@
 class PostulateVerifierResultUI : public UIElement
 {
 public:
-	PostulateVerifierResultUI(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY);
+	PostulateVerifierResultUI(double leftX, double rightX, double topY, double bottomY);
 	~PostulateVerifierResultUI();
 
 	void RenderPass(Renderer* r) override;

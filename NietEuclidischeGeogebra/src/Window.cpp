@@ -89,3 +89,10 @@ std::pair<int, int> Window::GetSize() const
 	glfwGetWindowSize(m_Window, &width, &height);
 	return {width, height};
 }
+
+std::pair<int, int> Window::GetMouseLocation() const
+{
+	double x, y;
+	glfwGetCursorPos(m_Window, &x, &y);
+	return {x, y};
+}

@@ -4,13 +4,13 @@
 
 #include "Application.h"
 
-EquationUI::EquationUI(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY)
-	: UIElement(topLeftX, topLeftY, bottomRightX, bottomRightY)
+EquationUI::EquationUI(double leftX, double rightX, double topY, double bottomY)
+	: UIElement(leftX, rightX, topY, bottomY, "EquationUI")
 {
-	m_Lines.push_back(std::make_shared<Line>(Point(topLeftX, topLeftY), Point(topLeftX, bottomRightY))); // Left size
-	m_Lines.push_back(std::make_shared<Line>(Point(topLeftX, topLeftY), Point(bottomRightX, topLeftY))); // top
-	m_Lines.push_back(std::make_shared<Line>(Point(bottomRightX, bottomRightY), Point(bottomRightX, topLeftY))); // right
-	m_Lines.push_back(std::make_shared<Line>(Point(bottomRightX, bottomRightY), Point(topLeftX, bottomRightY))); // bottom
+	m_Lines.push_back(std::make_shared<Line>(Point(leftX, topY), Point(leftX, bottomY))); // Left size
+	m_Lines.push_back(std::make_shared<Line>(Point(leftX, topY), Point(rightX, topY))); // top
+	m_Lines.push_back(std::make_shared<Line>(Point(rightX, bottomY), Point(rightX, topY))); // right
+	m_Lines.push_back(std::make_shared<Line>(Point(rightX, bottomY), Point(leftX, bottomY))); // bottom
 }
 
 EquationUI::~EquationUI()
