@@ -2,7 +2,7 @@ add_executable (NietEuclidischeGeogebra  src/main.cpp src/Window.cpp "src/Applic
 
 target_precompile_headers (${PROJECT_NAME} REUSE_FROM PostulateVerifier)
 
-target_link_libraries(${PROJECT_NAME} glfw PostulateVerifier glad)
+target_link_libraries(${PROJECT_NAME} glfw PostulateVerifier glad FreeType)
 target_include_directories(${PROJECT_NAME} PRIVATE "${CMAKE_HOME_DIRECTORY}/PostulateVerifier/include" "${CMAKE_HOME_DIRECTORY}/Lib/glad/include")
 target_include_directories(${PROJECT_NAME} PRIVATE "src")
 
