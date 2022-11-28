@@ -4,23 +4,23 @@
 
 int main()
 {
-	//nog ff kijken naar syntax van "p$"
 	//Simpel 3 punts model
-	std::string SpointConstr{ "p$ p0 = 1 | p0 = 2 | p0 = 3" };
-	std::string SpointEq{ "p$q$ p0 = q0" };
-	std::string SlineConstr{ "p$ (p0 = 1 | p0 = 2 | p0 = 3) & (p1 = 1 | p1 = 2 | p1 = 3) & p0 != p1" };
-	std::string SlineEq{ "l$m$ (l0 = m0 & l1 = m1) | (l0 = m1 & l1 = m0)" };
-	std::string Sincidence{ "p$l$ p0 = l0 | p0 = l1" };
-
-	//Poincaré model
-	std::string PpointConstr{ "p$ p0^2 + p1^2 < 1" };
-	std::string PpointEq{ "p$q$ p0 = q0 & p1 = q1" };
-	std::string PlineConstr{ "l$ l0^2 + l1^2 > 1" };
-	std::string PlineEq{ "l$m$ l0 = m0 & l1 = m1" };
-	std::string Pincidence{ "p$l$ (p0-l0)^2 + (p1-l1)^2 = (1 / (-2*(~(l0^2+l1^2))-2*~((~(l0^2+l1^2))^2-1)) + 0.5*(~(l0^2+l1^2)) + 0.5* ~((~(l0^2+l1^2))^2-1))^2" };
-
-	Model g(2, PpointConstr, PpointEq, 2, PlineConstr, PlineEq, Pincidence);
-	point p = g.newPoint(std::vector<float>{0.5, 0});
-	line l = g.newLine(std::vector<float>{1.25, 0});
-	std::cout << (p >> l) << '\n';
+	equation SpointDef{ {"p"}, "(p0 = 1 & x = -0.5 & y = -0.5) | (p0 = 1 & x = 0.5 & y = -0.5) | (p0 = 3 & x = 0 & y = 0.5)"};
+	equation SlineDef{ {"l"}, "(((l0 = 1 & l1 = 3) | (l1 = 1 & l0 = 3)) & y = 2*x + 0.5) | (((l0 = 2 & l1 = 3) | (l1 = 2 & l0 = 3)) & y = -2*x + 0.5) | (((l0 = 1 & l1 = 2) | (l1 = 1 & l0 = 2)) & y = -0.5)"};
+	equation Sincidence{ {"p", "l"}, "p0 = l0 | p0 = l1" };
+	
+	//Poincaré model V2
+	equation P2pointDef{ {"p"}, "x = p0 & y = p1 & p0^2 + p1^2 < 1" };
+	equation P2lineDef{ {"l"}, "(x-l0)^2 + (y-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2 & l0^2 + l1^2 > 1"};
+	equation P2incidence{ {"p", "l"}, "(p0-l0)^2 + (p1-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2" };
+	equation P2betweenness{ {"p", "q", "r"}, "((p0 - r0)^2 + (p1 - r1)^2 > (p0 - q0)^2 + (p1 - q1)^2) & ((p0 - r0)^2 + (p1 - r1)^2 > (r0 - q0)^2 + (r1 - q1)^2)"};
+	
+	Model Sm(1, SpointDef, 2, SlineDef, Sincidence);
+	Model P2m(2, P2pointDef, 2, P2lineDef, P2incidence, P2betweenness);
+	point p1 = P2m.newPoint(std::vector<float>{0.625,  0.4145780988});
+	point p2 = P2m.newPoint(std::vector<float>{0.5, 0});
+	point p3 = P2m.newPoint(std::vector<float>{0.625, -0.4145780988});
+	//line l1 = P2m.newLine(std::vector<float>{1.25, 0});
+	//line l2 = P2m.newLine(std::vector<float>{1.25, 0});
+	std::cout << isBetween(p1, p2, p3) << '\n';
 }	
