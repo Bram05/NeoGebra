@@ -1,4 +1,4 @@
-add_executable (NietEuclidischeGeogebra  src/main.cpp src/Window.cpp "src/Application.h" "src/Application.cpp" "src/Renderer.h" "src/Renderer.cpp" "src/Constants.h" "src/LineRenderer.h" "src/LineRenderer.cpp" "src/Shader.h" "src/Shader.cpp" "src/Maths/Matrix.h"   "src/UI/WindowUI.h" "src/UI/WindowUI.cpp" "src/UI/EquationUI.h" "src/UI/EquationUI.cpp" "src/UI/UIElement.h" "src/UI/PostulateVerifierResultUI.h" "src/UI/PostulateVerifierResultUI.cpp")
+add_executable (NietEuclidischeGeogebra  src/main.cpp src/Window.cpp "src/Application.h" "src/Application.cpp" "src/Renderer.h" "src/Renderer.cpp" "src/Constants.h" "src/LineRenderer.h" "src/LineRenderer.cpp" "src/Shader.h" "src/Shader.cpp" "src/Maths/Matrix.h"   "src/UI/WindowUI.h" "src/UI/WindowUI.cpp" "src/UI/EquationUI.h" "src/UI/EquationUI.cpp" "src/UI/UIElement.h" "src/UI/PostulateVerifierResultUI.h" "src/UI/PostulateVerifierResultUI.cpp"  "src/Util.h" "src/Util.cpp")
 
 target_precompile_headers (${PROJECT_NAME} REUSE_FROM PostulateVerifier)
 

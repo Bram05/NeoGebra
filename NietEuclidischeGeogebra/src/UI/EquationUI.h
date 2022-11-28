@@ -9,7 +9,7 @@
 class EquationUI : public UIElement
 {
 public:
-	EquationUI(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY);
+	EquationUI(double leftX, double rightX, double topY, double bottomY);
 	~EquationUI();
 
 	void RenderPass(Renderer* r) override;

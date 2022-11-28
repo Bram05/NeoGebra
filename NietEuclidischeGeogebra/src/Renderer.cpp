@@ -56,7 +56,7 @@ Renderer::Renderer()
 	int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	if (status == 0)
 	{
-		throw std::runtime_error("Glad failed to initialize.Make sure your drivers support OpenGL 4.0.");
+		throw std::runtime_error("Glad failed to initialize. Make sure your drivers support OpenGL 4.3");
 	}
 	std::cout << "Loaded GL version " << glGetString(GL_VERSION) << '\n';
 
@@ -91,10 +91,12 @@ void Renderer::RenderQueues()
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	m_LineRenderer->RenderQueue();
+	#ifdef DEBUG
 	if (s_PrintedMessageThisFrame)
 	{
 		glDisable(GL_DEBUG_OUTPUT);
 	}
+	#endif
 }
 
 void Renderer::Resize(int width, int height)

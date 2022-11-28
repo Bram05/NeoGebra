@@ -3,6 +3,7 @@
 
 #include "Application.h"
 #include "Constants.h"
+#include "Util.h"
 
 #include <GLFW/glfw3.h> // I don't like this
 
@@ -13,6 +14,21 @@ static void MouseClickCallback(int mouseButton, int action, int mods)
 {
 	std::cout << (mouseButton == MouseButton::left ? "Left" : mouseButton == MouseButton::right ? "Right" : "Middle")
 		<< "mouse button was " << (action == Action::pressed ? "pressed" : "released") << '\n';
+	if (mouseButton == MouseButton::left && action == Action::pressed)
+	{
+		auto[x, y] = Application::Get()->GetWindow()->GetMouseLocation();
+		float newX = Util::ConvertToOpenGLCoordinate(x, true);
+		float newY = Util::ConvertToOpenGLCoordinate(y, false);
+		std::shared_ptr<UIElement> hit = Application::Get()->GetWindowUI()->Hit(newX, newY);
+		if (hit)
+		{
+			std::cout << "Mouse hit element " << hit->GetName() << '\n';
+		}
+		else
+		{
+			std::cout << "No element hit\n";
+		}
+	}
 }
 
 static void KeyCallback(int key, int scancode, int action, int mods)
