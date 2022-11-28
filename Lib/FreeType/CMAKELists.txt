@@ -1,4 +1,0 @@
-project (FreeType)
-
-add_library (FreeType STATIC lib/vs2015-2022/win32/freetype.lib)
-target_include_directories (FreeType PRIVATE "include")
