@@ -1,10 +1,8 @@
-// Standard library files and some others are automatically included from the precompiled header
-// https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
-#include "EquationUI.h"
+#include "PostulateVerifierResultUI.h"
 
 #include "Application.h"
 
-EquationUI::EquationUI(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY)
+PostulateVerifierResultUI::PostulateVerifierResultUI(double topLeftX, double topLeftY, double bottomRightX, double bottomRightY)
 	: UIElement(topLeftX, topLeftY, bottomRightX, bottomRightY)
 {
 	m_Lines.push_back(std::make_shared<Line>(Point(topLeftX, topLeftY), Point(topLeftX, bottomRightY))); // Left size
@@ -13,13 +11,13 @@ EquationUI::EquationUI(double topLeftX, double topLeftY, double bottomRightX, do
 	m_Lines.push_back(std::make_shared<Line>(Point(bottomRightX, bottomRightY), Point(topLeftX, bottomRightY))); // bottom
 }
 
-EquationUI::~EquationUI()
+PostulateVerifierResultUI::~PostulateVerifierResultUI()
 {
 }
 
-void EquationUI::RenderPass(Renderer* r)
+void PostulateVerifierResultUI::RenderPass(Renderer* r)
 {
-	for (std::shared_ptr<Line>& l : m_Lines)
+	for (const std::shared_ptr<Line>& l : m_Lines)
 	{
 		r->Render(l);
 	}

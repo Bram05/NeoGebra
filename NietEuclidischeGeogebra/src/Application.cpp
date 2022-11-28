@@ -19,6 +19,7 @@ static void KeyCallback(int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_ESCAPE)
 	{
+		std::cout << "\nEscape key pressed, closing application\n" << std::flush;
 		Application::Get()->GetWindow()->SetShouldClose(true);
 	}
 }
@@ -43,8 +44,8 @@ void Application::Run()
 	double m_LastFrameTime{ glfwGetTime() };
 	while (!m_Window->ShouldClose())
 	{
-		m_WindowUI->RenderPass();
-		m_Renderer->BeginRenderPass(0.5f, 0.3f, 0.2f, 1.0f);
+		m_WindowUI->RenderPass(m_Renderer);
+		m_Renderer->RenderQueues();
 		m_Window->Update();
 
 		UpdateFrameTimes();

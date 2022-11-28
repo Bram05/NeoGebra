@@ -2,6 +2,8 @@
 // https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
 #pragma once
 
+class Renderer;
+
 // Base class for a subpart of the UI
 class UIElement
 {
@@ -14,7 +16,7 @@ public:
 	{}
 	virtual ~UIElement() {}
 
-	virtual void RenderPass() = 0;
+	virtual void RenderPass(Renderer* r) = 0;
 protected:
 	// The bounds of this element
 	double m_LeftX, m_RightX, m_TopY, m_BottomY;

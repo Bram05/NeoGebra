@@ -15,13 +15,14 @@ Shader::Shader(const std::string name)
 	: m_Name{name}
 {
 	m_Shader = glCreateProgram();
-	int vs = CompileShader(VERTEX_SHADER, AssetsFolder + "/shaders/" + name + ".vs");
-	int fs = CompileShader(FRAGMENT_SHADER, AssetsFolder + "/shaders/" + name + ".frags");
+	std::string path = AssetsFolder + "/shaders/" + name;
+	int vs = CompileShader(VERTEX_SHADER, path + ".vert");
+	int fs = CompileShader(FRAGMENT_SHADER, path + ".frag");
 	glAttachShader(m_Shader, vs);
 	glAttachShader(m_Shader, fs);
 	glLinkProgram(m_Shader);
 	int result;
-	glGetProgramiv(m_Shader, GL_COMPILE_STATUS, &result);
+	glGetProgramiv(m_Shader, GL_LINK_STATUS, &result);
 	if (result == GL_FALSE)
 	{
 		int length;
@@ -29,7 +30,7 @@ Shader::Shader(const std::string name)
 
 		char* log = new char[length];
 		glGetProgramInfoLog(m_Shader, length, &length, log);
-		throw std::runtime_error(std::string("Failed to link shader ") + name + ": " + log);
+		throw std::runtime_error(std::string("Failed to link shader ") + path + "(.vert/.frag)" + ": " + log);
 	}
 	glDetachShader(m_Shader, vs);
 	glDetachShader(m_Shader, fs);

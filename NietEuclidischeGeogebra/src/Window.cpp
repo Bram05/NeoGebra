@@ -31,7 +31,10 @@ Window::Window(const WindowCreationOptions& options)
 	s_Initialized = true;
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	#ifdef DEBUG
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+	#endif
 
 	//glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 

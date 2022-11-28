@@ -21,7 +21,7 @@ void LineRenderer::AddToRenderQueue(std::shared_ptr<Line> line)
 void LineRenderer::RenderQueue()
 {
 	m_Shader.Bind();
-	glLineWidth(10.0f);
+	//glLineWidth(10.0f);
 	while (m_RenderQueue.size() != 0)
 	{
 		std::shared_ptr<Line> l = m_RenderQueue.front();

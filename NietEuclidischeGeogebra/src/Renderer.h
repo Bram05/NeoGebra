@@ -17,7 +17,7 @@ private:
 public:
 	// Begins the rendering
 	// This method calls the underlying renderers to render their queues
-	void BeginRenderPass(float r, float g, float b, float a);
+	void RenderQueues();
 
 	// Update for resizing the window
 	void Resize(int width, int height);
