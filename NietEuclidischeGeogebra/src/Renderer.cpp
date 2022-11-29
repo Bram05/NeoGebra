@@ -107,7 +107,7 @@ void Renderer::Resize(int width, int height)
 	Application::Get()->GetWindow()->Update();
 }
 
-void Renderer::Render(std::shared_ptr<Line> line)
+void Renderer::AddToRenderQueue(std::shared_ptr<Line> line)
 {
 	m_LineRenderer->AddToRenderQueue(line);
 }

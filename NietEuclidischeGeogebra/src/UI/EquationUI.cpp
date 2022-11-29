@@ -19,8 +19,8 @@ EquationUI::~EquationUI()
 
 void EquationUI::RenderPass(Renderer* r)
 {
-	for (std::shared_ptr<Line>& l : m_Lines)
+	for (const std::shared_ptr<Line>& l : m_Lines)
 	{
-		r->Render(l);
+		r->AddToRenderQueue(l);
 	}
 }
