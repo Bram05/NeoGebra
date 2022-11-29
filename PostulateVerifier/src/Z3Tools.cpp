@@ -1,7 +1,7 @@
 #include "Z3Tools.h"
 
-#define OPERNUM 12
-const char calcOrder[OPERNUM] = { '|', '&', '!', '>', '<', '=', '+', '-', '*', '/', '^', '~'};
+#define OPERNUM 11
+const char calcOrder[OPERNUM] = { '|', '&', '!', '>', '<', '=', '+', '-', '*', '/', '^' };
 
 std::map<std::string, float> Z3Tools::extractVars(equation& s, const std::vector<std::vector<float>>& identifiers) {
 	if (s.vars.size() != identifiers.size()) {
@@ -68,7 +68,7 @@ equation operator+(const equation e1, const equation e2) {
 }
 
 equation operator!(const equation e) {
-	return equation{e.vars, "!(" + e.eq + ")"};
+	return equation{ e.vars, "!(" + e.eq + ")" };
 }
 
 bool Z3Tools::isNumber(const std::string& str)
@@ -108,7 +108,7 @@ float Z3Tools::eval(const std::string& s, const std::map<std::string, float>& va
 				// If operator is '-', the program needs to check if there is another operator in front of it, such as 5*-3=-15
 				// If operator is '!', the program needs to check if the operator is "!="
 				if ((c != '-' or
-						(i > 0 and (std::find(std::begin(calcOrder), std::end(calcOrder), s[i - 1]) == std::end(calcOrder)))) and
+					(i > 0 and (std::find(std::begin(calcOrder), std::end(calcOrder), s[i - 1]) == std::end(calcOrder)))) and
 					(c != '!' or
 						(i < s.length() - 1 and s[i + 1] == '='))) {
 					if ((c == '>' or c == '<') and s[i + 1] == '=') { orEquals = true; }
@@ -124,17 +124,19 @@ float Z3Tools::eval(const std::string& s, const std::map<std::string, float>& va
 
 	// No operator found, can be: number, negative, brackets, abs, sqrt, not, t, f
 	if (operIndex == -1) {
-		if (isNumber(s)) {return std::stof(s);}
+		if (isNumber(s)) { return std::stof(s); }
 		if (s[0] != '-') {
 			if (vars.count(s)) { return vars.at(s); }
 			if (s[0] == '(' and s.back() == ')') { return eval(s.substr(1, s.length() - 2), vars); }
 			if (s[0] == '[' and s.back() == ']') { return std::abs(eval(s.substr(1, s.length() - 2), vars)); }
 			if (s[0] == '!') { return !eval(s.substr(1, s.length() - 1), vars); }
-		} else {
+			if (s[0] == '~') { return std::pow(eval(s.substr(1, s.length() - 1), vars), 0.5); }
+		}
+		else {
 			if (vars.count(s.substr(1, s.length() - 1))) { return -vars.at(s.substr(1, s.length() - 1)); }
 			if (s[1] == '(' and s.back() == ')') { return -eval(s.substr(2, s.length() - 3), vars); }
 			if (s[1] == '[' and s.back() == ']') { return -std::abs(eval(s.substr(2, s.length() - 3), vars)); }
-			if (s[1] == '!') { return -!eval(s.substr(2, s.length() - 2), vars); }
+			if (s[1] == '~') { return -std::pow(eval(s.substr(2, s.length() - 2), vars), 0.5); }
 		}
 		if (s == "t") { return true; }
 		if (s == "f") { return false; }
@@ -148,10 +150,10 @@ float Z3Tools::eval(const std::string& s, const std::map<std::string, float>& va
 	case '|': return eval(s1, vars) or eval(s2, vars);
 	case '&': return eval(s1, vars) and eval(s2, vars);
 	case '!': return !floatCompare(eval(s1, vars), eval(s2.substr(1, s2.length() - 1), vars));
-	case '>': 
+	case '>':
 		if (!orEquals) { return eval(s1, vars) > eval(s2, vars); }
 		else { return eval(s1, vars) >= eval(s2.substr(1, s2.length() - 1), vars); }
-	case '<': 
+	case '<':
 		if (!orEquals) { return eval(s1, vars) < eval(s2, vars); }
 		else { return eval(s1, vars) <= eval(s2.substr(1, s2.length() - 1), vars); }
 	case '=': return floatCompare(eval(s1, vars), eval(s2, vars));
@@ -160,48 +162,46 @@ float Z3Tools::eval(const std::string& s, const std::map<std::string, float>& va
 	case '*': return eval(s1, vars) * eval(s2, vars);
 	case '/': return eval(s1, vars) / eval(s2, vars);
 	case '^': return std::pow(eval(s1, vars), eval(s2, vars));
-	case '~': return std::pow(eval(s2, vars), 1/eval(s1, vars));
 	default:  throw std::invalid_argument("Invalid operator");
 	}
 }
 
-bool Z3Tools::isSolvable(equation s, const std::vector<std::vector<float>>& identifiers) {
+equationResult Z3Tools::isSolvable(equation s, const std::vector<std::vector<float>>& identifiers) {
 	z3::context c;
 	z3::solver solver(c);
 
 	Z3_ast_vector test2 = Z3_parse_smtlib2_string(c, toLisp(s.eq, extractVars(s, identifiers)).c_str(), 0, 0, 0, 0, 0, 0);
-	
+
 	for (int i{}; i < Z3_ast_vector_size(c, test2); ++i) {
 		z3::expr tmp(c, Z3_ast_vector_get(c, test2, i));
 		solver.add(tmp);
 	}
-	
+
 	//std::cout << solver << "\n";
 	//std::cout << solver.to_smt2() << "\n\n::\n\n";
 	switch (solver.check()) {
-	case z3::sat: return true; //std::cout << "\n\n=========\n\n" << solver.get_model() << std::endl;
-	case z3::unsat: return false;
+	case z3::sat: {z3::model m = solver.get_model(); return { true, &m }; }
+	case z3::unsat: return { false, nullptr };
 	case z3::unknown: throw std::invalid_argument("Error when resolving expression");
-	default: return false;
+	default: return { false, nullptr };
 	}
 }
 
 std::string Z3Tools::toLisp(const std::string& s, const std::map<std::string, float>& vars) {
 	std::set<std::string> toDefine;
-	std::vector<std::pair<std::string, std::string>> sqrts;
-	std::string out = "(assert " + recToLisp(s, vars, toDefine, sqrts) + ")(check-sat)";
-	for (int i = sqrts.size() - 1; i >= 0; --i) {
-		std::string def = sqrts[i].first;
-		std::string pow = sqrts[i].second;
-		out = "(declare-const sqrt" + std::to_string(i) + " Real)(assert (>= sqrt" + std::to_string(i) + " 0))(assert (= (^ sqrt" + std::to_string(i) + " " + pow + ") " + def + "))" + out;
-	}
+	std::string out = "(assert " + recToLisp(s, vars, toDefine) + ")(check-sat)";
+
+	// Root function using binary sort
+	//out = "(defun root (n p)(let ((s 0)(e n)(m 0))(loop(setq m (/ (+ s e) 2))(if (< (abs (- (^ m p) n)) 1E-9)(return (nth-value 0 (read-from-string (format nil \"~25, V, , , F\" 7 m))))(if (> (^ m p) n) (setq e m)(setq s m))))))" + out;
+
 	for (std::string var : toDefine) {
-		out = "(declare-const " + var + " Real)" + out;
+		out = "(declare-const " + var + " (_ FloatingPoint 8 24))" + out;
 	}
 	return out;
 }
 
-std::string Z3Tools::recToLisp(const std::string& s, const std::map<std::string, float>& vars, std::set<std::string>& toDefine, std::vector<std::pair<std::string, std::string>>& sqrts) {
+std::string Z3Tools::recToLisp(const std::string& s, const std::map<std::string, float>& vars, std::set<std::string>& toDefine) {
+	// (define-fun x0 () (_ FloatingPoint 8 24) ((_ to_fp 8 24) RNE 5.0 0))
 	int depth = 0;
 	int best = OPERNUM;
 	int operIndex = -1;
@@ -236,14 +236,16 @@ std::string Z3Tools::recToLisp(const std::string& s, const std::map<std::string,
 		if (isNumber(s)) { return s; }
 		if (s[0] != '-') {
 			if (vars.count(s)) { return std::to_string(vars.at(s)); }
-			if (s[0] == '(' and s.back() == ')') { return recToLisp(s.substr(1, s.length() - 2), vars, toDefine, sqrts); } //haakjes nog fixen
-			if (s[0] == '[' and s.back() == ']') { return ("(abs " + recToLisp(s.substr(1, s.length() - 2), vars, toDefine, sqrts) + ')'); }
-			if (s[0] == '!') { return ("(not " + recToLisp(s.substr(1, s.length() - 1), vars, toDefine, sqrts) + ')'); }
+			if (s[0] == '(' and s.back() == ')') { return recToLisp(s.substr(1, s.length() - 2), vars, toDefine); } //haakjes nog fixen
+			if (s[0] == '[' and s.back() == ']') { return ("(fp.abs " + recToLisp(s.substr(1, s.length() - 2), vars, toDefine) + ')'); }
+			if (s[0] == '!') { return ("(not " + recToLisp(s.substr(1, s.length() - 1), vars, toDefine) + ')'); }
+			if (s[0] == '~') { return ("(fp.sqrt " + recToLisp(s.substr(1, s.length() - 1), vars, toDefine) + ')'); }
 		}
 		else {
 			if (vars.count(s.substr(1, s.length() - 1))) { return std::to_string(-vars.at(s.substr(1, s.length() - 1))); }
-			if (s[1] == '(' and s.back() == ')') { return ("(- " + recToLisp(s.substr(2, s.length() - 3), vars, toDefine, sqrts) + ")"); } //haakjes nog fixen
-			if (s[1] == '[' and s.back() == ']') { return ("(- (abs " + recToLisp(s.substr(2, s.length() - 3), vars, toDefine, sqrts) + "))"); }
+			if (s[1] == '(' and s.back() == ')') { return ("(fp.neg " + recToLisp(s.substr(2, s.length() - 3), vars, toDefine) + ")"); } //haakjes nog fixen
+			if (s[1] == '[' and s.back() == ']') { return ("(fp.neg (fp.abs " + recToLisp(s.substr(2, s.length() - 3), vars, toDefine) + "))"); }
+			if (s[1] == '~') { return ("(fp.neg (fp.sqrt " + recToLisp(s.substr(1, s.length() - 2), vars, toDefine) + "))"); }
 		}
 		if (s == "t") { return "true"; }
 		if (s == "f") { return "false"; }
@@ -255,23 +257,31 @@ std::string Z3Tools::recToLisp(const std::string& s, const std::map<std::string,
 	std::string s2 = s.substr(operIndex + 1, s.length() - operIndex - 1);
 
 	switch (s[operIndex]) {
-	case '|': return "(or " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")";
-	case '&': return "(and " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")";
-	case '!': return "(not (= " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + "))";
+	case '|': return "(or " + recToLisp(s1, vars, toDefine) + " " + recToLisp(s2, vars, toDefine) + ")";
+	case '&': return "(and " + recToLisp(s1, vars, toDefine) + " " + recToLisp(s2, vars, toDefine) + ")";
+	case '!': return "(not (fp.eq " + recToLisp(s1, vars, toDefine) + " " + recToLisp(s2, vars, toDefine) + "))";
 	case '>':
-		if (!orEquals) { return "(> " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")"; }
-		else { return "(>= " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")"; }
+		if (!orEquals) { return "(fp.gt " + recToLisp(s1, vars, toDefine) + " " + recToLisp(s2, vars, toDefine) + ")"; }
+		else { return "(fp.get " + recToLisp(s1, vars, toDefine) + " " + recToLisp(s2, vars, toDefine) + ")"; }
 	case '<':
-		if (!orEquals) { return "(< " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")"; }
-		else { return "(<= " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")"; }
-	case '=': return "(= " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")";
-	case '+': return "(+ " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")";
-	case '-': return "(- " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")";
-	case '*': return "(* " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")";
-	case '/': return "(/ " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")";
-	case '^': return "(^ " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")"; //s2 alleen ints (https://stackoverflow.com/questions/36812843/why-z3-always-return-unknown-when-assertions-have-power)
-	case '~': sqrts.push_back({ recToLisp(s2, vars, toDefine, sqrts) , recToLisp(s1, vars, toDefine, sqrts) });
-		return "sqrt" + std::to_string(sqrts.size() - 1); //s2 alleen ints (https://stackoverflow.com/questions/36812843/why-z3-always-return-unknown-when-assertions-have-power)
+		if (!orEquals) { return "(fp.lt " + recToLisp(s1, vars, toDefine) + " " + recToLisp(s2, vars, toDefine) + ")"; }
+		else { return "(fp.let " + recToLisp(s1, vars, toDefine) + " " + recToLisp(s2, vars, toDefine) + ")"; }
+	case '=': return "(fp.eq " + recToLisp(s1, vars, toDefine) + " " + recToLisp(s2, vars, toDefine) + ")";
+	case '+': return "(fp.add " + recToLisp(s1, vars, toDefine) + " " + recToLisp(s2, vars, toDefine) + ")";
+	case '-': return "(fp.sub " + recToLisp(s1, vars, toDefine) + " " + recToLisp(s2, vars, toDefine) + ")";
+	case '*': return "(fp.mul " + recToLisp(s1, vars, toDefine) + " " + recToLisp(s2, vars, toDefine) + ")";
+	case '/': return "(fp.div " + recToLisp(s1, vars, toDefine) + " " + recToLisp(s2, vars, toDefine) + ")";
+	case '^': return "(fp.mul " + recToLisp(s1, vars, toDefine) + " " + recToLisp(s1, vars, toDefine) + ")"; //s2 alleen ints (https://stackoverflow.com/questions/36812843/why-z3-always-return-unknown-when-assertions-have-power)
 	default:  throw std::invalid_argument("Invalid operator");
 	}
 }
+
+/*
+(define-fun-rec ^ ((x )))
+(define-fun x0 () (_ FloatingPoint 8 24) ((_ to_fp 8 24) RNE 5.0 0))
+(define-fun x1 () (_ FloatingPoint 8 24) (^ ))
+(check-sat)
+(get-model)
+
+
+*/
