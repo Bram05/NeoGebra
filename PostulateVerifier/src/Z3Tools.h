@@ -14,6 +14,8 @@ struct equation {
 equation operator+(const equation e1, const equation e2);
 equation operator!(const equation e);
 
+struct equationResult { bool sat; z3::model* m; };
+
 /**
 * Static class with tools that help with solving equations (mostly in string form). 
 */
@@ -58,7 +60,7 @@ public:
 	* @return Returns float with 1 or 0 (true or false).
 	*/
 	static float eval(const std::string& s, const std::map<std::string, float>& vars);
-	static bool isSolvable(equation s, const std::vector<std::vector<float>>& identifiers);
+	static equationResult isSolvable(equation s, const std::vector<std::vector<float>>& identifiers);
 	std::string mergeEq(std::string s1, std::string s2);
 	static std::string toLisp(const std::string& s, const std::map<std::string, float>& vars);
 	static void replaceVar(std::string& s, const std::string& from, const std::string& to);

@@ -1,0 +1,1797 @@
+id     = "QUANTIFIERS"
+name   = "Quantifiers"
+
+# Whether to mini-scope quantifiers.
+# Miniscoping is done based on two techniques.
+# First, miniscoping can be done based on conjunctions within quantified
+# formulas. For example, forall x. (P(x) ^ Q(x)) can be rewritten to
+# (forall x. P(x)) ^ (forall x. Q(x))
+# Second, miniscoping can be done based which free variables occur in
+# subformulas of quantified formulas. For example, forall xy. (P(x) V Q(y))
+# can be rewritten to:
+# (forall x. P(x)) V (forall y. Q(y)).
+[[option]]
+  name       = "miniscopeQuant"
+  category   = "regular"
+  long       = "miniscope-quant=MODE"
+  type       = "MiniscopeQuantMode"
+  default    = "CONJ_AND_FV"
+  help       = "miniscope mode for quantified formulas"
+  help_mode  = "Miniscope quantifiers modes."
+[[option.mode.OFF]]
+  name = "off"
+  help = "Do not miniscope quantifiers."
+[[option.mode.CONJ]]
+  name = "conj"
+  help = "Use miniscoping of conjunctions only."
+[[option.mode.FV]]
+  name = "fv"
+  help = "Use free variable miniscoping only."
+[[option.mode.CONJ_AND_FV]]
+  name = "conj-and-fv"
+  help = "Enable both conjunction and free variable miniscoping."
+[[option.mode.AGG]]
+  name = "agg"
+  help = "Enable aggressive miniscope, which further may rewrite quantified formulas into a form where miniscoping is possible."
+
+[[option]]
+  name       = "prenexQuant"
+  category   = "regular"
+  long       = "prenex-quant=MODE"
+  type       = "PrenexQuantMode"
+  default    = "SIMPLE"
+  help       = "prenex mode for quantified formulas"
+  help_mode  = "Prenex quantifiers modes."
+[[option.mode.NONE]]
+  name = "none"
+  help = "Do not prenex nested quantifiers."
+[[option.mode.SIMPLE]]
+  name = "simple"
+  help = "Do simple prenexing of same sign quantifiers."
+[[option.mode.NORMAL]]
+  name = "norm"
+  help = "Prenex to prenex normal form."
+
+[[option]]
+  name       = "prenexQuantUser"
+  category   = "regular"
+  long       = "prenex-quant-user"
+  type       = "bool"
+  default    = "false"
+  help       = "prenex quantified formulas with user patterns"
+
+# Whether to variable-eliminate quantifiers.
+# For example, forall x y. ( P( x, y ) V x != c ) will be rewritten to
+#   forall y. P( c, y )
+[[option]]
+  name       = "varElimQuant"
+  category   = "regular"
+  long       = "var-elim-quant"
+  type       = "bool"
+  default    = "true"
+  help       = "enable simple variable elimination for quantified formulas"
+
+[[option]]
+  name       = "varIneqElimQuant"
+  category   = "regular"
+  long       = "var-ineq-elim-quant"
+  type       = "bool"
+  default    = "true"
+  help       = "enable variable elimination based on infinite projection of unbound arithmetic variables"
+
+[[option]]
+  name       = "dtVarExpandQuant"
+  category   = "expert"
+  long       = "dt-var-exp-quant"
+  type       = "bool"
+  default    = "true"
+  help       = "expand datatype variables bound to one constructor in quantifiers"
+
+[[option]]
+  name       = "iteLiftQuant"
+  category   = "regular"
+  long       = "ite-lift-quant=MODE"
+  type       = "IteLiftQuantMode"
+  default    = "SIMPLE"
+  help       = "ite lifting mode for quantified formulas"
+  help_mode  = "ITE lifting modes for quantified formulas."
+[[option.mode.NONE]]
+  name = "none"
+  help = "Do not lift if-then-else in quantified formulas."
+[[option.mode.SIMPLE]]
+  name = "simple"
+  help = "Lift if-then-else in quantified formulas if results in smaller term size."
+[[option.mode.ALL]]
+  name = "all"
+  help = "Lift if-then-else in quantified formulas."
+
+[[option]]
+  name       = "condVarSplitQuant"
+  category   = "expert"
+  long       = "cond-var-split-quant=MODE"
+  type       = "CondVarSplitQuantMode"
+  default    = "ON"
+  help       = "split quantified formulas that lead to variable eliminations"
+  help_mode  = "Modes for splitting quantified formulas that lead to variable eliminations."
+[[option.mode.OFF]]
+  name = "off"
+  help = "Do not split quantified formulas."
+[[option.mode.ON]]
+  name = "on"
+  help = "Split quantified formulas that lead to variable eliminations."
+[[option.mode.AGG]]
+  name = "agg"
+  help = "Aggressively split quantified formulas that lead to variable eliminations."
+  
+[[option]]
+  name       = "iteDtTesterSplitQuant"
+  category   = "expert"
+  long       = "ite-dtt-split-quant"
+  type       = "bool"
+  default    = "false"
+  help       = "split ites with dt testers as conditions"
+
+[[option]]
+  name       = "preSkolemQuant"
+  category   = "regular"
+  long       = "pre-skolem-quant=MODE"
+  type       = "PreSkolemQuantMode"
+  default    = "OFF"
+  help       = "modes to apply skolemization eagerly to bodies of quantified formulas"
+  help_mode  = "Modes to apply skolemization eagerly to bodies of quantified formulas."
+[[option.mode.OFF]]
+  name = "off"
+  help = "Do not apply Skolemization eagerly."
+[[option.mode.ON]]
+  name = "on"
+  help = "Apply Skolemization eagerly to top-level (negatively asserted) quantified formulas."
+[[option.mode.AGG]]
+  name = "agg"
+  help = "Apply Skolemization eagerly and aggressively during preprocessing."
+
+# Whether to pre-skolemize quantifier bodies.
+# For example, forall x. ( P( x ) => (exists y. f( y ) = x) ) will be rewritten to
+#   forall x. P( x ) => f( S( x ) ) = x
+[[option]]
+  name       = "preSkolemQuantNested"
+  category   = "expert"
+  long       = "pre-skolem-quant-nested"
+  type       = "bool"
+  default    = "true"
+  help       = "apply skolemization to nested quantified formulas"
+
+[[option]]
+  name       = "elimTautQuant"
+  category   = "regular"
+  long       = "elim-taut-quant"
+  type       = "bool"
+  default    = "true"
+  help       = "eliminate tautological disjuncts of quantified formulas"
+
+[[option]]
+  name       = "extRewriteQuant"
+  category   = "regular"
+  long       = "ext-rewrite-quant"
+  type       = "bool"
+  default    = "false"
+  help       = "apply extended rewriting to bodies of quantified formulas"
+
+[[option]]
+  name       = "globalNegate"
+  category   = "expert"
+  long       = "global-negate"
+  type       = "bool"
+  default    = "false"
+  help       = "do global negation of input formula"
+
+[[option]]
+  name       = "mbqi"
+  category   = "expert"
+  long       = "mbqi"
+  type       = "bool"
+  default    = "false"
+  help       = "use model-based quantifier instantiation"
+
+#### E-matching options
+
+[[option]]
+  name       = "eMatching"
+  category   = "regular"
+  long       = "e-matching"
+  type       = "bool"
+  default    = "true"
+  help       = "whether to do heuristic E-matching"
+
+[[option]]
+  name       = "termDbMode"
+  category   = "regular"
+  long       = "term-db-mode=MODE"
+  type       = "TermDbMode"
+  default    = "ALL"
+  help       = "which ground terms to consider for instantiation"
+  help_mode  = "Modes for terms included in the quantifiers term database."
+[[option.mode.ALL]]
+  name = "all"
+  help = "Quantifiers module considers all ground terms."
+[[option.mode.RELEVANT]]
+  name = "relevant"
+  help = "Quantifiers module considers only ground terms connected to current assertions."
+
+[[option]]
+  name       = "termDbCd"
+  category   = "expert"
+  long       = "term-db-cd"
+  type       = "bool"
+  default    = "true"
+  help       = "register terms in term database based on the SAT context"
+
+[[option]]
+  name       = "registerQuantBodyTerms"
+  category   = "expert"
+  long       = "register-quant-body-terms"
+  type       = "bool"
+  default    = "false"
+  help       = "consider ground terms within bodies of quantified formulas for matching"
+
+[[option]]
+  name       = "relevantTriggers"
+  category   = "regular"
+  long       = "relevant-triggers"
+  type       = "bool"
+  default    = "false"
+  help       = "prefer triggers that are more relevant based on SInE style analysis"
+
+[[option]]
+  name       = "relationalTriggers"
+  category   = "expert"
+  long       = "relational-triggers"
+  type       = "bool"
+  default    = "false"
+  help       = "choose relational triggers such as x = f(y), x >= f(y)"
+
+[[option]]
+  name       = "purifyTriggers"
+  category   = "expert"
+  long       = "purify-triggers"
+  type       = "bool"
+  default    = "false"
+  help       = "purify triggers, e.g. f( x+1 ) becomes f( y ), x mapsto y-1"
+
+[[option]]
+  name       = "partialTriggers"
+  category   = "expert"
+  long       = "partial-triggers"
+  type       = "bool"
+  default    = "false"
+  help       = "use triggers that do not contain all free variables"
+
+[[option]]
+  name       = "consExpandTriggers"
+  category   = "expert"
+  long       = "cons-exp-triggers"
+  type       = "bool"
+  default    = "false"
+  help       = "use constructor expansion for single constructor datatypes triggers"
+
+[[option]]
+  name       = "multiTriggerWhenSingle"
+  category   = "regular"
+  long       = "multi-trigger-when-single"
+  type       = "bool"
+  default    = "false"
+  help       = "select multi triggers when single triggers exist"
+
+[[option]]
+  name       = "multiTriggerPriority"
+  category   = "regular"
+  long       = "multi-trigger-priority"
+  type       = "bool"
+  default    = "false"
+  help       = "only try multi triggers if single triggers give no instantiations"
+
+[[option]]
+  name       = "multiTriggerCache"
+  category   = "regular"
+  long       = "multi-trigger-cache"
+  type       = "bool"
+  default    = "false"
+  help       = "caching version of multi triggers"
+
+[[option]]
+  name       = "multiTriggerLinear"
+  category   = "regular"
+  long       = "multi-trigger-linear"
+  type       = "bool"
+  default    = "true"
+  help       = "implementation of multi triggers where maximum number of instantiations is linear wrt number of ground terms"
+
+# Trigger selection mode.
+#
+# These modes are used for determining which terms to select
+# as triggers for quantified formulas, when necessary, during E-matching.
+# In the following, note the following terminology. A trigger is a set of terms,
+# where a single trigger is a singleton set and a multi-trigger is a set of more
+# than one term.
+#
+# MIN selects single triggers of minimal term size.
+# MAX selects single triggers of maximal term size.
+#
+# For example, consider the quantified formula :
+#   forall xy. P( f( g( x, y ) ) ) V Q( f( x ), y )
+#
+# MIN will select g( x, y ) and Q( f( x ), y ).
+# MAX will select P( f( g( x ) ) ) and Q( f( x ), y ).
+#
+# The remaining three trigger selections make a difference for multi-triggers
+# only. For quantified formulas that require multi-triggers, we build a set of
+# partial triggers that don't contain all variables, call this set S. Then,
+# multi-triggers are built by taking a random subset of S that collectively
+# contains all variables.
+#
+# Consider the quantified formula :
+#   forall xyz. P( h( x ), y ) V Q( y, z )
+#
+# For ALL and MIN_SINGLE_ALL,
+#   S = { h( x ), P( h( x ), y ), Q( y, z ) }.
+# For MIN_SINGLE_MAX,
+#   S = { P( h( x ), y ), Q( y, z ) }.
+#
+# Furthermore, MIN_SINGLE_ALL and MIN_SINGLE_MAX, when
+# selecting single triggers, only select terms of minimal size.
+#
+[[option]]
+  name       = "triggerSelMode"
+  category   = "regular"
+  long       = "trigger-sel=MODE"
+  type       = "TriggerSelMode"
+  default    = "MIN"
+  help       = "selection mode for triggers"
+  help_mode  = "Trigger selection modes."
+[[option.mode.MIN]]
+  name = "min"
+  help = "Consider only minimal subterms that meet criteria for triggers."
+[[option.mode.MAX]]
+  name = "max"
+  help = "Consider only maximal subterms that meet criteria for triggers."
+[[option.mode.MIN_SINGLE_MAX]]
+  name = "min-s-max"
+  help = "Consider only minimal subterms that meet criteria for single triggers, maximal otherwise."
+[[option.mode.MIN_SINGLE_ALL]]
+  name = "min-s-all"
+  help = "Consider only minimal subterms that meet criteria for single triggers, all otherwise."
+[[option.mode.ALL]]
+  name = "all"
+  help = "Consider all subterms that meet criteria for triggers."
+
+[[option]]
+  name       = "triggerActiveSelMode"
+  category   = "expert"
+  long       = "trigger-active-sel=MODE"
+  type       = "TriggerActiveSelMode"
+  default    = "ALL"
+  help       = "selection mode to activate triggers"
+  help_mode  = "Trigger active selection modes."
+[[option.mode.ALL]]
+  name = "all"
+  help = "Make all triggers active."
+[[option.mode.MIN]]
+  name = "min"
+  help = "Activate triggers with minimal ground terms."
+[[option.mode.MAX]]
+  name = "max"
+  help = "Activate triggers with maximal ground terms."
+
+[[option]]
+  name       = "userPatternsQuant"
+  category   = "regular"
+  long       = "user-pat=MODE"
+  type       = "UserPatMode"
+  default    = "TRUST"
+  help       = "policy for handling user-provided patterns for quantifier instantiation"
+  help_mode  = "These modes determine how user provided patterns (triggers) are used during E-matching. The modes vary on when instantiation based on user-provided triggers is combined with instantiation based on automatically selected triggers."
+[[option.mode.USE]]
+  name = "use"
+  help = "Use both user-provided and auto-generated patterns when patterns are provided for a quantified formula."
+[[option.mode.TRUST]]
+  name = "trust"
+  help = "When provided, use only user-provided patterns for a quantified formula."
+[[option.mode.STRICT]]
+  name = "strict"
+  help = "When provided, use only user-provided patterns for a quantified formula, and do not use any other instantiation techniques."
+[[option.mode.RESORT]]
+  name = "resort"
+  help = "Use user-provided patterns only after auto-generated patterns saturate."
+[[option.mode.IGNORE]]
+  name = "ignore"
+  help = "Ignore user-provided patterns."
+[[option.mode.INTERLEAVE]]
+  name = "interleave"
+  help = "Alternate between use/resort."
+
+[[option]]
+  name       = "incrementTriggers"
+  category   = "expert"
+  long       = "increment-triggers"
+  type       = "bool"
+  default    = "true"
+  help       = "generate additional triggers as needed during search"
+
+[[option]]
+  name       = "instWhenMode"
+  category   = "regular"
+  long       = "inst-when=MODE"
+  type       = "InstWhenMode"
+  default    = "FULL_LAST_CALL"
+  help       = "when to apply instantiation"
+  help_mode  = "Instantiation modes."
+[[option.mode.FULL]]
+  name = "full"
+  help = "Run instantiation round at full effort, before theory combination."
+[[option.mode.FULL_DELAY]]
+  name = "full-delay"
+  help = "Run instantiation round at full effort, before theory combination, after all other theories have finished."
+[[option.mode.FULL_LAST_CALL]]
+  name = "full-last-call"
+  help = "Alternate running instantiation rounds at full effort and last call.  In other words, interleave instantiation and theory combination."
+[[option.mode.FULL_DELAY_LAST_CALL]]
+  name = "full-delay-last-call"
+  help = "Alternate running instantiation rounds at full effort after all other theories have finished, and last call."
+[[option.mode.LAST_CALL]]
+  name = "last-call"
+  help = "Run instantiation at last call effort, after theory combination and and theories report sat."
+
+[[option]]
+  name       = "instWhenPhase"
+  category   = "expert"
+  long       = "inst-when-phase=N"
+  type       = "int64_t"
+  default    = "2"
+  help       = "instantiation rounds quantifiers takes (>=1) before allowing theory combination to happen"
+
+[[option]]
+  name       = "printInstMode"
+  category   = "common"
+  long       = "print-inst=MODE"
+  type       = "PrintInstMode"
+  default    = "LIST"
+  help       = "print format for printing instantiations"
+  help_mode  = "Print format for printing instantiations."
+[[option.mode.LIST]]
+  name = "list"
+  help = "Print the list of instantiations per quantified formula, when non-empty."
+[[option.mode.NUM]]
+  name = "num"
+  help = "Print the total number of instantiations per quantified formula, when non-zero."
+
+[[option]]
+  name       = "printInstFull"
+  category   = "regular"
+  long       = "print-inst-full"
+  type       = "bool"
+  default    = "true"
+  help       = "print instantiations for formulas that do not have given identifiers"
+
+[[option]]
+  name       = "instMaxLevel"
+  category   = "expert"
+  long       = "inst-max-level=N"
+  type       = "int64_t"
+  default    = "-1"
+  help       = "maximum inst level of terms used to instantiate quantified formulas with (-1 == no limit, default)"
+
+[[option]]
+  name       = "instMaxRounds"
+  category   = "regular"
+  long       = "inst-max-rounds=N"
+  type       = "int64_t"
+  default    = "-1"
+  help       = "maximum number of instantiation rounds (-1 == no limit, default)"
+
+[[option]]
+  name       = "quantRepMode"
+  category   = "expert"
+  long       = "quant-rep-mode=MODE"
+  type       = "QuantRepMode"
+  default    = "FIRST"
+  help       = "selection mode for representatives in quantifiers engine"
+  help_mode  = "Modes for quantifiers representative selection."
+[[option.mode.EE]]
+  name = "ee"
+  help = "Let equality engine choose representatives."
+[[option.mode.FIRST]]
+  name = "first"
+  help = "Choose terms that appear first."
+[[option.mode.DEPTH]]
+  name = "depth"
+  help = "Choose terms that are of minimal depth."
+
+[[option]]
+  name       = "fullSaturateQuant"
+  category   = "regular"
+  long       = "full-saturate-quant"
+  type       = "bool"
+  default    = "false"
+  help       = "resort to full effort techniques instead of answering unknown due to limited quantifier reasoning. Currently enables enumerative instantiation"
+
+[[option]]
+  name       = "enumInst"
+  category   = "regular"
+  long       = "enum-inst"
+  type       = "bool"
+  default    = "false"
+  help       = "enumerative instantiation: instantiate with ground terms from relevant domain, then arbitrary ground terms before answering unknown"
+
+[[option]]
+  name       = "enumInstRd"
+  category   = "expert"
+  long       = "enum-inst-rd"
+  type       = "bool"
+  default    = "true"
+  help       = "whether to use relevant domain first for enumerative instantiation strategy"
+
+[[option]]
+  name       = "enumInstLimit"
+  category   = "expert"
+  long       = "enum-inst-limit=N"
+  type       = "int64_t"
+  default    = "-1"
+  help       = "maximum number of rounds of enumerative instantiation to apply (-1 means no limit)"
+  
+[[option]]
+  name       = "enumInstInterleave"
+  category   = "regular"
+  long       = "enum-inst-interleave"
+  type       = "bool"
+  default    = "false"
+  help       = "interleave enumerative instantiation with other techniques"
+
+[[option]]
+  name       = "enumInstStratify"
+  category   = "expert"
+  long       = "enum-inst-stratify"
+  type       = "bool"
+  default    = "false"
+  help       = "stratify effort levels in enumerative instantiation, which favors speed over fairness"
+
+[[option]]
+  name       = "enumInstSum"
+  category   = "regular"
+  long       = "enum-inst-sum"
+  type       = "bool"
+  default    = "false"
+  help       = "enumerating tuples of quantifiers by increasing the sum of indices, rather than the maximum"
+
+[[option]]
+  name       = "literalMatchMode"
+  category   = "expert"
+  long       = "literal-matching=MODE"
+  type       = "LiteralMatchMode"
+  default    = "USE"
+  help       = "choose literal matching mode"
+  help_mode  = "Literal match modes."
+[[option.mode.NONE]]
+  name = "none"
+  help = "Do not use literal matching."
+[[option.mode.USE]]
+  name = "use"
+  help = "Consider phase requirements of triggers conservatively. For example, the trigger P( x ) in forall( x ). ( P( x ) V ~Q( x ) ) will not be matched with terms in the equivalence class of true, and likewise Q( x ) will not be matched terms in the equivalence class of false. Extends to equality."
+[[option.mode.AGG_PREDICATE]]
+  name = "agg-predicate"
+  help = "Consider phase requirements aggressively for predicates. In the above example, only match P( x ) with terms that are in the equivalence class of false."
+[[option.mode.AGG]]
+  name = "agg"
+  help = "Consider the phase requirements aggressively for all triggers."
+
+[[option]]
+  name       = "poolInst"
+  category   = "expert"
+  long       = "pool-inst"
+  type       = "bool"
+  default    = "true"
+  help       = "pool-based instantiation: instantiate with ground terms occurring in user-specified pools"
+
+[[option]]
+  name       = "oracles"
+  category   = "expert"
+  long       = "oracles"
+  type       = "bool"
+  default    = "false"
+  help       = "Enable interface to external oracles"
+
+### Finite model finding options
+
+[[option]]
+  name       = "finiteModelFind"
+  category   = "regular"
+  long       = "finite-model-find"
+  type       = "bool"
+  default    = "false"
+  help       = "use finite model finding heuristic for quantifier instantiation"
+
+[[option]]
+  name       = "quantFunWellDefined"
+  category   = "expert"
+  long       = "quant-fun-wd"
+  type       = "bool"
+  default    = "false"
+  help       = "assume that function defined by quantifiers are well defined"
+
+[[option]]
+  name       = "fmfFunWellDefined"
+  category   = "regular"
+  long       = "fmf-fun"
+  type       = "bool"
+  default    = "false"
+  help       = "find models for recursively defined functions, assumes functions are admissible"
+
+[[option]]
+  name       = "fmfFunWellDefinedRelevant"
+  category   = "regular"
+  long       = "fmf-fun-rlv"
+  type       = "bool"
+  default    = "false"
+  help       = "find models for recursively defined functions, assumes functions are admissible, allows empty type when function is irrelevant"
+
+[[option]]
+  name       = "fmfMbqiMode"
+  category   = "expert"
+  long       = "fmf-mbqi=MODE"
+  type       = "FmfMbqiMode"
+  default    = "FMC"
+  help       = "choose mode for model-based quantifier instantiation"
+  help_mode  = "Model-based quantifier instantiation modes."
+[[option.mode.NONE]]
+  name = "none"
+  help = "Disable model-based quantifier instantiation."
+[[option.mode.FMC]]
+  name = "fmc"
+  help = "Use algorithm from Section 5.4.2 of thesis Finite Model Finding in Satisfiability Modulo Theories."
+[[option.mode.TRUST]]
+  name = "trust"
+  help = "Do not instantiate quantified formulas (incomplete technique)."
+
+[[option]]
+  name       = "fmfOneInstPerRound"
+  category   = "regular"
+  long       = "mbqi-one-inst-per-round"
+  type       = "bool"
+  default    = "false"
+  help       = "only add one instantiation per quantifier per round for mbqi"
+
+[[option]]
+  name       = "mbqiInterleave"
+  category   = "expert"
+  long       = "mbqi-interleave"
+  type       = "bool"
+  default    = "false"
+  help       = "interleave model-based quantifier instantiation with other techniques"
+
+[[option]]
+  name       = "fmfBound"
+  category   = "regular"
+  long       = "fmf-bound"
+  type       = "bool"
+  default    = "false"
+  help       = "finite model finding on bounded quantification"
+
+[[option]]
+  name       = "fmfBoundLazy"
+  category   = "expert"
+  long       = "fmf-bound-lazy"
+  type       = "bool"
+  default    = "false"
+  help       = "enforce bounds for bounded quantification lazily via use of proxy variables"
+
+[[option]]
+  name       = "fmfTypeCompletionThresh"
+  category   = "regular"
+  long       = "fmf-type-completion-thresh=N"
+  type       = "int64_t"
+  default    = "1000"
+  help       = "the maximum cardinality of an interpreted type for which exhaustive enumeration in finite model finding is attempted"
+
+[[option]]
+  name       = "fmfBoundBlast"
+  category   = "expert"
+  long       = "fmf-bound-blast"
+  type       = "bool"
+  default    = "false"
+  help       = "send all instantiations for bounded ranges in a single round"
+
+### Conflict-based instantiation options
+
+[[option]]
+  name       = "conflictBasedInst"
+  category   = "regular"
+  long       = "cbqi"
+  type       = "bool"
+  default    = "true"
+  help       = "enable conflict-based quantifier instantiation"
+
+[[option]]
+  name       = "cbqiMode"
+  category   = "regular"
+  long       = "cbqi-mode=MODE"
+  type       = "QcfMode"
+  default    = "PROP_EQ"
+  help       = "what effort to apply conflict find mechanism"
+  help_mode  = "Quantifier conflict find modes."
+[[option.mode.CONFLICT_ONLY]]
+  name = "conflict"
+  help = "Apply QCF algorithm to find conflicts only."
+[[option.mode.PROP_EQ]]
+  name = "prop-eq"
+  help = "Apply QCF algorithm to propagate equalities as well as conflicts."
+
+[[option]]
+  name       = "cbqiTConstraint"
+  category   = "expert"
+  long       = "cbqi-tconstraint"
+  type       = "bool"
+  default    = "false"
+  help       = "enable entailment checks for t-constraints in cbqi algorithm"
+
+[[option]]
+  name       = "cbqiAllConflict"
+  category   = "regular"
+  long       = "cbqi-all-conflict"
+  type       = "bool"
+  default    = "false"
+  help       = "add all available conflicting instances during conflict-based instantiation"
+
+[[option]]
+  name       = "cbqiVoExp"
+  category   = "expert"
+  long       = "cbqi-vo-exp"
+  type       = "bool"
+  default    = "false"
+  help       = "cbqi experimental variable ordering"
+
+[[option]]
+  name       = "cbqiEagerTest"
+  category   = "expert"
+  long       = "cbqi-eager-test"
+  type       = "bool"
+  default    = "true"
+  help       = "optimization, test cbqi instances eagerly"
+
+[[option]]
+  name       = "cbqiEagerCheckRd"
+  category   = "expert"
+  long       = "cbqi-eager-check-rd"
+  type       = "bool"
+  default    = "true"
+  help       = "optimization, eagerly check relevant domain of matched position"
+
+[[option]]
+  name       = "cbqiSkipRd"
+  category   = "expert"
+  long       = "cbqi-skip-rd"
+  type       = "bool"
+  default    = "false"
+  help       = "optimization, skip instances based on possibly irrelevant portions of quantified formulas"
+
+[[option]]
+  name       = "instNoEntail"
+  category   = "regular"
+  long       = "inst-no-entail"
+  type       = "bool"
+  default    = "true"
+  help       = "do not consider instances of quantified formulas that are currently entailed"
+
+[[option]]
+  name       = "ievalMode"
+  category   = "regular"
+  long       = "ieval=MODE"
+  type       = "IevalMode"
+  default    = "OFF"
+  help       = "mode for using instantiation evaluation"
+  help_mode  = "Mode for using instantiation evaluation."
+[[option.mode.OFF]]
+  name = "off"
+  help = "Do not use instantiation evaluation."
+[[option.mode.USE]]
+  name = "use"
+  help = "Use instantiation evaluation."
+[[option.mode.USE_LEARN]]
+  name = "use-learn"
+  help = "Use instantiation evaluation, and generalize learning."
+
+### Induction options
+
+[[option]]
+  name       = "quantInduction"
+  category   = "expert"
+  long       = "quant-ind"
+  type       = "bool"
+  default    = "false"
+  help       = "use all available techniques for inductive reasoning"
+
+[[option]]
+  name       = "dtStcInduction"
+  category   = "expert"
+  long       = "dt-stc-ind"
+  type       = "bool"
+  default    = "false"
+  help       = "apply strengthening for existential quantification over datatypes based on structural induction"
+
+[[option]]
+  name       = "intWfInduction"
+  category   = "expert"
+  long       = "int-wf-ind"
+  type       = "bool"
+  default    = "false"
+  help       = "apply strengthening for integers based on well-founded induction"
+
+[[option]]
+  name       = "conjectureGen"
+  category   = "expert"
+  long       = "conjecture-gen"
+  type       = "bool"
+  default    = "false"
+  help       = "generate candidate conjectures for inductive proofs"
+
+[[option]]
+  name       = "conjectureGenPerRound"
+  category   = "expert"
+  long       = "conjecture-gen-per-round=N"
+  type       = "int64_t"
+  default    = "1"
+  help       = "number of conjectures to generate per instantiation round"
+
+[[option]]
+  name       = "conjectureGenGtEnum"
+  category   = "expert"
+  long       = "conjecture-gen-gt-enum=N"
+  type       = "int64_t"
+  default    = "50"
+  help       = "number of ground terms to generate for model filtering"
+
+[[option]]
+  name       = "conjectureGenMaxDepth"
+  category   = "expert"
+  long       = "conjecture-gen-max-depth=N"
+  type       = "int64_t"
+  default    = "3"
+  help       = "maximum depth of terms to consider for conjectures"
+
+### Synthesis options
+
+[[option]]
+  name       = "sygusInference"
+  category   = "expert"
+  long       = "sygus-inference"
+  type       = "bool"
+  default    = "false"
+  help       = "attempt to preprocess arbitrary inputs to sygus conjectures"
+
+# this is set to true for sygus inputs
+[[option]]
+  name       = "sygus"
+  category   = "regular"
+  long       = "sygus"
+  type       = "bool"
+  default    = "false"
+  help       = "support SyGuS commands"
+
+[[option]]
+  name       = "sygusOut"
+  category   = "regular"
+  long       = "sygus-out=MODE"
+  type       = "SygusSolutionOutMode"
+  default    = "STANDARD"
+  help       = "output mode for sygus"
+  help_mode  = "Modes for sygus solution output."
+[[option.mode.STATUS]]
+  name = "status"
+  help = "Print only status for check-synth calls."
+[[option.mode.STATUS_AND_DEF]]
+  name = "status-and-def"
+  help = "Print status followed by definition corresponding to solution."
+[[option.mode.STANDARD]]
+  name = "sygus-standard"
+  help = "Print based on SyGuS standard."
+
+[[option]]
+  name       = "cegqiSingleInvMode"
+  category   = "regular"
+  long       = "sygus-si=MODE"
+  type       = "CegqiSingleInvMode"
+  default    = "NONE"
+  help       = "mode for processing single invocation synthesis conjectures"
+  help_mode  = "Modes for single invocation techniques."
+[[option.mode.NONE]]
+  name = "none"
+  help = "Do not use single invocation techniques."
+[[option.mode.USE]]
+  name = "use"
+  help = "Use single invocation techniques only if grammar is not restrictive."
+[[option.mode.ALL]]
+  name = "all"
+  help = "Always use single invocation techniques."
+
+# Solution reconstruction modes for single invocation conjectures
+#
+# These modes indicate the policy when cvc5 solves a synthesis conjecture using
+# single invocation techniques for a sygus problem with a user-specified
+# grammar.
+#
+[[option]]
+  name       = "cegqiSingleInvReconstruct"
+  category   = "regular"
+  long       = "sygus-si-rcons=MODE"
+  type       = "CegqiSingleInvRconsMode"
+  default    = "ALL"
+  help       = "policy for reconstructing solutions for single invocation conjectures"
+  help_mode  = "Modes for reconstruction solutions while using single invocation techniques."
+[[option.mode.NONE]]
+  name = "none"
+  help = "Do not try to reconstruct solutions in the original (user-provided) grammar when using single invocation techniques. In this mode, solutions produced by cvc5 may violate grammar restrictions."
+[[option.mode.TRY]]
+  name = "try"
+  help = "Try to reconstruct solutions in the original grammar when using single invocation techniques in an incomplete (fail-fast) manner."
+[[option.mode.ALL_LIMIT]]
+  name = "all-limit"
+  help = "Try to reconstruct solutions in the original grammar, but terminate if a maximum number of rounds for reconstruction is exceeded."
+[[option.mode.ALL]]
+  name = "all"
+  help = "Try to reconstruct solutions in the original grammar. In this mode, we do not terminate until a solution is successfully reconstructed."
+
+[[option]]
+  name       = "cegqiSingleInvReconstructLimit"
+  category   = "expert"
+  long       = "sygus-si-rcons-limit=N"
+  type       = "int64_t"
+  default    = "10000"
+  help       = "number of rounds of enumeration to use during solution reconstruction (negative means unlimited)"
+
+[[option]]
+  name       = "cegqiSingleInvAbort"
+  category   = "regular"
+  long       = "sygus-si-abort"
+  type       = "bool"
+  default    = "false"
+  help       = "abort if synthesis conjecture is not single invocation"
+
+[[option]]
+  name       = "sygusConstRepairAbort"
+  category   = "expert"
+  long       = "sygus-crepair-abort"
+  type       = "bool"
+  default    = "false"
+  help       = "abort if constant repair techniques are not applicable"
+
+# Modes for piecewise-independent unification for synthesis (see Barbosa et al
+# FMCAD 2019).
+#
+[[option]]
+  name       = "sygusUnifPi"
+  category   = "regular"
+  long       = "sygus-unif-pi=MODE"
+  type       = "SygusUnifPiMode"
+  default    = "NONE"
+  help       = "mode for synthesis via piecewise-indepedent unification"
+  help_mode  = "Modes for piecewise-independent unification."
+[[option.mode.NONE]]
+  name = "none"
+  help = "Do not use piecewise-independent unification."
+[[option.mode.COMPLETE]]
+  name = "complete"
+  help = "Use complete approach for piecewise-independent unification (see Section 3 of Barbosa et al FMCAD 2019)"
+[[option.mode.CENUM]]
+  name = "cond-enum"
+  help = "Use unconstrained condition enumeration for piecewise-independent unification (see Section 4 of Barbosa et al FMCAD 2019)."
+[[option.mode.CENUM_IGAIN]]
+  name = "cond-enum-igain"
+  help = "Same as cond-enum, but additionally uses an information gain heuristic when doing decision tree learning."
+
+[[option]]
+  name       = "sygusUnifShuffleCond"
+  category   = "expert"
+  long       = "sygus-unif-shuffle-cond"
+  type       = "bool"
+  default    = "false"
+  help       = "Shuffle condition pool when building solutions (may change solutions sizes)"
+
+[[option]]
+  name       = "sygusUnifCondIndNoRepeatSol"
+  category   = "expert"
+  long       = "sygus-unif-cond-independent-no-repeat-sol"
+  type       = "bool"
+  default    = "true"
+  help       = "Do not try repeated solutions when using independent synthesis of conditions in unification-based function synthesis"
+
+[[option]]
+  name       = "sygusBoolIteReturnConst"
+  category   = "expert"
+  long       = "sygus-bool-ite-return-const"
+  type       = "bool"
+  default    = "true"
+  help       = "Only use Boolean constants for return values in unification-based function synthesis"
+
+[[option]]
+  name       = "sygusQePreproc"
+  category   = "expert"
+  long       = "sygus-qe-preproc"
+  type       = "bool"
+  default    = "false"
+  help       = "use quantifier elimination as a preprocessing step for sygus"
+
+[[option]]
+  name       = "sygusRepairConst"
+  category   = "regular"
+  long       = "sygus-repair-const"
+  type       = "bool"
+  default    = "false"
+  help       = "use approach to repair constants in sygus candidate solutions"
+
+[[option]]
+  name       = "sygusCoreConnective"
+  category   = "regular"
+  long       = "sygus-core-connective"
+  type       = "bool"
+  default    = "false"
+  help       = "use unsat core analysis to construct Boolean connective to sygus conjectures"
+
+[[option]]
+  name       = "sygusRepairConstTimeout"
+  category   = "expert"
+  long       = "sygus-repair-const-timeout=N"
+  type       = "uint64_t"
+  default    = "0"
+  help       = "timeout (in milliseconds) for the satisfiability check to repair constants in sygus candidate solutions"
+
+[[option]]
+  name       = "sygusEnumMode"
+  category   = "regular"
+  long       = "sygus-enum=MODE"
+  type       = "SygusEnumMode"
+  default    = "AUTO"
+  help       = "mode for sygus enumeration"
+  help_mode  = "Modes for sygus enumeration."
+[[option.mode.SMART]]
+  name = "smart"
+  help = "Use smart enumeration based on datatype constraints."
+[[option.mode.FAST]]
+  name = "fast"
+  help = "Use optimized enumerator for sygus enumeration."
+[[option.mode.RANDOM]]
+  name = "random"
+  help = "Use basic random enumerator for sygus enumeration."
+[[option.mode.VAR_AGNOSTIC]]
+  name = "var-agnostic"
+  help = "Use sygus solver to enumerate terms that are agnostic to variables."
+[[option.mode.AUTO]]
+  name = "auto"
+  help = "Internally decide the best policy for each enumerator."
+
+[[option]]
+  name       = "sygusEnumRandomP"
+  category   = "expert"
+  long       = "sygus-enum-random-p=P"
+  type       = "double"
+  default    = "0.5"
+  minimum    = "0.0"
+  maximum    = "1.0"
+  help       = "the parameter of the geometric distribution used to determine the size of terms generated by --sygus-enum=random"
+
+[[option]]
+  name       = "sygusEnumFastNumConsts"
+  category   = "expert"
+  long       = "sygus-enum-fast-num-consts=N"
+  type       = "uint64_t"
+  default    = "5"
+  help       = "the branching factor for the number of interpreted constants to consider for each size when using --sygus-enum=fast"
+
+[[option]]
+  name       = "sygusMinGrammar"
+  category   = "regular"
+  long       = "sygus-min-grammar"
+  type       = "bool"
+  default    = "true"
+  help       = "statically minimize sygus grammars"
+
+[[option]]
+  name       = "sygusAddConstGrammar"
+  category   = "regular"
+  long       = "sygus-add-const-grammar"
+  type       = "bool"
+  default    = "true"
+  help       = "statically add constants appearing in conjecture to grammars"
+
+[[option]]
+  name       = "sygusGrammarNorm"
+  category   = "expert"
+  long       = "sygus-grammar-norm"
+  type       = "bool"
+  default    = "false"
+  help       = "statically normalize sygus grammars based on flattening (linearization)"
+
+[[option]]
+  name       = "sygusGrammarConsMode"
+  category   = "regular"
+  long       = "sygus-grammar-cons=MODE"
+  type       = "SygusGrammarConsMode"
+  default    = "SIMPLE"
+  help       = "mode for SyGuS grammar construction"
+  help_mode  = "Modes for default SyGuS grammars."
+[[option.mode.SIMPLE]]
+  name = "simple"
+  help = "Use simple grammar construction (no symbolic terms or constants)."
+[[option.mode.ANY_CONST]]
+  name = "any-const"
+  help = "Use symoblic constant constructors."
+[[option.mode.ANY_TERM]]
+  name = "any-term"
+  help = "When applicable, use constructors corresponding to any symbolic term. This option enables a sum-of-monomials grammar for arithmetic. For all other types, it enables symbolic constant constructors."
+[[option.mode.ANY_TERM_CONCISE]]
+  name = "any-term-concise"
+  help = "When applicable, use constructors corresponding to any symbolic term, favoring conciseness over generality. This option is equivalent to any-term but enables a polynomial grammar for arithmetic when not in a combined theory."
+
+[[option]]
+  name       = "sygusInvTemplMode"
+  category   = "regular"
+  long       = "sygus-inv-templ=MODE"
+  type       = "SygusInvTemplMode"
+  default    = "POST"
+  help       = "template mode for sygus invariant synthesis (weaken pre-condition, strengthen post-condition, or none)"
+  help_mode  = "Template modes for sygus invariant synthesis."
+[[option.mode.NONE]]
+  name = "none"
+  help = "Synthesize invariant directly."
+[[option.mode.PRE]]
+  name = "pre"
+  help = "Synthesize invariant based on weakening of precondition."
+[[option.mode.POST]]
+  name = "post"
+  help = "Synthesize invariant based on strengthening of postcondition."
+
+[[option]]
+  name       = "sygusInvTemplWhenSyntax"
+  category   = "expert"
+  long       = "sygus-inv-templ-when-sg"
+  type       = "bool"
+  default    = "false"
+  help       = "use invariant templates (with solution reconstruction) for syntax guided problems"
+
+[[option]]
+  name       = "sygusInvAutoUnfold"
+  category   = "expert"
+  long       = "sygus-auto-unfold"
+  type       = "bool"
+  default    = "true"
+  help       = "enable approach which automatically unfolds transition systems for directly solving invariant synthesis problems"
+
+[[option]]
+  name       = "sygusUnifPbe"
+  category   = "regular"
+  long       = "sygus-pbe"
+  type       = "bool"
+  default    = "true"
+  help       = "enable approach which unifies conditional solutions, specialized for programming-by-examples (pbe) conjectures"
+
+[[option]]
+  name       = "sygusPbeMultiFair"
+  category   = "expert"
+  long       = "sygus-pbe-multi-fair"
+  type       = "bool"
+  default    = "false"
+  help       = "when using multiple enumerators, ensure that we only register value of minimial term size"
+
+[[option]]
+  name       = "sygusPbeMultiFairDiff"
+  category   = "expert"
+  long       = "sygus-pbe-multi-fair-diff=N"
+  type       = "int64_t"
+  default    = "0"
+  help       = "when using multiple enumerators, ensure that we only register values of minimial term size plus this value (default 0)"
+
+[[option]]
+  name       = "sygusEvalUnfoldMode"
+  category   = "regular"
+  long       = "sygus-eval-unfold=MODE"
+  type       = "SygusEvalUnfoldMode"
+  default    = "SINGLE_BOOL"
+  help       = "modes for sygus evaluation unfolding"
+  help_mode  = "Modes for sygus evaluation unfolding."
+[[option.mode.NONE]]
+  name = "none"
+  help = "Do not use sygus evaluation unfolding."
+[[option.mode.SINGLE]]
+  name = "single"
+  help = "Do single-step unfolding for all evaluation functions."
+[[option.mode.SINGLE_BOOL]]
+  name = "single-bool"
+  help = "Do single-step unfolding for Boolean functions and ITEs, and multi-step unfolding for all others."
+[[option.mode.MULTI]]
+  name = "multi"
+  help = "Do multi-step unfolding for all evaluation functions."
+
+[[option]]
+  name       = "sygusStream"
+  category   = "regular"
+  long       = "sygus-stream"
+  type       = "bool"
+  default    = "false"
+  help       = "enumerate a stream of solutions instead of terminating after the first one"
+
+[[option]]
+  name       = "cegisSample"
+  category   = "regular"
+  long       = "cegis-sample=MODE"
+  type       = "CegisSampleMode"
+  default    = "NONE"
+  help       = "mode for using samples in the counterexample-guided inductive synthesis loop"
+  help_mode  = "Modes for sampling with counterexample-guided inductive synthesis (CEGIS)."
+[[option.mode.NONE]]
+  name = "none"
+  help = "Do not use sampling with CEGIS."
+[[option.mode.USE]]
+  name = "use"
+  help = "Use sampling to accelerate CEGIS. This will rule out solutions for a conjecture when they are not satisfied by a sample point."
+[[option.mode.TRUST]]
+  name = "trust"
+  help = "Trust that when a solution for a conjecture is always true under sampling, then it is indeed a solution. Note this option may print out spurious solutions for synthesis conjectures."
+
+[[option]]
+  name       = "sygusArgRelevant"
+  category   = "expert"
+  long       = "sygus-arg-relevant"
+  type       = "bool"
+  default    = "false"
+  help       = "static inference techniques for computing whether arguments of functions-to-synthesize are relevant"
+
+[[option]]
+  name       = "sygusRecFun"
+  category   = "expert"
+  long       = "sygus-rec-fun"
+  type       = "bool"
+  default    = "true"
+  help       = "enable efficient support for recursive functions in sygus grammars"
+
+[[option]]
+  name       = "sygusRecFunEvalLimit"
+  category   = "expert"
+  long       = "sygus-rec-fun-eval-limit=N"
+  type       = "uint64_t"
+  default    = "1000"
+  help       = "use a hard limit for how many times in a given evaluator call a recursive function can be evaluated (so infinite loops can be avoided)"
+
+[[option]]
+  name       = "sygusVerifyInstMaxRounds"
+  category   = "expert"
+  long       = "sygus-verify-inst-max-rounds=N"
+  type       = "int64_t"
+  default    = "10"
+  help       = "maximum number of instantiation rounds for sygus verification calls (-1 == no limit, default is 10)"
+
+[[option]]
+  name       = "sygusVerifyTimeout"
+  category   = "regular"
+  long       = "sygus-verify-timeout=N"
+  type       = "uint64_t"
+  default    = "0"
+  help       = "timeout (in milliseconds) for verifying satisfiability of synthesized terms"
+
+# Internal uses of sygus
+
+[[option]]
+  name       = "sygusRewSynth"
+  category   = "expert"
+  long       = "sygus-rr-synth"
+  type       = "bool"
+  default    = "false"
+  help       = "use sygus to enumerate candidate rewrite rules"
+
+[[option]]
+  name       = "sygusRewSynthFilterOrder"
+  category   = "expert"
+  long       = "sygus-rr-synth-filter-order"
+  type       = "bool"
+  default    = "true"
+  help       = "filter candidate rewrites based on variable ordering"
+
+[[option]]
+  name       = "sygusRewSynthFilterMatch"
+  category   = "expert"
+  long       = "sygus-rr-synth-filter-match"
+  type       = "bool"
+  default    = "true"
+  help       = "filter candidate rewrites based on matching"
+
+[[option]]
+  name       = "sygusRewSynthFilterCong"
+  category   = "expert"
+  long       = "sygus-rr-synth-filter-cong"
+  type       = "bool"
+  default    = "true"
+  help       = "filter candidate rewrites based on congruence"
+
+[[option]]
+  name       = "sygusRewSynthFilterNonLinear"
+  category   = "expert"
+  long       = "sygus-rr-synth-filter-nl"
+  type       = "bool"
+  default    = "false"
+  help       = "filter non-linear candidate rewrites"
+
+[[option]]
+  name       = "sygusRewVerify"
+  category   = "expert"
+  long       = "sygus-rr-verify"
+  type       = "bool"
+  default    = "false"
+  help       = "use sygus to verify the correctness of rewrite rules via sampling"
+
+[[option]]
+  name       = "sygusSamples"
+  category   = "expert"
+  long       = "sygus-samples=N"
+  type       = "int64_t"
+  default    = "1000"
+  help       = "number of points to consider when doing sygus rewriter sample testing"
+
+[[option]]
+  name       = "sygusSampleGrammar"
+  category   = "expert"
+  long       = "sygus-sample-grammar"
+  type       = "bool"
+  default    = "true"
+  help       = "when applicable, use grammar for choosing sample points"
+
+[[option]]
+  name       = "sygusSampleFpUniform"
+  category   = "expert"
+  long       = "sygus-sample-fp-uniform"
+  type       = "bool"
+  default    = "false"
+  help       = "sample floating-point values uniformly instead of in a biased fashion"
+
+[[option]]
+  name       = "sygusRewSynthAccel"
+  category   = "expert"
+  long       = "sygus-rr-synth-accel"
+  type       = "bool"
+  default    = "false"
+  help       = "add dynamic symmetry breaking clauses based on candidate rewrites"
+
+[[option]]
+  name       = "sygusRewSynthCheck"
+  category   = "expert"
+  long       = "sygus-rr-synth-check"
+  type       = "bool"
+  default    = "true"
+  help       = "use satisfiability check to verify correctness of candidate rewrites"
+
+[[option]]
+  name       = "sygusRewSynthInput"
+  category   = "expert"
+  long       = "sygus-rr-synth-input"
+  type       = "bool"
+  default    = "false"
+  help       = "synthesize rewrite rules based on the input formula"
+
+[[option]]
+  name       = "sygusRewSynthInputNVars"
+  category   = "expert"
+  long       = "sygus-rr-synth-input-nvars=N"
+  type       = "int64_t"
+  default    = "3"
+  help       = "the maximum number of variables per type that appear in rewrites from sygus-rr-synth-input"
+
+[[option]]
+  name       = "sygusRewSynthInputUseBool"
+  category   = "expert"
+  long       = "sygus-rr-synth-input-use-bool"
+  type       = "bool"
+  default    = "false"
+  help       = "synthesize Boolean rewrite rules based on the input formula"
+
+[[option]]
+  name       = "sygusExprMinerCheckTimeout"
+  category   = "expert"
+  long       = "sygus-expr-miner-check-timeout=N"
+  type       = "uint64_t"
+  default    = "0"
+  help       = "timeout (in milliseconds) for satisfiability checks in expression miners"
+
+[[option]]
+  name       = "sygusRewSynthRec"
+  category   = "expert"
+  long       = "sygus-rr-synth-rec"
+  type       = "bool"
+  default    = "false"
+  help       = "synthesize rewrite rules over all sygus grammar types recursively"
+
+[[option]]
+  name       = "sygusQueryGen"
+  category   = "expert"
+  long       = "sygus-query-gen=MODE"
+  type       = "SygusQueryGenMode"
+  default    = "NONE"
+  help       = "mode for generating interesting satisfiability queries using SyGuS, for internal fuzzing"
+  help_mode  = "Modes for generating interesting satisfiability queries using SyGuS."
+[[option.mode.NONE]]
+  name = "none"
+  help = "Do not generate queries with SyGuS."
+[[option.mode.BASIC]]
+  name = "basic"
+  help = "Generate all queries using SyGuS enumeration of the given grammar"
+[[option.mode.SAMPLE_SAT]]
+  name = "sample-sat"
+  help = "Generate interesting SAT queries based on sampling, for e.g. soundness testing."
+[[option.mode.UNSAT]]
+  name = "unsat"
+  help = "Generate interesting UNSAT queries, for e.g. proof testing."
+
+[[option]]
+  name       = "sygusQueryGenThresh"
+  category   = "expert"
+  long       = "sygus-query-gen-thresh=N"
+  type       = "uint64_t"
+  default    = "5"
+  help       = "number of points that we allow to be equal for enumerating satisfiable queries with sygus-query-gen"
+
+[[option]]
+  name       = "sygusQueryGenDumpFiles"
+  category   = "expert"
+  long       = "sygus-query-gen-dump-files=MODE"
+  type       = "SygusQueryDumpFilesMode"
+  default    = "NONE"
+  help       = "mode for dumping external files corresponding to interesting satisfiability queries with sygus-query-gen"
+  help_mode  = "Query file options."
+[[option.mode.NONE]]
+  name = "none"
+  help = "Do not dump query files when using --sygus-query-gen."
+[[option.mode.ALL]]
+  name = "all"
+  help = "Dump all query files."
+[[option.mode.UNSOLVED]]
+  name = "unsolved"
+  help = "Dump query files that the subsolver did not solve."
+
+[[option]]
+  name       = "sygusFilterSolMode"
+  category   = "expert"
+  long       = "sygus-filter-sol=MODE"
+  type       = "SygusFilterSolMode"
+  default    = "NONE"
+  help       = "mode for filtering sygus solutions"
+  help_mode  = "Modes for filtering sygus solutions."
+[[option.mode.NONE]]
+  name = "none"
+  help = "Do not filter sygus solutions."
+[[option.mode.STRONG]]
+  name = "strong"
+  help = "Filter solutions that are logically stronger than others."
+[[option.mode.WEAK]]
+  name = "weak"
+  help = "Filter solutions that are logically weaker than others."
+
+[[option]]
+  name       = "sygusFilterSolRevSubsume"
+  category   = "expert"
+  long       = "sygus-filter-sol-rev"
+  type       = "bool"
+  default    = "false"
+  help       = "compute backwards filtering to compute whether previous solutions are filtered based on later ones"
+
+# CEGQI applied to general quantified formulas
+
+[[option]]
+  name       = "cegqi"
+  category   = "regular"
+  long       = "cegqi"
+  type       = "bool"
+  default    = "false"
+  help       = "turns on counterexample-based quantifier instantiation"
+
+[[option]]
+  name       = "cegqiFullEffort"
+  category   = "expert"
+  long       = "cegqi-full"
+  type       = "bool"
+  default    = "false"
+  help       = "turns on full effort counterexample-based quantifier instantiation, which may resort to model-value instantiation"
+
+[[option]]
+  name       = "cegqiAll"
+  category   = "expert"
+  long       = "cegqi-all"
+  type       = "bool"
+  default    = "false"
+  help       = "apply counterexample-based instantiation to all quantified formulas"
+
+[[option]]
+  name       = "cegqiMultiInst"
+  category   = "expert"
+  long       = "cegqi-multi-inst"
+  type       = "bool"
+  default    = "false"
+  help       = "when applicable, do multi instantiations per quantifier per round in counterexample-based quantifier instantiation"
+
+[[option]]
+  name       = "cegqiInnermost"
+  category   = "regular"
+  long       = "cegqi-innermost"
+  type       = "bool"
+  default    = "true"
+  help       = "only process innermost quantified formulas in counterexample-based quantifier instantiation"
+
+[[option]]
+  name       = "cegqiNestedQE"
+  category   = "regular"
+  long       = "cegqi-nested-qe"
+  type       = "bool"
+  default    = "false"
+  help       = "process nested quantified formulas with quantifier elimination in counterexample-based quantifier instantiation"
+
+# CEGQI for arithmetic
+
+[[option]]
+  name       = "cegqiUseInfInt"
+  category   = "regular"
+  long       = "cegqi-inf-int"
+  type       = "bool"
+  default    = "false"
+  help       = "use integer infinity for vts in counterexample-based quantifier instantiation"
+
+[[option]]
+  name       = "cegqiUseInfReal"
+  category   = "regular"
+  long       = "cegqi-inf-real"
+  type       = "bool"
+  default    = "false"
+  help       = "use real infinity for vts in counterexample-based quantifier instantiation"
+
+[[option]]
+  name       = "cegqiMinBounds"
+  category   = "expert"
+  long       = "cegqi-min-bounds"
+  type       = "bool"
+  default    = "false"
+  help       = "use minimally constrained lower/upper bound for counterexample-based quantifier instantiation"
+
+[[option]]
+  name       = "cegqiRoundUpLowerLia"
+  category   = "expert"
+  long       = "cegqi-round-up-lia"
+  type       = "bool"
+  default    = "false"
+  help       = "round up integer lower bounds in substitutions for counterexample-based quantifier instantiation"
+
+[[option]]
+  name       = "cegqiMidpoint"
+  category   = "regular"
+  long       = "cegqi-midpoint"
+  type       = "bool"
+  default    = "false"
+  help       = "choose substitutions based on midpoints of lower and upper bounds for counterexample-based quantifier instantiation"
+
+[[option]]
+  name       = "cegqiNopt"
+  category   = "expert"
+  long       = "cegqi-nopt"
+  type       = "bool"
+  default    = "true"
+  help       = "non-optimal bounds for counterexample-based quantifier instantiation"
+
+# CEGQI for BV
+
+[[option]]
+  name       = "cegqiBv"
+  category   = "regular"
+  long       = "cegqi-bv"
+  type       = "bool"
+  default    = "true"
+  help       = "use word-level inversion approach for counterexample-guided quantifier instantiation for bit-vectors"
+
+[[option]]
+  name       = "cegqiBvInterleaveValue"
+  category   = "expert"
+  long       = "cegqi-bv-interleave-value"
+  type       = "bool"
+  default    = "false"
+  help       = "interleave model value instantiation with word-level inversion approach"
+
+[[option]]
+  name       = "cegqiBvIneqMode"
+  category   = "regular"
+  long       = "cegqi-bv-ineq=MODE"
+  type       = "CegqiBvIneqMode"
+  default    = "EQ_BOUNDARY"
+  help       = "choose mode for handling bit-vector inequalities with counterexample-guided instantiation"
+  help_mode  = "Modes for handling bit-vector inequalities in counterexample-guided instantiation."
+[[option.mode.EQ_SLACK]]
+  name = "eq-slack"
+  help = "Solve for the inequality using the slack value in the model, e.g., t > s becomes t = s + ( t-s )^M."
+[[option.mode.EQ_BOUNDARY]]
+  name = "eq-boundary"
+  help = "Solve for the boundary point of the inequality, e.g., t > s becomes t = s+1."
+[[option.mode.KEEP]]
+  name = "keep"
+  help = "Solve for the inequality directly using side conditions for invertibility."
+
+[[option]]
+  name       = "cegqiBvRmExtract"
+  category   = "expert"
+  long       = "cegqi-bv-rm-extract"
+  type       = "bool"
+  default    = "true"
+  help       = "replaces extract terms with variables for counterexample-guided instantiation for bit-vectors"
+
+[[option]]
+  name       = "cegqiBvLinearize"
+  category   = "expert"
+  long       = "cegqi-bv-linear"
+  type       = "bool"
+  default    = "true"
+  help       = "linearize adder chains for variables"
+
+[[option]]
+  name       = "cegqiBvSolveNl"
+  category   = "expert"
+  long       = "cegqi-bv-solve-nl"
+  type       = "bool"
+  default    = "false"
+  help       = "try to solve non-linear bv literals using model value projections"
+
+[[option]]
+  name       = "cegqiBvConcInv"
+  category   = "expert"
+  long       = "cegqi-bv-concat-inv"
+  type       = "bool"
+  default    = "true"
+  help       = "compute inverse for concat over equalities rather than producing an invertibility condition"
+
+### Reduction options
+
+[[option]]
+  name       = "quantAlphaEquiv"
+  category   = "regular"
+  long       = "quant-alpha-equiv"
+  type       = "bool"
+  default    = "true"
+  help       = "infer alpha equivalence between quantified formulas"
+
+[[option]]
+  name       = "macrosQuant"
+  category   = "regular"
+  long       = "macros-quant"
+  type       = "bool"
+  default    = "false"
+  help       = "perform quantifiers macro expansion"
+
+[[option]]
+  name       = "macrosQuantMode"
+  category   = "regular"
+  long       = "macros-quant-mode=MODE"
+  type       = "MacrosQuantMode"
+  default    = "GROUND_UF"
+  help       = "mode for quantifiers macro expansion"
+  help_mode  = "Modes for quantifiers macro expansion."
+[[option.mode.ALL]]
+  name = "all"
+  help = "Infer definitions for functions, including those containing quantified formulas."
+[[option.mode.GROUND]]
+  name = "ground"
+  help = "Only infer ground definitions for functions."
+[[option.mode.GROUND_UF]]
+  name = "ground-uf"
+  help = "Only infer ground definitions for functions that result in triggers for all free variables."
+
+[[option]]
+  name       = "quantDynamicSplit"
+  category   = "regular"
+  long       = "quant-dsplit=MODE"
+  type       = "QuantDSplitMode"
+  default    = "DEFAULT"
+  help       = "mode for dynamic quantifiers splitting"
+  help_mode  = "Modes for quantifiers splitting."
+[[option.mode.NONE]]
+  name = "none"
+  help = "Never split quantified formulas."
+[[option.mode.DEFAULT]]
+  name = "default"
+  help = "Split quantified formulas over some finite datatypes when finite model finding is enabled."
+[[option.mode.AGG]]
+  name = "agg"
+  help = "Aggressively split quantified formulas."
+
+### Higher-order options
+
+[[option]]
+  name       = "hoMatching"
+  category   = "expert"
+  long       = "ho-matching"
+  type       = "bool"
+  default    = "true"
+  help       = "do higher-order matching algorithm for triggers with variable operators"
+
+[[option]]
+  name       = "hoMergeTermDb"
+  category   = "expert"
+  long       = "ho-merge-term-db"
+  type       = "bool"
+  default    = "true"
+  help       = "merge term indices modulo equality"
+
+[[option]]
+  name       = "hoElim"
+  category   = "regular"
+  long       = "ho-elim"
+  type       = "bool"
+  default    = "false"
+  help       = "eagerly eliminate higher-order constraints"
+
+[[option]]
+  name       = "hoElimStoreAx"
+  category   = "regular"
+  long       = "ho-elim-store-ax"
+  type       = "bool"
+  default    = "true"
+  help       = "use store axiom during ho-elim"
+
+### SyGuS instantiation options
+
+[[option]]
+  name       = "sygusInst"
+  category   = "regular"
+  long       = "sygus-inst"
+  type       = "bool"
+  default    = "false"
+  help       = "Enable SyGuS instantiation quantifiers module"
+
+[[option]]
+  name       = "sygusInstScope"
+  category   = "expert"
+  long       = "sygus-inst-scope=MODE"
+  type       = "SygusInstScope"
+  default    = "IN"
+  help       = "select scope of ground terms"
+  help_mode  = "scope for collecting ground terms for the grammar."
+[[option.mode.IN]]
+  name = "in"
+  help = "use ground terms inside given quantified formula only."
+[[option.mode.OUT]]
+  name = "out"
+  help = "use ground terms outside of quantified formulas only."
+[[option.mode.BOTH]]
+  name = "both"
+  help = "combines inside and outside."
+
+[[option]]
+  name       = "sygusInstTermSel"
+  category   = "expert"
+  long       = "sygus-inst-term-sel=MODE"
+  type       = "SygusInstTermSelMode"
+  default    = "MIN"
+  help       = "granularity for ground terms"
+  help_mode  = "Ground term selection modes."
+[[option.mode.MIN]]
+  name = "min"
+  help = "collect minimal ground terms only."
+[[option.mode.MAX]]
+  name = "max"
+  help = "collect maximal ground terms only."
+[[option.mode.BOTH]]
+  name = "both"
+  help = "combines minimal and maximal ."
+
+[[option]]
+  name       = "sygusInstMode"
+  category   = "expert"
+  long       = "sygus-inst-mode=MODE"
+  type       = "SygusInstMode"
+  default    = "PRIORITY_INST"
+  help       = "select instantiation lemma mode"
+  help_mode  = "SyGuS instantiation lemma modes."
+[[option.mode.PRIORITY_INST]]
+  name = "priority-inst"
+  help = "add instantiation lemmas first, add evaluation unfolding if instantiation fails."
+[[option.mode.PRIORITY_EVAL]]
+  name = "priority-eval"
+  help = "add evaluation unfolding lemma first, add instantiation lemma if unfolding lemmas already added."
+[[option.mode.INTERLEAVE]]
+  name = "interleave"
+  help = "add instantiation and evaluation unfolding lemmas in the same step."

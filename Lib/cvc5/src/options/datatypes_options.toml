@@ -1,0 +1,166 @@
+id     = "DATATYPES"
+name   = "Datatypes Theory"
+
+[[option]]
+  name       = "dtPoliteOptimize"
+  category   = "expert"
+  long       = "dt-polite-optimize"
+  type       = "bool"
+  default    = "true"
+  help       = "turn on optimization for polite combination"
+
+[[option]]
+  name       = "dtBinarySplit"
+  category   = "expert"
+  long       = "dt-binary-split"
+  type       = "bool"
+  default    = "false"
+  help       = "do binary splits for datatype constructor types"
+
+[[option]]
+  name       = "cdtBisimilar"
+  category   = "expert"
+  long       = "cdt-bisimilar"
+  type       = "bool"
+  default    = "true"
+  help       = "do bisimilarity check for co-datatypes"
+
+[[option]]
+  name       = "dtCyclic"
+  category   = "expert"
+  long       = "dt-cyclic"
+  type       = "bool"
+  default    = "true"
+  help       = "do cyclicity check for datatypes"
+
+[[option]]
+  name       = "dtInferAsLemmas"
+  category   = "expert"
+  long       = "dt-infer-as-lemmas"
+  type       = "bool"
+  default    = "false"
+  help       = "always send lemmas out instead of making internal inferences"
+
+[[option]]
+  name       = "dtBlastSplits"
+  category   = "expert"
+  long       = "dt-blast-splits"
+  type       = "bool"
+  default    = "false"
+  help       = "when applicable, blast splitting lemmas for all variables at once"
+
+[[option]]
+  name       = "dtNestedRec"
+  category   = "expert"
+  long       = "dt-nested-rec"
+  type       = "bool"
+  default    = "false"
+  help       = "allow nested recursion in datatype definitions"
+
+[[option]]
+  name       = "dtSharedSelectors"
+  category   = "regular"
+  long       = "dt-share-sel"
+  type       = "bool"
+  default    = "true"
+  help       = "internally use shared selectors across multiple constructors"
+
+[[option]]
+  name       = "sygusSimpleSymBreak"
+  category   = "regular"
+  long       = "sygus-simple-sym-break=MODE"
+  type       = "SygusSimpleSymBreakMode"
+  default    = "AGG"
+  help       = "if and how to apply simple symmetry breaking based on the grammar for smart enumeration"
+  help_mode  = "Modes for applying simple symmetry breaking based on the grammar for smart enumeration."
+[[option.mode.NONE]]
+  name = "none"
+  help = "Do not apply simple symmetry breaking."
+[[option.mode.BASIC]]
+  name = "basic"
+  help = "Apply basic simple symmetry breaking."
+[[option.mode.AGG]]
+  name = "agg"
+  help = "Apply aggressive simple symmetry breaking."
+  
+[[option]]
+  name       = "sygusRewriter"
+  category   = "regular"
+  long       = "sygus-rewriter=MODE"
+  type       = "SygusRewriterMode"
+  default    = "EXTENDED"
+  help       = "if and how to apply rewriting for sygus symmetry breaking"
+  help_mode  = "Modes for applying rewriting for sygus symmetry breaking."
+[[option.mode.NONE]]
+  name = "none"
+  help = "Do not use the rewriter."
+[[option.mode.BASIC]]
+  name = "basic"
+  help = "Use the basic rewriter."
+[[option.mode.EXTENDED]]
+  name = "extended"
+  help = "Use the extended rewriter."
+
+[[option]]
+  name       = "sygusSymBreakPbe"
+  category   = "regular"
+  long       = "sygus-sym-break-pbe"
+  type       = "bool"
+  default    = "true"
+  help       = "sygus symmetry breaking lemmas based on pbe conjectures"
+
+[[option]]
+  name       = "sygusSymBreakLazy"
+  category   = "expert"
+  long       = "sygus-sym-break-lazy"
+  type       = "bool"
+  default    = "true"
+  help       = "lazily add symmetry breaking lemmas for terms"
+
+[[option]]
+  name       = "sygusSymBreakRlv"
+  category   = "expert"
+  long       = "sygus-sym-break-rlv"
+  type       = "bool"
+  default    = "true"
+  help       = "add relevancy conditions to symmetry breaking lemmas"
+
+[[option]]
+  name       = "sygusFair"
+  category   = "regular"
+  long       = "sygus-fair=MODE"
+  type       = "SygusFairMode"
+  default    = "DT_SIZE"
+  help       = "if and how to apply fairness for sygus"
+  help_mode  = "Modes for enforcing fairness for counterexample guided quantifier instantion."
+[[option.mode.DIRECT]]
+  name = "direct"
+  help = "Enforce fairness using direct conflict lemmas."
+[[option.mode.DT_SIZE]]
+  name = "dt-size"
+  help = "Enforce fairness using size operator."
+[[option.mode.DT_HEIGHT_PRED]]
+  name = "dt-height-bound"
+  help = "Enforce fairness by height bound predicate."
+[[option.mode.DT_SIZE_PRED]]
+  name = "dt-size-bound"
+  help = "Enforce fairness by size bound predicate."
+[[option.mode.NONE]]
+  name = "none"
+  help = "Do not enforce fairness."
+
+[[option]]
+  name       = "sygusFairMax"
+  category   = "expert"
+  long       = "sygus-fair-max"
+  type       = "bool"
+  default    = "true"
+  help       = "use max instead of sum for multi-function sygus conjectures"
+
+[[option]]
+  name       = "sygusAbortSize"
+  category   = "regular"
+  long       = "sygus-abort-size=N"
+  type       = "int64_t"
+  default    = "-1"
+  help       = "tells enumerative sygus to only consider solutions up to term size N (-1 == no limit, default)"

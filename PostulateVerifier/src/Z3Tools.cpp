@@ -134,7 +134,6 @@ float Z3Tools::eval(const std::string& s, const std::map<std::string, float>& va
 			if (vars.count(s.substr(1, s.length() - 1))) { return -vars.at(s.substr(1, s.length() - 1)); }
 			if (s[1] == '(' and s.back() == ')') { return -eval(s.substr(2, s.length() - 3), vars); }
 			if (s[1] == '[' and s.back() == ']') { return -std::abs(eval(s.substr(2, s.length() - 3), vars)); }
-			if (s[1] == '!') { return -!eval(s.substr(2, s.length() - 2), vars); }
 		}
 		if (s == "t") { return true; }
 		if (s == "f") { return false; }
@@ -165,7 +164,7 @@ float Z3Tools::eval(const std::string& s, const std::map<std::string, float>& va
 	}
 }
 
-bool Z3Tools::isSolvable(equation s, const std::vector<std::vector<float>>& identifiers) {
+equationResult Z3Tools::isSolvable(equation s, const std::vector<std::vector<float>>& identifiers) {
 	z3::context c;
 	z3::solver solver(c);
 
@@ -179,10 +178,10 @@ bool Z3Tools::isSolvable(equation s, const std::vector<std::vector<float>>& iden
 	//std::cout << solver << "\n";
 	//std::cout << solver.to_smt2() << "\n\n::\n\n";
 	switch (solver.check()) {
-	case z3::sat: return true; //std::cout << "\n\n=========\n\n" << solver.get_model() << std::endl;
-	case z3::unsat: return false;
+	case z3::sat: {z3::model m = solver.get_model(); return { true, &m }; }
+	case z3::unsat: return { false, nullptr };
 	case z3::unknown: throw std::invalid_argument("Error when resolving expression");
-	default: return false;
+	default: return { false, nullptr };
 	}
 }
 
@@ -190,6 +189,7 @@ std::string Z3Tools::toLisp(const std::string& s, const std::map<std::string, fl
 	std::set<std::string> toDefine;
 	std::vector<std::pair<std::string, std::string>> sqrts;
 	std::string out = "(assert " + recToLisp(s, vars, toDefine, sqrts) + ")(check-sat)";
+
 	for (int i = sqrts.size() - 1; i >= 0; --i) {
 		std::string def = sqrts[i].first;
 		std::string pow = sqrts[i].second;
@@ -269,9 +269,18 @@ std::string Z3Tools::recToLisp(const std::string& s, const std::map<std::string,
 	case '-': return "(- " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")";
 	case '*': return "(* " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")";
 	case '/': return "(/ " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")";
-	case '^': return "(^ " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")"; //s2 alleen ints (https://stackoverflow.com/questions/36812843/why-z3-always-return-unknown-when-assertions-have-power)
-	case '~': sqrts.push_back({ recToLisp(s2, vars, toDefine, sqrts) , recToLisp(s1, vars, toDefine, sqrts) });
-		return "sqrt" + std::to_string(sqrts.size() - 1); //s2 alleen ints (https://stackoverflow.com/questions/36812843/why-z3-always-return-unknown-when-assertions-have-power)
+	case '^': return "(^ " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")"; //s2 only ints (https://stackoverflow.com/questions/36812843/why-z3-always-return-unknown-when-assertions-have-power)
+	case '~': {
+		std::pair<std::string, std::string> sqrt = { recToLisp(s2, vars, toDefine, sqrts) , recToLisp(s1, vars, toDefine, sqrts) };
+		auto it = std::find(sqrts.begin(), sqrts.end(), sqrt);
+		if (it != sqrts.end()) {
+			return "sqrt" + std::to_string(it - sqrts.begin());
+		}
+		else {
+			sqrts.push_back(sqrt);
+			return "sqrt" + std::to_string(sqrts.size() - 1); //s2 only ints (https://stackoverflow.com/questions/36812843/why-z3-always-return-unknown-when-assertions-have-power)
+		}
+	}
 	default:  throw std::invalid_argument("Invalid operator");
 	}
 }

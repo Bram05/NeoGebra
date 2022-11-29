@@ -1,0 +1,18 @@
+id     = "SEP"
+name   = "Separation Logic Theory"
+
+[[option]]
+  name       = "sepMinimalRefine"
+  category   = "expert"
+  long       = "sep-min-refine"
+  type       = "bool"
+  default    = "false"
+  help       = "only add refinement lemmas for minimal (innermost) assertions"
+
+[[option]]
+  name       = "sepPreSkolemEmp"
+  category   = "expert"
+  long       = "sep-pre-skolem-emp"
+  type       = "bool"
+  default    = "false"
+  help       = "eliminate emp constraint at preprocess time"

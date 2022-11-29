@@ -1,0 +1,15 @@
+/stamp-h
+/stamp-h1
+/cvc4-*.tar.gz
+/cvc4-*.tar.bz2
+/build/
+/doc/doxygen
+callgrind.out*
+gmon.out
+stamp-generated
+generated/
+*~
+\#*\#
+*.swp
+/debug/
+/deps/

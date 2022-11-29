@@ -1,0 +1,76 @@
+id     = "UF"
+name   = "Uninterpreted Functions Theory"
+
+[[option]]
+  name       = "ufSymmetryBreaker"
+  category   = "expert"
+  long       = "symmetry-breaker"
+  type       = "bool"
+  default    = "true"
+  help       = "use UF symmetry breaker (Deharbe et al., CADE 2011)"
+
+[[option]]
+  name       = "ufssAbortCardinality"
+  category   = "regular"
+  long       = "uf-ss-abort-card=N"
+  type       = "int64_t"
+  default    = "-1"
+  help       = "tells the uf with cardinality to only consider models that interpret uninterpreted sorts of cardinality at most N (-1 == no limit, default)"
+
+[[option]]
+  name       = "ufssMode"
+  category   = "regular"
+  long       = "uf-ss=MODE"
+  type       = "UfssMode"
+  default    = "FULL"
+  help       = "mode of operation for uf with cardinality solver."
+  help_mode  = "UF with cardinality options currently supported by the --uf-ss option when combined with finite model finding."
+[[option.mode.FULL]]
+  name = "full"
+  help = "Default, use UF with cardinality to find minimal models for uninterpreted sorts."
+[[option.mode.NO_MINIMAL]]
+  name = "no-minimal"
+  help = "Use UF with cardinality to shrink models, but do no enforce minimality."
+[[option.mode.NONE]]
+  name = "none"
+  help = "Do not use UF with cardinality to shrink model sizes."
+
+[[option]]
+  name       = "ufssFairness"
+  category   = "regular"
+  long       = "uf-ss-fair"
+  type       = "bool"
+  default    = "true"
+  help       = "use fair strategy for finite model finding multiple sorts"
+
+[[option]]
+  name       = "ufssFairnessMonotone"
+  category   = "expert"
+  long       = "uf-ss-fair-monotone"
+  type       = "bool"
+  default    = "false"
+  help       = "group monotone sorts when enforcing fairness for finite model finding"
+
+[[option]]
+  name       = "ufHoExt"
+  category   = "expert"
+  long       = "uf-ho-ext"
+  type       = "bool"
+  default    = "true"
+  help       = "apply extensionality on function symbols"
+
+[[option]]
+  name       = "ufHoLazyLambdaLift"
+  category   = "regular"
+  long       = "uf-lazy-ll"
+  type       = "bool"
+  default    = "false"
+  help       = "do lambda lifting lazily"
+
+[[option]]
+  name       = "eagerArithBvConv"
+  category   = "expert"
+  long       = "eager-arith-bv-conv"
+  type       = "bool"
+  default    = "false"
+  help       = "eagerly expand bit-vector to arithmetic conversions during preprocessing"
