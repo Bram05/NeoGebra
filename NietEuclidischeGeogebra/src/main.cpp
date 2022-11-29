@@ -3,6 +3,7 @@
 
 #include "Application.h"
 
+// Entry point
 int main()
 {
 	try

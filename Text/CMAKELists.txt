@@ -1,0 +1,8 @@
+project ("Text")
+
+add_library ("Text" STATIC "${CMAKE_HOME_DIRECTORY}/Lib/FreeType/lib/vs2015-2022/win32/freetype.lib")
+target_include_directories(${PROJECT_NAME} PUBLIC "src" "${CMAKE_HOME_DIRECTORY}/Lib/FreeType/include")
+
+if (CMAKE_VERSION VERSION_GREATER 3.12)
+  set_property(TARGET PostulateVerifier PROPERTY CXX_STANDARD 20)
+endif()

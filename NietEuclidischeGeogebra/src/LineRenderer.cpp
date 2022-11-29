@@ -1,3 +1,5 @@
+// Standard library files and some others are automatically included from the precompiled header
+// https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
 #include "LineRenderer.h"
 
 #include "Application.h"
@@ -19,7 +21,7 @@ void LineRenderer::AddToRenderQueue(std::shared_ptr<Line> line)
 void LineRenderer::RenderQueue()
 {
 	m_Shader.Bind();
-	glLineWidth(10.0f);
+	//glLineWidth(10.0f);
 	while (m_RenderQueue.size() != 0)
 	{
 		std::shared_ptr<Line> l = m_RenderQueue.front();

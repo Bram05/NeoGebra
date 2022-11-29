@@ -31,7 +31,10 @@ Window::Window(const WindowCreationOptions& options)
 	s_Initialized = true;
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	#ifdef DEBUG
+	glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+	#endif
 
 	//glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
@@ -55,7 +58,6 @@ Window::Window(const WindowCreationOptions& options)
 
 	glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
 		Application::Get()->GetRenderer()->Resize(width, height);
-		//Application::Get()->GetWindow()->Update();
 	});
 }
 
@@ -86,4 +88,11 @@ std::pair<int, int> Window::GetSize() const
 	int width, height;
 	glfwGetWindowSize(m_Window, &width, &height);
 	return {width, height};
+}
+
+std::pair<int, int> Window::GetMouseLocation() const
+{
+	double x, y;
+	glfwGetCursorPos(m_Window, &x, &y);
+	return {x, y};
 }
