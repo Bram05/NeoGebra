@@ -23,7 +23,7 @@ public:
 	void Resize(int width, int height);
 
 	// Add the object to the corresponding renderers queue
-	void Render(std::shared_ptr<Line> line);
+	void AddToRenderQueue(std::shared_ptr<Line> line);
 
 	~Renderer();
 	friend Application;

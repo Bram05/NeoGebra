@@ -19,6 +19,6 @@ void PostulateVerifierResultUI::RenderPass(Renderer* r)
 {
 	for (const std::shared_ptr<Line>& l : m_Lines)
 	{
-		r->Render(l);
+		r->AddToRenderQueue(l);
 	}
 }
