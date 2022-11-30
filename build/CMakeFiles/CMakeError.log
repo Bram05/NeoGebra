@@ -1,0 +1,203 @@
+Performing C SOURCE FILE Test HAVE_C_FLAG_O3 failed with the following output:
+Change Dir: C:/Users/BramS/Documents/programmeren/cpp/NietEuclidischeGeogebra/build/CMakeFiles/CMakeScratch/TryCompile-78ffm4
+
+Run Build Command(s):C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_233ac.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:m && MSBuild version 17.4.0+18d5aef85 for .NET Framework
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.34.31933 for x64
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  src.c
+  cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_C_FLAG_O3 /D "CMAKE_INTDIR=\"Debug\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_233ac.dir\Debug\\" /Fd"cmTC_233ac.dir\Debug\vc143.pdb" /external:W3 /Gd /TC /errorReport:queue  -O3 "C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-78ffm4\src.c"
+cl : command line  warning D9002: ignoring unknown option '-O3' [C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-78ffm4\cmTC_233ac.vcxproj]
+  cmTC_233ac.vcxproj -> C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-78ffm4\Debug\cmTC_233ac.exe
+
+
+Source file was:
+int main(void) { return 0; }
+
+Performing C++ SOURCE FILE Test HAVE_CXX_FLAG_O3 failed with the following output:
+Change Dir: C:/Users/BramS/Documents/programmeren/cpp/NietEuclidischeGeogebra/build/CMakeFiles/CMakeScratch/TryCompile-sjvimg
+
+Run Build Command(s):C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_24c42.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:m && MSBuild version 17.4.0+18d5aef85 for .NET Framework
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.34.31933 for x64
+  src.cxx
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  cl /c /Zi /W3 /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_CXX_FLAG_O3 /D "CMAKE_INTDIR=\"Debug\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /std:c++17 /Fo"cmTC_24c42.dir\Debug\\" /Fd"cmTC_24c42.dir\Debug\vc143.pdb" /external:W3 /Gd /TP /errorReport:queue  -O3 "C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-sjvimg\src.cxx"
+cl : command line  warning D9002: ignoring unknown option '-O3' [C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-sjvimg\cmTC_24c42.vcxproj]
+  cmTC_24c42.vcxproj -> C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-sjvimg\Debug\cmTC_24c42.exe
+
+
+Source file was:
+int main() { return 0; }
+
+Performing C SOURCE FILE Test HAVE_C_FLAG_Wunused_private_field failed with the following output:
+Change Dir: C:/Users/BramS/Documents/programmeren/cpp/NietEuclidischeGeogebra/build/CMakeFiles/CMakeScratch/TryCompile-rdobun
+
+Run Build Command(s):C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_d71e5.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:m && MSBuild version 17.4.0+18d5aef85 for .NET Framework
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.34.31933 for x64
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  cl /c /Zi /Wall /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_C_FLAG_Wunused_private_field /D "CMAKE_INTDIR=\"Debug\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_d71e5.dir\Debug\\" /Fd"cmTC_d71e5.dir\Debug\vc143.pdb" /external:W4 /Gd /TC /errorReport:queue  -Wunused-private-field "C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-rdobun\src.c"
+cl : command line  error D8021: invalid numeric argument '/Wunused-private-field' [C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-rdobun\cmTC_d71e5.vcxproj]
+
+
+Source file was:
+int main(void) { return 0; }
+
+Performing C++ SOURCE FILE Test HAVE_CXX_FLAG_Wunused_private_field failed with the following output:
+Change Dir: C:/Users/BramS/Documents/programmeren/cpp/NietEuclidischeGeogebra/build/CMakeFiles/CMakeScratch/TryCompile-sba23s
+
+Run Build Command(s):C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_a0ad5.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:m && MSBuild version 17.4.0+18d5aef85 for .NET Framework
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.34.31933 for x64
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  cl /c /Zi /Wall /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_CXX_FLAG_Wunused_private_field /D "CMAKE_INTDIR=\"Debug\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /std:c++17 /Fo"cmTC_a0ad5.dir\Debug\\" /Fd"cmTC_a0ad5.dir\Debug\vc143.pdb" /external:W4 /Gd /TP /errorReport:queue  -Wunused-private-field "C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-sba23s\src.cxx"
+cl : command line  error D8021: invalid numeric argument '/Wunused-private-field' [C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-sba23s\cmTC_a0ad5.vcxproj]
+
+
+Source file was:
+int main() { return 0; }
+
+Performing C SOURCE FILE Test HAVE_C_FLAG_fexceptions failed with the following output:
+Change Dir: C:/Users/BramS/Documents/programmeren/cpp/NietEuclidischeGeogebra/build/CMakeFiles/CMakeScratch/TryCompile-sp4c22
+
+Run Build Command(s):C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_1ddf6.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:m && MSBuild version 17.4.0+18d5aef85 for .NET Framework
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.34.31933 for x64
+  src.c
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  cl /c /Zi /Wall /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_C_FLAG_fexceptions /D "CMAKE_INTDIR=\"Debug\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_1ddf6.dir\Debug\\" /Fd"cmTC_1ddf6.dir\Debug\vc143.pdb" /external:W4 /Gd /TC /errorReport:queue  -fexceptions "C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-sp4c22\src.c"
+cl : command line  warning D9002: ignoring unknown option '-fexceptions' [C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-sp4c22\cmTC_1ddf6.vcxproj]
+  cmTC_1ddf6.vcxproj -> C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-sp4c22\Debug\cmTC_1ddf6.exe
+
+
+Source file was:
+int main(void) { return 0; }
+
+Performing C++ SOURCE FILE Test HAVE_CXX_FLAG_Wsuggest_override failed with the following output:
+Change Dir: C:/Users/BramS/Documents/programmeren/cpp/NietEuclidischeGeogebra/build/CMakeFiles/CMakeScratch/TryCompile-kufqjw
+
+Run Build Command(s):C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_c4ec3.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:m && MSBuild version 17.4.0+18d5aef85 for .NET Framework
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.34.31933 for x64
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  cl /c /Zi /Wall /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_CXX_FLAG_Wsuggest_override /D "CMAKE_INTDIR=\"Debug\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /std:c++17 /Fo"cmTC_c4ec3.dir\Debug\\" /Fd"cmTC_c4ec3.dir\Debug\vc143.pdb" /external:W4 /Gd /TP /errorReport:queue  -Wsuggest-override "C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-kufqjw\src.cxx"
+cl : command line  error D8021: invalid numeric argument '/Wsuggest-override' [C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-kufqjw\cmTC_c4ec3.vcxproj]
+
+
+Source file was:
+int main() { return 0; }
+
+Performing C++ SOURCE FILE Test HAVE_CXX_FLAG_Wnon_virtual_dtor failed with the following output:
+Change Dir: C:/Users/BramS/Documents/programmeren/cpp/NietEuclidischeGeogebra/build/CMakeFiles/CMakeScratch/TryCompile-56ply1
+
+Run Build Command(s):C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_3defc.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:m && MSBuild version 17.4.0+18d5aef85 for .NET Framework
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.34.31933 for x64
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  cl /c /Zi /Wall /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_CXX_FLAG_Wnon_virtual_dtor /D "CMAKE_INTDIR=\"Debug\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /std:c++17 /Fo"cmTC_3defc.dir\Debug\\" /Fd"cmTC_3defc.dir\Debug\vc143.pdb" /external:W4 /Gd /TP /errorReport:queue  -Wnon-virtual-dtor "C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-56ply1\src.cxx"
+cl : command line  error D8021: invalid numeric argument '/Wnon-virtual-dtor' [C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-56ply1\cmTC_3defc.vcxproj]
+
+
+Source file was:
+int main() { return 0; }
+
+Performing C SOURCE FILE Test HAVE_C_FLAG_Wimplicit_fallthrough failed with the following output:
+Change Dir: C:/Users/BramS/Documents/programmeren/cpp/NietEuclidischeGeogebra/build/CMakeFiles/CMakeScratch/TryCompile-lwp1hd
+
+Run Build Command(s):C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_a0e2e.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:m && MSBuild version 17.4.0+18d5aef85 for .NET Framework
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.34.31933 for x64
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  cl /c /Zi /Wall /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_C_FLAG_Wimplicit_fallthrough /D "CMAKE_INTDIR=\"Debug\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_a0e2e.dir\Debug\\" /Fd"cmTC_a0e2e.dir\Debug\vc143.pdb" /external:W4 /Gd /TC /errorReport:queue  -Wimplicit-fallthrough "C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-lwp1hd\src.c"
+cl : command line  error D8021: invalid numeric argument '/Wimplicit-fallthrough' [C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-lwp1hd\cmTC_a0e2e.vcxproj]
+
+
+Source file was:
+int main(void) { return 0; }
+
+Performing C++ SOURCE FILE Test HAVE_CXX_FLAG_Wimplicit_fallthrough failed with the following output:
+Change Dir: C:/Users/BramS/Documents/programmeren/cpp/NietEuclidischeGeogebra/build/CMakeFiles/CMakeScratch/TryCompile-eb956s
+
+Run Build Command(s):C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_4a270.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:m && MSBuild version 17.4.0+18d5aef85 for .NET Framework
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.34.31933 for x64
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  cl /c /Zi /Wall /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_CXX_FLAG_Wimplicit_fallthrough /D "CMAKE_INTDIR=\"Debug\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /std:c++17 /Fo"cmTC_4a270.dir\Debug\\" /Fd"cmTC_4a270.dir\Debug\vc143.pdb" /external:W4 /Gd /TP /errorReport:queue  -Wimplicit-fallthrough "C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-eb956s\src.cxx"
+cl : command line  error D8021: invalid numeric argument '/Wimplicit-fallthrough' [C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-eb956s\cmTC_4a270.vcxproj]
+
+
+Source file was:
+int main() { return 0; }
+
+Performing C SOURCE FILE Test HAVE_C_FLAG_Wshadow failed with the following output:
+Change Dir: C:/Users/BramS/Documents/programmeren/cpp/NietEuclidischeGeogebra/build/CMakeFiles/CMakeScratch/TryCompile-lljmef
+
+Run Build Command(s):C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_48bca.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:m && MSBuild version 17.4.0+18d5aef85 for .NET Framework
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.34.31933 for x64
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  cl /c /Zi /Wall /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_C_FLAG_Wshadow /D "CMAKE_INTDIR=\"Debug\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_48bca.dir\Debug\\" /Fd"cmTC_48bca.dir\Debug\vc143.pdb" /external:W4 /Gd /TC /errorReport:queue  -Wshadow "C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-lljmef\src.c"
+cl : command line  error D8021: invalid numeric argument '/Wshadow' [C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-lljmef\cmTC_48bca.vcxproj]
+
+
+Source file was:
+int main(void) { return 0; }
+
+Performing C++ SOURCE FILE Test HAVE_CXX_FLAG_Wshadow failed with the following output:
+Change Dir: C:/Users/BramS/Documents/programmeren/cpp/NietEuclidischeGeogebra/build/CMakeFiles/CMakeScratch/TryCompile-d4huaf
+
+Run Build Command(s):C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_c8086.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:m && MSBuild version 17.4.0+18d5aef85 for .NET Framework
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.34.31933 for x64
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  cl /c /Zi /Wall /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_CXX_FLAG_Wshadow /D "CMAKE_INTDIR=\"Debug\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /std:c++17 /Fo"cmTC_c8086.dir\Debug\\" /Fd"cmTC_c8086.dir\Debug\vc143.pdb" /external:W4 /Gd /TP /errorReport:queue  -Wshadow "C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-d4huaf\src.cxx"
+cl : command line  error D8021: invalid numeric argument '/Wshadow' [C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-d4huaf\cmTC_c8086.vcxproj]
+
+
+Source file was:
+int main() { return 0; }
+
+Performing C++ SOURCE FILE Test HAVE_CXX_FLAG_fno_extern_tls_init failed with the following output:
+Change Dir: C:/Users/BramS/Documents/programmeren/cpp/NietEuclidischeGeogebra/build/CMakeFiles/CMakeScratch/TryCompile-ek42d3
+
+Run Build Command(s):C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_415ba.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:m && MSBuild version 17.4.0+18d5aef85 for .NET Framework
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.34.31933 for x64
+  src.cxx
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  cl /c /Zi /Wall /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_CXX_FLAG_fno_extern_tls_init /D "CMAKE_INTDIR=\"Debug\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /std:c++17 /Fo"cmTC_415ba.dir\Debug\\" /Fd"cmTC_415ba.dir\Debug\vc143.pdb" /external:W4 /Gd /TP /errorReport:queue  -fno-extern-tls-init "C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-ek42d3\src.cxx"
+cl : command line  warning D9002: ignoring unknown option '-fno-extern-tls-init' [C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-ek42d3\cmTC_415ba.vcxproj]
+  cmTC_415ba.vcxproj -> C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-ek42d3\Debug\cmTC_415ba.exe
+
+
+Source file was:
+int main() { return 0; }
+
+Performing C++ SOURCE FILE Test HAVE_CXX_FLAG_Wclass_memaccess failed with the following output:
+Change Dir: C:/Users/BramS/Documents/programmeren/cpp/NietEuclidischeGeogebra/build/CMakeFiles/CMakeScratch/TryCompile-7sj0ae
+
+Run Build Command(s):C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_e35bb.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:m && MSBuild version 17.4.0+18d5aef85 for .NET Framework
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.34.31933 for x64
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  cl /c /Zi /Wall /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_CXX_FLAG_Wclass_memaccess /D "CMAKE_INTDIR=\"Debug\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /std:c++17 /Fo"cmTC_e35bb.dir\Debug\\" /Fd"cmTC_e35bb.dir\Debug\vc143.pdb" /external:W4 /Gd /TP /errorReport:queue  -Wclass-memaccess "C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-7sj0ae\src.cxx"
+cl : command line  error D8021: invalid numeric argument '/Wclass-memaccess' [C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-7sj0ae\cmTC_e35bb.vcxproj]
+
+
+Source file was:
+int main() { return 0; }
+
+Performing C SOURCE FILE Test HAVE_C_FLAG_Wno_error_unknown_pragmas failed with the following output:
+Change Dir: C:/Users/BramS/Documents/programmeren/cpp/NietEuclidischeGeogebra/build/CMakeFiles/CMakeScratch/TryCompile-noxjfr
+
+Run Build Command(s):C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_cd8d9.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:m && MSBuild version 17.4.0+18d5aef85 for .NET Framework
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.34.31933 for x64
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  cl /c /Zi /Wall /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_C_FLAG_Wno_error_unknown_pragmas /D "CMAKE_INTDIR=\"Debug\"" /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_cd8d9.dir\Debug\\" /Fd"cmTC_cd8d9.dir\Debug\vc143.pdb" /external:W4 /Gd /TC /errorReport:queue  -Wno-error=unknown-pragmas "C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-noxjfr\src.c"
+cl : command line  error D8021: invalid numeric argument '/Wno-error=unknown-pragmas' [C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-noxjfr\cmTC_cd8d9.vcxproj]
+
+
+Source file was:
+int main(void) { return 0; }
+
+Performing C++ SOURCE FILE Test HAVE_CXX_FLAG_Wno_error_unknown_pragmas failed with the following output:
+Change Dir: C:/Users/BramS/Documents/programmeren/cpp/NietEuclidischeGeogebra/build/CMakeFiles/CMakeScratch/TryCompile-37eed3
+
+Run Build Command(s):C:/Program Files/Microsoft Visual Studio/2022/Community/MSBuild/Current/Bin/amd64/MSBuild.exe cmTC_9fbf7.vcxproj /p:Configuration=Debug /p:Platform=x64 /p:VisualStudioVersion=17.0 /v:m && MSBuild version 17.4.0+18d5aef85 for .NET Framework
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.34.31933 for x64
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  cl /c /Zi /Wall /WX- /diagnostics:column /Od /Ob0 /D _MBCS /D WIN32 /D _WINDOWS /D HAVE_CXX_FLAG_Wno_error_unknown_pragmas /D "CMAKE_INTDIR=\"Debug\"" /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /GR /std:c++17 /Fo"cmTC_9fbf7.dir\Debug\\" /Fd"cmTC_9fbf7.dir\Debug\vc143.pdb" /external:W4 /Gd /TP /errorReport:queue  -Wno-error=unknown-pragmas "C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-37eed3\src.cxx"
+cl : command line  error D8021: invalid numeric argument '/Wno-error=unknown-pragmas' [C:\Users\BramS\Documents\programmeren\cpp\NietEuclidischeGeogebra\build\CMakeFiles\CMakeScratch\TryCompile-37eed3\cmTC_9fbf7.vcxproj]
+
+
+Source file was:
+int main() { return 0; }
+
