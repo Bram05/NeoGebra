@@ -7,6 +7,3 @@
 [submodule "Lib/FreeType"]
 	path = Lib/FreeType
 	url = https://gitlab.freedesktop.org/freetype/freetype.git
-[submodule "Lib/cadical"]
-	path = Lib/cadical
-	url = https://github.com/arminbiere/cadical.git
