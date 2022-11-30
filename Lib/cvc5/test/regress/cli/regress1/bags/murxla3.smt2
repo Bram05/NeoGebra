@@ -1,6 +1,0 @@
-(set-logic ALL)
-(declare-const A (Bag Bool))
-(set-info :status sat)
-(declare-fun p ((Bag Bool)) Bool)
-(assert (or (not (p A)) (not (p (as bag.empty (Bag Bool))))))
-(check-sat)

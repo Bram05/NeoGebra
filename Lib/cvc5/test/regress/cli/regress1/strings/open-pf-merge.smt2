@@ -1,8 +1,0 @@
-(set-logic QF_SLIA)
-(set-info :status unsat)
-(declare-const x String)
-(declare-const y String)
-(assert (not (str.prefixof "ab" x)))
-(assert (and (str.prefixof y (str.substr x 1 (str.len x))) (str.prefixof "bb" y)))
-(assert (str.prefixof "a" x))
-(check-sat)
