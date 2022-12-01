@@ -17,7 +17,8 @@ public:
 	void RenderPass(Renderer* r);
 
 	// Ask if this position is in any UI element
-	std::shared_ptr<UIElement> Hit(float x, float y);
+	std::shared_ptr<UIElement> MouseClicked(float x, float y);
+	std::shared_ptr<UIElement> MouseMoved(float x, float y);
 
 private:
 	std::vector<std::shared_ptr<UIElement>> m_UIElements;

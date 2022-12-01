@@ -2,20 +2,17 @@
 // https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
 #pragma once
 
+#include "LineRenderer.h"
+
 class Renderer;
+class WindowUI;
 
 // Base class for a subpart of the UI
 class UIElement
 {
 public:
-	UIElement(double leftX, double rightX, double topY, double bottomY, const std::string& name)
-		: m_LeftX{ leftX },
-		m_RightX{ rightX },
-		m_TopY{ topY },
-		m_BottomY{ bottomY },
-		m_Name{ name }
-	{}
-	virtual ~UIElement() {}
+	UIElement(double leftX, double rightX, double topY, double bottomY, const std::string& name);
+	virtual ~UIElement();
 
 	// Getters
 	double GetLeftX() const { return m_LeftX; }
@@ -24,11 +21,19 @@ public:
 	double GetBottomY() const { return m_BottomY; }
 	const std::string& GetName() const { return m_Name; }
 
+	std::pair<bool, std::shared_ptr<UIElement>> Hit(float x, float y, void(UIElement::*callback)(float,float));
+
 	// Queue all the necessary things for rendering
-	virtual void RenderPass(Renderer* r) = 0;
+	virtual void RenderPass(Renderer* r);
 
 protected:
+	virtual void WasClicked(float x, float y) { std::cout << "Hit element " << m_Name << '\n'; }
+	virtual void WasHovered(float x, float y) { std::cout << "Hovered over element " << m_Name << '\n'; }
+	friend WindowUI;
+
 	// The bounds of this element
 	double m_LeftX, m_RightX, m_TopY, m_BottomY;
 	std::string m_Name;
+	std::vector<std::shared_ptr<UIElement>> m_SubUIElements;
+	std::vector<std::shared_ptr<Line>> m_Lines;
 };

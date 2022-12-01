@@ -12,23 +12,22 @@ constexpr int numFpsAverage = 60;
 
 static void MouseClickCallback(int mouseButton, int action, int mods)
 {
-	std::cout << (mouseButton == MouseButton::left ? "Left" : mouseButton == MouseButton::right ? "Right" : "Middle")
-		<< "mouse button was " << (action == Action::pressed ? "pressed" : "released") << '\n';
+	//std::cout << (mouseButton == MouseButton::left ? "Left" : mouseButton == MouseButton::right ? "Right" : "Middle")
+		//<< "mouse button was " << (action == Action::pressed ? "pressed" : "released") << '\n';
 	if (mouseButton == MouseButton::left && action == Action::pressed)
 	{
 		auto[x, y] = Application::Get()->GetWindow()->GetMouseLocation();
 		float newX = Util::ConvertToOpenGLCoordinate(x, true);
 		float newY = Util::ConvertToOpenGLCoordinate(y, false);
-		std::shared_ptr<UIElement> hit = Application::Get()->GetWindowUI()->Hit(newX, newY);
-		if (hit)
-		{
-			std::cout << "Mouse hit element " << hit->GetName() << '\n';
-		}
-		else
-		{
-			std::cout << "No element hit\n";
-		}
+		Application::Get()->GetWindowUI()->MouseClicked(newX, newY);
 	}
+}
+
+static void MouseMovedCallback(int x, int y)
+{
+	float newX = Util::ConvertToOpenGLCoordinate(x, true);
+	float newY = Util::ConvertToOpenGLCoordinate(y, false);
+	Application::Get()->GetWindowUI()->MouseMoved(newX, newY);
 }
 
 static void KeyCallback(int key, int scancode, int action, int mods)
@@ -43,7 +42,7 @@ static void KeyCallback(int key, int scancode, int action, int mods)
 Application::Application()
 {
 	AssetsFolder = "../../../../NietEuclidischeGeogebra/assets";
-	m_Window = new Window(WindowCreationOptions(1080, 720, "Hello World", MouseClickCallback, KeyCallback));
+	m_Window = new Window(WindowCreationOptions(1080, 720, "Hello World", MouseClickCallback, KeyCallback, MouseMovedCallback));
 	m_Renderer = new Renderer;
 	m_WindowUI = new WindowUI;
 }
@@ -85,7 +84,7 @@ void Application::UpdateFrameTimes()
 			sum += m_LastFpss.top();
 			m_LastFpss.pop();
 		}
-		std::cout << "\rAverage FPS (over " << g_NumSecondsForFpsAverage << " seconds): " << sum / size;
+		//std::cout << "\rAverage FPS (over " << g_NumSecondsForFpsAverage << " seconds): " << sum / size;
 		m_TimeSinceLastFpsUpdate = 0.0;
 	}
 	m_LastFrameTime = endTime;

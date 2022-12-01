@@ -7,6 +7,7 @@ class Window;
 typedef void(*MouseButtonCallbackType)(int, int, int);
 typedef void(*KeyCallbackType)(int, int, int, int);
 typedef void(*ResizeCallbackType)(int, int, int, int);
+typedef void(*MouseMovedCallbackType)(int, int);
 
 // The options for creating a window
 struct WindowCreationOptions
@@ -16,6 +17,7 @@ struct WindowCreationOptions
 
 	MouseButtonCallbackType mouseButtonCallback = nullptr;
 	KeyCallbackType keyCallback = nullptr;
+	MouseMovedCallbackType mouseMovedCallback = nullptr;
 };
 
 struct GLFWwindow;
@@ -42,4 +44,5 @@ private:
 
 	MouseButtonCallbackType m_MouseButtonCallback;
 	KeyCallbackType m_KeyCallback;
+	MouseMovedCallbackType m_MouseMovedCallback;
 };

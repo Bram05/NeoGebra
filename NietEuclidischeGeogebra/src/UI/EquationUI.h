@@ -11,9 +11,4 @@ class EquationUI : public UIElement
 public:
 	EquationUI(double leftX, double rightX, double topY, double bottomY);
 	~EquationUI();
-
-	void RenderPass(Renderer* r) override;
-
-private:
-	std::vector<std::shared_ptr<Line>> m_Lines;
 };

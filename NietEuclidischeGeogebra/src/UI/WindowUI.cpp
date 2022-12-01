@@ -23,12 +23,32 @@ void WindowUI::RenderPass(Renderer* r)
 	}
 }
 
-std::shared_ptr<UIElement> WindowUI::Hit(float x, float y)
+std::shared_ptr<UIElement> WindowUI::MouseClicked(float x, float y)
 {
 	for (const std::shared_ptr<UIElement>& element : m_UIElements)
 	{
-		if (x > element->GetLeftX() && x < element->GetRightX() && y > element->GetBottomY() && y < element->GetTopY())
+		auto[found,res] = element->Hit(x, y, &UIElement::WasClicked);
+		if (res)
+			return res;
+		if (found)
 		{
+			element->WasClicked(x, y);
+			return element;
+		}
+	}
+	return nullptr;
+}
+
+std::shared_ptr<UIElement> WindowUI::MouseMoved(float x, float y)
+{
+	for (const std::shared_ptr<UIElement>& element : m_UIElements)
+	{
+		auto [found, res] = element->Hit(x, y, &UIElement::WasHovered);
+		if (res)
+			return res;
+		if (found)
+		{
+			element->WasHovered(x, y);
 			return element;
 		}
 	}

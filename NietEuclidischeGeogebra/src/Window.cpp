@@ -12,7 +12,7 @@
 bool Window::s_Initialized{false};
 
 Window::Window(const WindowCreationOptions& options)
-	: m_MouseButtonCallback{ options.mouseButtonCallback }, m_KeyCallback{ options.keyCallback }
+	: m_MouseButtonCallback{ options.mouseButtonCallback }, m_KeyCallback{ options.keyCallback }, m_MouseMovedCallback{ options.mouseMovedCallback }
 {
 	if (s_Initialized)
 	{
@@ -58,6 +58,12 @@ Window::Window(const WindowCreationOptions& options)
 
 	glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
 		Application::Get()->GetRenderer()->Resize(width, height);
+	});
+
+	glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double x, double y) {
+		Window* handledWindow = (Window*)glfwGetWindowUserPointer(window);
+		if (handledWindow->m_MouseMovedCallback)
+			handledWindow->m_MouseMovedCallback((int)x, (int)y);
 	});
 }
 
