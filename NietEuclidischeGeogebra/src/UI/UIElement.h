@@ -25,9 +25,13 @@ public:
 	virtual void RenderPass(Renderer* r);
 
 protected:
-	virtual void WasClicked(float x, float y) { std::cout << "Hit element " << m_Name << '\n'; }
-	virtual void IsHovered(float x, float y) { std::cout << "Hovered over element " << m_Name << '\n'; }
-	virtual void NotHoveredAnymore() { std::cout << "Not hovering over element " << m_Name << " anymore\n"; }
+	virtual void WasClicked(float x, float y) { /*std::cout << "Hit element " << m_Name << '\n'; */ }
+	virtual void IsHovered(float x, float y) { /*std::cout << "Hovered over element " << m_Name << '\n'; */ }
+	virtual void NotHoveredAnymore() { /*std::cout << "Not hovering over element " << m_Name << " anymore\n";*/ }
+	virtual void IsSelected() { std::cout << "Element " << m_Name << " is selected\n"; }
+	virtual void NotSelectedAnymore() { std::cout << "Element " << m_Name << " is not selected anymore\n"; }
+	virtual void TextInput(unsigned int codepoint) { /*std::cout << "Got key " << key << '\n';*/ }
+	virtual void SpecialKeyInput(int key, int scancode, int action, int mods) {}
 	friend WindowUI;
 
 	// The bounds of this element
@@ -36,4 +40,5 @@ protected:
 	std::vector<std::shared_ptr<UIElement>> m_SubUIElements;
 	std::vector<std::shared_ptr<Line>> m_Lines;
 	bool m_MouseIsHovering{false};
+	bool m_IsSelected{false};
 };

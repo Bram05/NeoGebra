@@ -4,11 +4,13 @@
 
 #include "Application.h"
 #include "ButtonUI.h"
+#include "TextInputField.h"
 
 EquationUI::EquationUI(double leftX, double rightX, double topY, double bottomY)
 	: UIElement(leftX, rightX, topY, bottomY, "EquationUI")
 {
 	m_SubUIElements.push_back(std::make_shared<ButtonUI>(leftX+0.2f, (leftX + 0.4f), topY-0.5f, (topY - 1.0f)));
+	m_SubUIElements.push_back(std::make_shared<TextInputField>(leftX, rightX, topY, topY - 0.2f));
 }
 
 EquationUI::~EquationUI()

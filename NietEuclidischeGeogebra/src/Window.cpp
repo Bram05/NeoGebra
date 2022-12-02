@@ -12,7 +12,7 @@
 bool Window::s_Initialized{false};
 
 Window::Window(const WindowCreationOptions& options)
-	: m_MouseButtonCallback{ options.mouseButtonCallback }, m_KeyCallback{ options.keyCallback }, m_MouseMovedCallback{ options.mouseMovedCallback }
+	: m_MouseButtonCallback{ options.mouseButtonCallback }, m_TextCallback{ options.textCallback }, m_MouseMovedCallback{ options.mouseMovedCallback }, m_SpecialKeyCallback{options.specialKeyCallback}
 {
 	if (s_Initialized)
 	{
@@ -50,10 +50,10 @@ Window::Window(const WindowCreationOptions& options)
 			handledWindow->m_MouseButtonCallback(button, action, mods);
 	});
 
-	glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+	glfwSetCharCallback(m_Window, [](GLFWwindow* window, unsigned int codepoint) {
 		Window* handledWindow = (Window*)glfwGetWindowUserPointer(window);
-		if (handledWindow->m_KeyCallback)
-			handledWindow->m_KeyCallback(key, scancode, action, mods);
+		if (handledWindow->m_TextCallback)
+			handledWindow->m_TextCallback(codepoint);
 	});
 
 	glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
@@ -64,6 +64,14 @@ Window::Window(const WindowCreationOptions& options)
 		Window* handledWindow = (Window*)glfwGetWindowUserPointer(window);
 		if (handledWindow->m_MouseMovedCallback)
 			handledWindow->m_MouseMovedCallback((int)x, (int)y);
+	});
+
+	glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+		if (key < 255 && std::isprint(key))
+			return;
+		Window* handledWindow = (Window*)glfwGetWindowUserPointer(window);
+		if (handledWindow->m_SpecialKeyCallback)
+			handledWindow->m_SpecialKeyCallback(key, scancode, action, mods);
 	});
 }
 

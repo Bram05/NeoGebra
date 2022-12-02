@@ -5,9 +5,10 @@
 class Window;
 
 typedef void(*MouseButtonCallbackType)(int, int, int);
-typedef void(*KeyCallbackType)(int, int, int, int);
+typedef void(*TextCallbackType)(unsigned int);
 typedef void(*ResizeCallbackType)(int, int, int, int);
 typedef void(*MouseMovedCallbackType)(int, int);
+typedef void(*SpecialKeyCallback)(int, int, int, int);
 
 // The options for creating a window
 struct WindowCreationOptions
@@ -16,8 +17,9 @@ struct WindowCreationOptions
 	std::string title = "Default title";
 
 	MouseButtonCallbackType mouseButtonCallback = nullptr;
-	KeyCallbackType keyCallback = nullptr;
+	TextCallbackType textCallback = nullptr;
 	MouseMovedCallbackType mouseMovedCallback = nullptr;
+	SpecialKeyCallback specialKeyCallback = nullptr;
 };
 
 struct GLFWwindow;
@@ -43,6 +45,7 @@ private:
 	static bool s_Initialized;
 
 	MouseButtonCallbackType m_MouseButtonCallback;
-	KeyCallbackType m_KeyCallback;
+	TextCallbackType m_TextCallback;
 	MouseMovedCallbackType m_MouseMovedCallback;
+	SpecialKeyCallback m_SpecialKeyCallback;
 };

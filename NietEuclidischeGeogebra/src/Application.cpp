@@ -30,6 +30,17 @@ static void MouseMovedCallback(int x, int y)
 	Application::Get()->GetWindowUI()->MouseMoved(newX, newY);
 }
 
+static void TextCallback(unsigned int codepoint)
+{
+	/*
+	if (codepoint == GLFW_KEY_ESCAPE)
+	{
+		std::cout << "\nEscape key pressed, closing application\n" << std::flush;
+		Application::Get()->GetWindow()->SetShouldClose(true);
+	}*/
+	Application::Get()->GetWindowUI()->TextInput(codepoint);
+}
+
 static void KeyCallback(int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_ESCAPE)
@@ -37,12 +48,13 @@ static void KeyCallback(int key, int scancode, int action, int mods)
 		std::cout << "\nEscape key pressed, closing application\n" << std::flush;
 		Application::Get()->GetWindow()->SetShouldClose(true);
 	}
+	Application::Get()->GetWindowUI()->SpecialKeyInput(key, scancode, action, mods);
 }
 
 Application::Application()
 {
 	AssetsFolder = "../../../../NietEuclidischeGeogebra/assets";
-	m_Window = new Window(WindowCreationOptions(1080, 720, "Hello World", MouseClickCallback, KeyCallback, MouseMovedCallback));
+	m_Window = new Window(WindowCreationOptions(1080, 720, "Hello World", MouseClickCallback, TextCallback, MouseMovedCallback, KeyCallback));
 	m_Renderer = new Renderer;
 	m_WindowUI = new WindowUI;
 }

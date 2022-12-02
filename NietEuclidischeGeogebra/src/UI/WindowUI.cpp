@@ -4,6 +4,7 @@
 
 #include "PostulateVerifierResultUI.h"
 #include "EquationUI.h"
+#include "ButtonUI.h"
 
 WindowUI::WindowUI()
 {
@@ -31,8 +32,25 @@ std::shared_ptr<UIElement> WindowUI::MouseClicked(float x, float y)
 		if (el)
 		{
 			el->WasClicked(x, y);
+			if (!el->m_IsSelected)
+			{
+				if (m_SelectedElement)
+				{
+					m_SelectedElement->NotSelectedAnymore();
+					m_SelectedElement->m_IsSelected = false;
+				}
+				el->IsSelected();
+				el->m_IsSelected = true;
+				m_SelectedElement = el;
+			}
 			return el;
 		}
+	}
+	if (m_SelectedElement)
+	{
+		m_SelectedElement->NotSelectedAnymore();
+		m_SelectedElement->m_IsSelected = false;
+		m_SelectedElement = nullptr;
 	}
 	return nullptr;
 }
@@ -46,13 +64,13 @@ std::shared_ptr<UIElement> WindowUI::MouseMoved(float x, float y)
 		{
 			if (!el->m_MouseIsHovering)
 			{
-				el->IsHovered(x, y);
-				el->m_MouseIsHovering = true;
 				if (m_CurrentlyHoveredElement)
 				{
 					m_CurrentlyHoveredElement->NotHoveredAnymore();
 					m_CurrentlyHoveredElement->m_MouseIsHovering = false;
 				}
+				el->IsHovered(x, y);
+				el->m_MouseIsHovering = true;
 				m_CurrentlyHoveredElement = el;
 			}
 			return el;
@@ -65,6 +83,22 @@ std::shared_ptr<UIElement> WindowUI::MouseMoved(float x, float y)
 		m_CurrentlyHoveredElement = nullptr;
 	}
 	return nullptr;
+}
+
+void WindowUI::TextInput(unsigned int codepoint)
+{
+	if (m_SelectedElement)
+	{
+		m_SelectedElement->TextInput(codepoint);
+	}
+}
+
+void WindowUI::SpecialKeyInput(int key, int scancode, int action, int mods)
+{
+	if (m_SelectedElement)
+	{
+		m_SelectedElement->SpecialKeyInput(key, scancode, action, mods);
+	}
 }
 
 std::shared_ptr<UIElement> WindowUI::Hit(const std::shared_ptr<UIElement>& element, float x, float y)
