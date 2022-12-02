@@ -13,7 +13,7 @@ LineRenderer::~LineRenderer()
 {
 }
 
-void LineRenderer::AddToRenderQueue(std::shared_ptr<Line> line)
+void LineRenderer::AddToRenderQueue(const std::shared_ptr<Line>& line)
 {
 	m_RenderQueue.push(line);
 }

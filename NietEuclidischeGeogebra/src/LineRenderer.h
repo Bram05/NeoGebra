@@ -5,12 +5,7 @@
 #include <glad/glad.h>
 
 #include "Shader.h"
-#include "Maths/Matrix.h"
-
-struct Point
-{
-	float x, y;
-};
+#include "Objects.h"
 
 class LineRenderer;
 
@@ -42,7 +37,7 @@ public:
 	~LineRenderer();
 
 	// Add the line to the queue to be rendered this frame
-	void AddToRenderQueue(std::shared_ptr<Line> line);
+	void AddToRenderQueue(const std::shared_ptr<Line>& line);
 
 	// Render all the lines
 	void RenderQueue();

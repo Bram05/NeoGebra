@@ -22,4 +22,6 @@ public:
 
 private:
 	std::vector<std::shared_ptr<UIElement>> m_UIElements;
+	std::shared_ptr<UIElement> Hit(const std::shared_ptr<UIElement>& element, float x, float y);
+	std::shared_ptr<UIElement> m_CurrentlyHoveredElement{nullptr};
 };

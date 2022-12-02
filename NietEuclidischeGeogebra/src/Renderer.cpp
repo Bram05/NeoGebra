@@ -77,11 +77,13 @@ Renderer::Renderer()
 	#endif
 
 	m_LineRenderer = new LineRenderer;
+	m_SquareRenderer = new SquareRenderer;
 }
 
 Renderer::~Renderer()
 {
 	delete m_LineRenderer;
+	delete m_SquareRenderer;
 	// I couldn't find cleanup calls for glad
 }
 
@@ -90,6 +92,7 @@ void Renderer::RenderQueues()
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	m_SquareRenderer->RenderQueue();
 	m_LineRenderer->RenderQueue();
 	#ifdef DEBUG
 	if (s_PrintedMessageThisFrame)
@@ -107,7 +110,12 @@ void Renderer::Resize(int width, int height)
 	Application::Get()->GetWindow()->Update();
 }
 
-void Renderer::AddToRenderQueue(std::shared_ptr<Line> line)
+void Renderer::AddToRenderQueue(const std::shared_ptr<Line>& line)
 {
 	m_LineRenderer->AddToRenderQueue(line);
+}
+
+void Renderer::AddToRenderQueue(const std::shared_ptr<Square>& square)
+{
+	m_SquareRenderer->AddToRenderQueue(square);
 }

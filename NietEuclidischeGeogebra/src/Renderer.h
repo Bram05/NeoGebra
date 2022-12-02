@@ -3,6 +3,7 @@
 #pragma once
 
 #include "LineRenderer.h"
+#include "SquareRenderer.h"
 #include "UI/WindowUI.h"
 
 class Application;
@@ -23,11 +24,14 @@ public:
 	void Resize(int width, int height);
 
 	// Add the object to the corresponding renderers queue
-	void AddToRenderQueue(std::shared_ptr<Line> line);
+	void AddToRenderQueue(const std::shared_ptr<Line>& line);
+	void AddToRenderQueue(const std::shared_ptr<Square>& Square);
 
 	~Renderer();
 	friend Application;
 
 private:
 	LineRenderer* m_LineRenderer;
+	SquareRenderer* m_SquareRenderer;
+	
 };

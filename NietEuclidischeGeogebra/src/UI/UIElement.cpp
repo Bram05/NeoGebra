@@ -19,29 +19,6 @@ UIElement::~UIElement()
 {
 }
 
-std::pair<bool, std::shared_ptr<UIElement>> UIElement::Hit(float x, float y, void(UIElement::*callback)(float, float))
-{
-	if (x > m_LeftX && x < m_RightX && y > m_BottomY && y < m_TopY)
-	{
-		for (std::shared_ptr<UIElement>& element : m_SubUIElements)
-		{
-			std::pair<bool, std::shared_ptr<UIElement>> out = element->Hit(x, y, callback);
-			if (out.second)
-			{
-				return out;
-			}
-			if (out.first)
-			{
-				((*element).*callback)(x, y);
-				out.second = element;
-				return out;
-			}
-		}
-		return { true, nullptr };
-	}
-	return { false, nullptr };
-}
-
 void UIElement::RenderPass(Renderer* r)
 {
 	for (const std::shared_ptr<UIElement>& el : m_SubUIElements)

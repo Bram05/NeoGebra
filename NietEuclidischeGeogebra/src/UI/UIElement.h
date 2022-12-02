@@ -21,14 +21,13 @@ public:
 	double GetBottomY() const { return m_BottomY; }
 	const std::string& GetName() const { return m_Name; }
 
-	std::pair<bool, std::shared_ptr<UIElement>> Hit(float x, float y, void(UIElement::*callback)(float,float));
-
 	// Queue all the necessary things for rendering
 	virtual void RenderPass(Renderer* r);
 
 protected:
 	virtual void WasClicked(float x, float y) { std::cout << "Hit element " << m_Name << '\n'; }
-	virtual void WasHovered(float x, float y) { std::cout << "Hovered over element " << m_Name << '\n'; }
+	virtual void IsHovered(float x, float y) { std::cout << "Hovered over element " << m_Name << '\n'; }
+	virtual void NotHoveredAnymore() { std::cout << "Not hovering over element " << m_Name << " anymore\n"; }
 	friend WindowUI;
 
 	// The bounds of this element
@@ -36,4 +35,5 @@ protected:
 	std::string m_Name;
 	std::vector<std::shared_ptr<UIElement>> m_SubUIElements;
 	std::vector<std::shared_ptr<Line>> m_Lines;
+	bool m_MouseIsHovering{false};
 };

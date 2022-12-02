@@ -60,6 +60,12 @@ void Shader::SetUniform(const std::string& name, const Maths::Matrix<2, 2>& mat)
 	glUniformMatrix2fv(loc, 1, GL_FALSE, &mat.m_Data[0]);
 }
 
+void Shader::SetUniform(const std::string& name, const std::array<float, 4>& arr) const
+{
+	int loc = GetUniformLocation(name);
+	glUniform4f(loc, arr[0], arr[1], arr[2], arr[3]);
+}
+
 static int CompileShader(ShaderType type, const std::string& path)
 {
 	GLuint glType;

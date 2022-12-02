@@ -25,15 +25,13 @@ void WindowUI::RenderPass(Renderer* r)
 
 std::shared_ptr<UIElement> WindowUI::MouseClicked(float x, float y)
 {
-	for (const std::shared_ptr<UIElement>& element : m_UIElements)
+	for (std::shared_ptr<UIElement>& element : m_UIElements)
 	{
-		auto[found,res] = element->Hit(x, y, &UIElement::WasClicked);
-		if (res)
-			return res;
-		if (found)
+		std::shared_ptr<UIElement> el = Hit(element, x, y);
+		if (el)
 		{
-			element->WasClicked(x, y);
-			return element;
+			el->WasClicked(x, y);
+			return el;
 		}
 	}
 	return nullptr;
@@ -41,16 +39,47 @@ std::shared_ptr<UIElement> WindowUI::MouseClicked(float x, float y)
 
 std::shared_ptr<UIElement> WindowUI::MouseMoved(float x, float y)
 {
-	for (const std::shared_ptr<UIElement>& element : m_UIElements)
+	for (std::shared_ptr<UIElement>& element : m_UIElements)
 	{
-		auto [found, res] = element->Hit(x, y, &UIElement::WasHovered);
-		if (res)
-			return res;
-		if (found)
+		std::shared_ptr<UIElement> el = Hit(element, x, y);
+		if (el)
 		{
-			element->WasHovered(x, y);
-			return element;
+			if (!el->m_MouseIsHovering)
+			{
+				el->IsHovered(x, y);
+				el->m_MouseIsHovering = true;
+				if (m_CurrentlyHoveredElement)
+				{
+					m_CurrentlyHoveredElement->NotHoveredAnymore();
+					m_CurrentlyHoveredElement->m_MouseIsHovering = false;
+				}
+				m_CurrentlyHoveredElement = el;
+			}
+			return el;
 		}
+	}
+	if (m_CurrentlyHoveredElement)
+	{
+		m_CurrentlyHoveredElement->NotHoveredAnymore();
+		m_CurrentlyHoveredElement->m_MouseIsHovering = false;
+		m_CurrentlyHoveredElement = nullptr;
+	}
+	return nullptr;
+}
+
+std::shared_ptr<UIElement> WindowUI::Hit(const std::shared_ptr<UIElement>& element, float x, float y)
+{
+	if (x > element->m_LeftX && x < element->m_RightX && y > element->m_BottomY && y < element->m_TopY)
+	{
+		for (const std::shared_ptr<UIElement>& element : element->m_SubUIElements)
+		{
+			std::shared_ptr<UIElement> res = Hit(element, x, y);
+			if (res)
+			{
+				return res;
+			}
+		}
+		return element;
 	}
 	return nullptr;
 }
