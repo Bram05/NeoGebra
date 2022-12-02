@@ -16,3 +16,28 @@
 #include "shader_configure.h"
 #include "text_fonts_glyphs.h"
 
+class TextRenderer;
+
+
+
+
+
+
+class Text
+{
+
+public:
+
+	FT_Library free_type;
+	Text(int window_width, int window_height, color _color);
+	~Text();
+
+	void createMessage(_Text textObject ,string text, int x, int y, int font_size);
+	color getColor(string preset);
+	void drawMessage(_Text textObject, int index);
+	void drawLastMessage(_Text textObject);
+	void drawAllMessages(_Text textObject);
+	
+	
+
+};
