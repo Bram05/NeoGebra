@@ -10,3 +10,6 @@
 [submodule "Lib/cadical"]
 	path = Lib/cadical
 	url = https://github.com/arminbiere/cadical.git
+[submodule "Lib/glm"]
+	path = Lib/glm
+	url = https://github.com/g-truc/glm.git
