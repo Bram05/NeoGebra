@@ -13,12 +13,13 @@ class LineRenderer;
 class Line
 {
 public:
-	Line(Point begin, Point end);
+	Line(Point begin, Point end, const std::array<float, 4>& colour = {1.0f, 0.0f, 0.0f, 1.0f});
 	~Line();
 
 	// Getters and setters
 	Point GetBegin() const { return m_Begin; }
 	Point GetEnd() const { return m_End; }
+	void SetColour(const std::array<float, 4>& colour) { m_Colour = colour; }
 
 	void SetLocation(Point newBegin, Point newEnd);
 
@@ -26,6 +27,7 @@ private:
 	Point m_Begin, m_End;
 	GLuint m_Vao;
 	GLuint m_Vb;
+	std::array<float, 4> m_Colour;
 	friend LineRenderer;
 };
 

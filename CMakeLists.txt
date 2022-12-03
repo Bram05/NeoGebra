@@ -22,7 +22,6 @@ set (BUILD_SHARED_LIBS Off)
 add_subdirectory ("Lib/glfw")
 add_subdirectory ("PostulateVerifier")
 add_subdirectory ("Tests")
-add_subdirectory("Lib/glm")
 
 set (BUILD_SHARED_LIBS false)
 add_subdirectory ("Lib/FreeType")

@@ -27,13 +27,14 @@ void LineRenderer::RenderQueue()
 		std::shared_ptr<Line> l = m_RenderQueue.front();
 		m_RenderQueue.pop();
 
+		m_Shader.SetUniform("u_Colour", l->m_Colour);
 		glBindVertexArray(l->m_Vao);
 		glDrawArrays(GL_LINES, 0, 2);
 	}
 }
 
-Line::Line(Point begin, Point end)
-	: m_Begin{begin}, m_End{end}
+Line::Line(Point begin, Point end, const std::array<float, 4>& colour /*= { 1.0f, 0.0f, 0.0f, 1.0f }*/)
+	: m_Begin{begin}, m_End{end}, m_Colour{colour}
 {
 	float buffer[4] = {
 		begin.x, begin.y,
