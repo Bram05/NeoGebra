@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UIElement.h"
+#include "GraphRenderer.h"
 
 class GraphUI : public UIElement
 {
@@ -14,6 +15,8 @@ protected:
 
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
+	std::vector<std::shared_ptr<Graph>> m_Graphs;
 
 	void UpdateLines();
+	void UpdateGraphs();
 };

@@ -4,6 +4,7 @@
 
 #include "LineRenderer.h"
 #include "SquareRenderer.h"
+#include "GraphRenderer.h"
 #include "UI/WindowUI.h"
 
 class Application;
@@ -25,7 +26,8 @@ public:
 
 	// Add the object to the corresponding renderers queue
 	void AddToRenderQueue(const std::shared_ptr<Line>& line);
-	void AddToRenderQueue(const std::shared_ptr<Square>& Square);
+	void AddToRenderQueue(const std::shared_ptr<Square>& square);
+	void AddToRenderQueue(const std::shared_ptr<Graph>& graph);
 
 	~Renderer();
 	friend Application;
@@ -33,5 +35,6 @@ public:
 private:
 	LineRenderer* m_LineRenderer;
 	SquareRenderer* m_SquareRenderer;
+	GraphRenderer* m_GraphRenderer;
 	
 };
