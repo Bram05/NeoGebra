@@ -14,11 +14,11 @@ struct point { std::vector<float> identifiers; Model* m; };
 struct line { std::vector<float> identifiers; Model* m; };
 
 /**
-* Class used to create a model for a geometry. 
-* 
-* Use member functions newPoint and newLine to create points and lines. 
-* Use operator== and operator!= to compare points and lines. 
-* Use operator>> to test incidence (point >> line). 
+* Class used to create a model for a geometry.
+*
+* Use member functions newPoint and newLine to create points and lines.
+* Use operator== and operator!= to compare points and lines.
+* Use operator>> to test incidence (point >> line).
 */
 class Model {
 	std::vector<point> m_Points;
@@ -34,29 +34,29 @@ class Model {
 
 public:
 	/**
-	* Create new model by providing the necessary constraints. 
-	* 
-	* @param pointIdentifiers The amount of identifiers a point uses. 
-	* @param pointConstr A string with the constraints for a valid point. 
-	* @param pointEqualConstr A string with the condition for two point to be called equal. 
-	* @param lineIdentifiers The amount of identifiers a line uses. 
-	* @param lineConstr A string with the constraints for a valid line. 
-	* @param lineEqualConstr A string with the condition for two lines to be called equal. 
-	* @param incidenceConstr A string with the condition for a point to lie on a line, tested using operator>>. 
+	* Create new model by providing the necessary constraints.
+	*
+	* @param pointIdentifiers The amount of identifiers a point uses.
+	* @param pointConstr A string with the constraints for a valid point.
+	* @param pointEqualConstr A string with the condition for two point to be called equal.
+	* @param lineIdentifiers The amount of identifiers a line uses.
+	* @param lineConstr A string with the constraints for a valid line.
+	* @param lineEqualConstr A string with the condition for two lines to be called equal.
+	* @param incidenceConstr A string with the condition for a point to lie on a line, tested using operator>>.
 	*/
 	Model(unsigned int pointIdentifiers,
 		const equation& pointDef,
 		unsigned int lineIdentifiers,
 		const equation& lineDef,
 		const equation& incidenceConstr,
-		const equation& betweennessConstr = { {}, ""});
+		const equation& betweennessConstr = { {}, "" });
 
 	/// Copy an existing Model object. 
 	Model(const Model& g);
 
 	/**
-	* Create a new point. 
-	* 
+	* Create a new point.
+	*
 	* @param identifiers A vector containing the floats used to identify the point, the amount of identifiers are determined when creating the model class
 	* @return Returns a point struct used to identify the point
 	*/
@@ -71,6 +71,8 @@ public:
 	*/
 	line newLine(const std::vector<float>& identifiers);
 	line newLine(point p1, point p2);
+
+	std::string getShader(const line& l);
 
 	friend bool operator==(const point lhs, const point rhs);
 	friend bool operator==(const line lhs, const line rhs);
