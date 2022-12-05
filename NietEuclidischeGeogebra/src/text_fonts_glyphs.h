@@ -1,6 +1,6 @@
 #pragma once // https://docs.microsoft.com/en-us/windows/win32/gdi/raster--vector--truetype--and-opentype-fonts
 
-class _Text
+class Text
 {
 private:
 	struct Alphabet_Characters
@@ -47,7 +47,7 @@ private:
 		int alphabet_texture_width = 0;
 		int alphabet_texture_height = 0;
 
-		float alphabet_start_x = -0.80f; 
+		float alphabet_start_x = -0.80f; // These are set here in OpenGL [-1, 1] coordinate range.
 		float alphabet_start_y = -0.45f;
 
 		float text_start_x = 0.0f;
@@ -66,24 +66,25 @@ private:
 	std::string alphabet_string;
 
 	FT_Library& free_type;
-	FT_GlyphSlot glyph; 
+	FT_GlyphSlot glyph; // "glyph" (FT_GlyphSlot) is simply being used as shorthand for "face" (FT_Face) ->glyph... set in: set_font_parameters()
 
-	float scale_pixels_x_to_OpenGL = 0.0f; 
+	float scale_pixels_x_to_OpenGL = 0.0f; // OpenGL [-1, 1] (i.e. 2) divided by the number of screen pixels.
 	float scale_pixels_y_to_OpenGL = 0.0f;
 
-	int character_row_limit = 15; 
-	int alphabet_padding = 7; 
-	
+	int character_row_limit = 15; // Alphabet character row limit.
+	int alphabet_padding = 7; // Padding is optional (it spaces out the alphabet characters, without affecting each message's character spacing)
+	// Note: if character background is slightly opaque e.g. 0.1 = vec4(1, 1, 1, texture(text_Texture, texture_coordinates).r) + 0.1, then spaces, i.e. simply " " show as a: alphabet_padding * alphabet_padding square.
+
 public:
-	FT_Face face;  
+	FT_Face face; // Resources are freed in main() via FT_Done_Face(...)
 
 	std::vector<Message_Parent> messages;
 
-	_Text(FT_Library& free_type, int window_width, int window_height, std::string alphabet_string) : free_type(free_type)
+	Text(FT_Library& free_type, int window_width, int window_height, std::string alphabet_string) : free_type(free_type)
 	{
 		this->alphabet_string = alphabet_string;
-		scale_pixels_x_to_OpenGL = 2.0f / window_width; 
-		scale_pixels_y_to_OpenGL = 2.0f / window_height;
+		scale_pixels_x_to_OpenGL = 2.0f / window_width; // Scale vertex data to render on-screen the same size as the font's set pixel-size... 
+		scale_pixels_y_to_OpenGL = 2.0f / window_height; // This makes the text display at the same correct pixel size, regardless of the window size.
 	}
 
 	void create_text_message(std::string message, int text_start_x, int text_start_y, std::string font_path, int font_size, bool dynamic_static)
@@ -97,14 +98,15 @@ public:
 				break;
 			}
 		}
-		Message_Parent new_message; /
+		Message_Parent new_message; // Changed by reference during most of the below function calls.
 
 		new_message.font_size = font_size;
 		new_message.font_path = font_path;
 
-		if (alphabet_detected == -1) 
+		if (alphabet_detected == -1) // Create new alphabet.
 		{
-			
+			std::cout << "\n\n   New alphabet created (characters are listed below) --- Font path: " << font_path << " --- Font size: " << font_size;
+
 			set_font_parameters(new_message);
 			create_blank_texture(new_message);
 			calculate_alphabet_image_size(new_message);
@@ -112,7 +114,7 @@ public:
 			create_alphabet_image_quad(new_message);
 			set_buffer_data_alphabet(new_message);
 		}
-		else 
+		else // Copy the existing alphabet.
 		{
 			new_message.draw_alphabet = false;
 			new_message.alphabet_vec = messages[alphabet_detected].alphabet_vec;
@@ -122,17 +124,38 @@ public:
 			new_message.tallest_font_height = messages[alphabet_detected].tallest_font_height;
 			new_message.relative_distance = messages[alphabet_detected].relative_distance;
 
-			
+			std::cout << "\n\n   Existing alphabet detected (no new alphabet is required) --- Font path: " << font_path << " --- Font size: " << font_size << "\n";
 		}
 		new_message.message_string = message;
-		process_text_compare(new_message, text_start_x, text_start_y);
+		process_text_compare(new_message, text_start_x, text_start_y); // process_text_index(...) is called within this function call.
 
-		new_message.dynamic_static = dynamic_static; 
-		initialise_buffer_data_message(new_message);  
-		update_buffer_data_message(new_message, 0); 
+		new_message.dynamic_static = dynamic_static; // True = dynamic.
+		initialise_buffer_data_message(new_message); // Initialise the message's buffer data.
+		update_buffer_data_message(new_message, 0); // Update the message's buffer data.
 
-		messages.push_back(new_message);
+		messages.push_back(new_message); // Add the new message to the list of messages.
 	}
+
+	void draw_alphabets()
+	{
+		for (unsigned i = 0; i < messages.size(); ++i)
+		{
+			if (messages[i].draw_alphabet)
+			{
+				glBindVertexArray(messages[i].VAO_alphabet);
+
+				glActiveTexture(GL_TEXTURE31);
+				glBindTexture(GL_TEXTURE_2D, messages[i].alphabet_texture);
+
+				glDisable(GL_DEPTH_TEST);
+				glDrawArrays(GL_TRIANGLES, 0, 6);
+				glEnable(GL_DEPTH_TEST);
+
+				glActiveTexture(GL_TEXTURE0);
+				glBindVertexArray(0);
+				// std::cout << "\n   Drawing alphabet... messages index: " << i;
+			}
+		}
 	}
 
 	void draw_messages()
@@ -157,7 +180,7 @@ public:
 	{
 		if (message_index > messages.size() - 1)
 		{
-			
+			std::cout << "\n   Warning: draw_messages(...) --- 'message_index' is greater than 'messages.size() - 1'\n";
 
 			int keep_console_open;
 			std::cin >> keep_console_open;
@@ -169,7 +192,7 @@ public:
 			glActiveTexture(GL_TEXTURE31);
 			glBindTexture(GL_TEXTURE_2D, messages[message_index].alphabet_texture);
 
-			glDisable(GL_DEPTH_TEST); 
+			glDisable(GL_DEPTH_TEST); // Cast (unsigned) used below, silences the compiler warning (unsigned 32 bit is still over 4 billion)
 			glDrawArrays(GL_TRIANGLES, 0, (unsigned)messages[message_index].characters_quads.size() * 6);
 			glEnable(GL_DEPTH_TEST);
 
@@ -180,7 +203,8 @@ public:
 
 	void process_text_index(Message_Parent& new_message, unsigned index, float advanced_current)
 	{
-		
+		// Y-Values (by default the characters are bottom aligned) ("new_message.text_start_x & text_start_y"  are set in: process_text_compare(...))
+		// ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 		float bottom_bearing = new_message.alphabet_vec[index].bottom_bearing;
 		float y_pos_aligned = new_message.text_start_y - bottom_bearing;
 		float height = new_message.alphabet_vec[index].height_plus_padding;
@@ -203,15 +227,18 @@ public:
 
 		Message_Characters quad{};
 
-
+		// Triangle 1
+		// -------------
 		quad.bottom_left_tr1.x = start_x_current + left_bearing;
 
-		
-		new_message.start_x_current.push_back(start_x_current);
+		// Used for replacing characters from some index position, to the end of the full message length
+		// ---------------------------------------------------------------------------------------------------------------------------
+		new_message.start_x_current.push_back(start_x_current); // Record the character's start position... but excluding: left_bearing	
 
 		quad.bottom_left_tr1.y = y_pos_aligned;
 		quad.bottom_left_tr1.z = texcoord_bottom_left_x;
-		quad.bottom_left_tr1.w = texcoord_top_left_y;
+		quad.bottom_left_tr1.w = texcoord_top_left_y; // Y-axis texture coordinates are reversed.
+
 		quad.bottom_right_tr1.x = start_x_current + left_bearing + width;
 		quad.bottom_right_tr1.y = y_pos_aligned;
 		quad.bottom_right_tr1.z = texcoord_bottom_right_x;
@@ -238,7 +265,11 @@ public:
 		quad.bottom_right_tr2.y = y_pos_aligned;
 		quad.bottom_right_tr2.z = texcoord_bottom_right_x;
 		quad.bottom_right_tr2.w = texcoord_top_right_y;
-		
+		// --------------------------------------------------------------
+		// std::cout << "\n   CHARACTER: " << new_message.message_string.c_str()[index] << " --- start_x_current: " << start_x_current << " --- y_pos_aligned: " << y_pos_aligned << " --- width: " << width << " --- height: " << height;
+		// std::cout << "\n  texcoord_top_left_x: " << texcoord_top_left_x;
+		// std::cout << "\n   texcoord_top_right_x: " << texcoord_top_right_x << "\n";
+
 		new_message.characters_quads.push_back(quad);
 	}
 
@@ -252,16 +283,19 @@ public:
 
 		if (data_offset_bytes + replace_size_bytes > (unsigned)new_message.allocated_memory_bytes)
 		{
-			
+			std::cout << "\n   Warning: update_buffer_data_message(...) --- 'data_offset_bytes' " << data_offset_bytes << " + 'replace_size_bytes' " << replace_size_bytes << " was too large for 'allocated_memory_bytes' "
+				<< new_message.allocated_memory_bytes << " --- so 'replace_size_bytes' has been reduced to: ";
 
 			replace_size_bytes -= (data_offset_bytes + replace_size_bytes) - new_message.allocated_memory_bytes;
-			
+			std::cout << replace_size_bytes;
 		}
 		if (data_offset_bytes + replace_size_bytes < (unsigned)new_message.allocated_memory_bytes)
 		{
-			
+			std::cout << "\n   Warning: update_buffer_data_message(...) --- 'data_offset_bytes' " << data_offset_bytes << " + 'replace_size_bytes' " << replace_size_bytes << " is less than 'allocated_memory_bytes' "
+				<< new_message.allocated_memory_bytes << " --- so 'characters_offset' " << characters_offset << " has been reduced to: ";
+
 			characters_offset -= (int)((new_message.allocated_memory_bytes - (data_offset_bytes + replace_size_bytes)) / 6 / 4 / sizeof(float));
-			
+			std::cout << characters_offset;
 		}
 		int keep_console_open;
 		if (characters_offset == -1)
@@ -271,7 +305,7 @@ public:
 		glBindVertexArray(0);
 	}
 
-	private:
+private:
 	void set_font_parameters(Message_Parent new_message)
 	{
 		FT_Error error_code{};
@@ -344,11 +378,12 @@ public:
 				curr_row_width = 0;
 			}
 			new_message.alphabet_texture_width = (curr_row_width > max_row_width) ? curr_row_width : max_row_width;
-			
+			// std::cout << "\n\n   alphabet_texture_width: " << alphabet_texture_width;
 		}
 		new_message.alphabet_texture_height = number_of_rows * (new_message.tallest_font_height + alphabet_padding * 2);
 
-		
+		std::cout << "\n\n   alphabet_texture_width: " << new_message.alphabet_texture_width
+			<< " --- alphabet_texture_height: " << new_message.alphabet_texture_height << "\n";
 	}
 
 	void format_alphabet_texture_image(Message_Parent& new_message)
@@ -402,7 +437,10 @@ public:
 			alphabet_character.height_plus_padding = (tex_coord_top - tex_coord_bottom) * scale_pixels_y_to_OpenGL;
 			alphabet_character.character = alphabet_string[i];
 
-			
+			std::cout << "\n   CHARACTER: " << alphabet_string[i] << "\n   glyph->advance.x: " << glyph->advance.x << "\n   glyph->advance.x / 64: " << glyph->advance.x / 64
+				<< "\n   glyph->bitmap_left: " << glyph->bitmap_left << "\n   glyph->bitmap.width: " << glyph->bitmap.width << "\n   glyph->bitmap.rows: " << glyph->bitmap.rows
+				<< "\n   bottom bearing (height - top): " << (int)glyph->bitmap.rows - (int)glyph->bitmap_top << "\n   top bearing (bitmap_top): " << glyph->bitmap_top << "\n";
+
 			// Texture Coordinates Section (divide texture coordinate position values by texture size to get range [0, 1])
 			// ------------------------------------------------------------------------------------------------------------------------------------------
 			alphabet_character.texcoord_top_left.x = (float)tex_coord_left / (float)new_message.alphabet_texture_width;
