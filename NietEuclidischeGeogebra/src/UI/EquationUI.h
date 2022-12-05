@@ -12,6 +12,7 @@ public:
 	EquationUI(double leftX, double rightX, double topY, double bottomY);
 	~EquationUI();
 private:
+	std::vector<std::shared_ptr<Line>> m_Lines;
 	TextC text;
 protected:
 	void RenderPass(Renderer* r ) override;

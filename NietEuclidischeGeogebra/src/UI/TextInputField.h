@@ -10,8 +10,6 @@ public:
 	TextInputField(double leftX, double rightX, double topY, double bottomY);
 	~TextInputField();
 
-	bool shouldRender = false;
-
 protected:
 	virtual void IsSelected() override;
 	virtual void TextInput(unsigned int codepoint) override;

@@ -19,7 +19,10 @@ TextInputField::~TextInputField()
 
 void TextInputField::IsSelected()
 {
-	shouldRender = true;
+	for (std::shared_ptr<Line>& l : m_Lines)
+	{
+		l->SetColour({0.0f, 1.0f, 0.0f, 1.0f});
+	}
 }
 
 void TextInputField::TextInput(unsigned int codepoint)
@@ -66,7 +69,7 @@ void TextInputField::SpecialKeyInput(int key, int scancode, int action, int mods
 			m_Editingindex = std::min(m_Editingindex+1, (int)m_Input.size());
 		break;
 	case GLFW_KEY_BACKSPACE:
-		if (m_Editingindex != 0 && m_Input.size() > m_Editingindex)
+		if (m_Editingindex != 0 && m_Input.size() >= m_Editingindex)
 		{
 			m_Input.erase(m_Editingindex-1, 1);
 			--m_Editingindex;
@@ -77,6 +80,7 @@ void TextInputField::SpecialKeyInput(int key, int scancode, int action, int mods
 		{
 			m_Input.erase(m_Editingindex, 1);
 		}
+		break;
 	default: return;
 	}
 	std::cout << "Input is now: " << m_Input << '\n';
@@ -84,16 +88,17 @@ void TextInputField::SpecialKeyInput(int key, int scancode, int action, int mods
 
 void TextInputField::NotSelectedAnymore()
 {
-	shouldRender = false;
+	for (std::shared_ptr<Line>& l : m_Lines)
+	{
+		l->SetColour({ 1.0f, 0.0f, 0.0f, 1.0f });
+	}
 }
 
 void TextInputField::RenderPass(Renderer* r)
 {
-	if (shouldRender)
+	for (std::shared_ptr<Line>& l : m_Lines)
 	{
-		for (std::shared_ptr<Line>& l : m_Lines)
-		{
-			r->AddToRenderQueue(l);
-		}
+		r->AddToRenderQueue(l);
 	}
+	UIElement::RenderPass(r);
 }

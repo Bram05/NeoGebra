@@ -21,6 +21,7 @@ public:
 	std::shared_ptr<UIElement> MouseMoved(float x, float y);
 	void TextInput(unsigned int codepoint);
 	void SpecialKeyInput(int key, int scancode, int action, int mods);
+	void ResizeWindow(int width, int height);
 
 private:
 	std::vector<std::shared_ptr<UIElement>> m_UIElements;

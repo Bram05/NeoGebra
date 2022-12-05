@@ -5,11 +5,13 @@
 #include "PostulateVerifierResultUI.h"
 #include "EquationUI.h"
 #include "ButtonUI.h"
+#include "GraphUI.h"
 
 WindowUI::WindowUI()
 {
 	m_UIElements.push_back(std::make_shared<EquationUI>(-1.0f, -0.5f, 1.0f, -1.0f));
 	m_UIElements.push_back(std::make_shared<PostulateVerifierResultUI>(0.5f, 1.0f, 1.0f, -1.0f));
+	m_UIElements.push_back(std::make_shared<GraphUI>(-0.5f, 0.5f, 1.0f, -1.0f));
 }
 
 WindowUI::~WindowUI()
@@ -98,6 +100,14 @@ void WindowUI::SpecialKeyInput(int key, int scancode, int action, int mods)
 	if (m_SelectedElement)
 	{
 		m_SelectedElement->SpecialKeyInput(key, scancode, action, mods);
+	}
+}
+
+void WindowUI::ResizeWindow(int width, int height)
+{
+	for (std::shared_ptr<UIElement>& el : m_UIElements)
+	{
+		el->ResizeWindow(width, height);
 	}
 }
 

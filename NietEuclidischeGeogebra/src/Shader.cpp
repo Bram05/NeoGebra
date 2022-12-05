@@ -115,7 +115,7 @@ int Shader::GetUniformLocation(const std::string& name) const
 	{
 		int loc = glGetUniformLocation(m_Shader, name.c_str());
 		if (loc == -1)
-			throw std::runtime_error("Uniform " + name + " for shader " + m_Name + " was not found");
+			throw std::runtime_error("Uniform " + name + " for shader " + m_Name + " was not found or is not used");
 		m_UniformLocations.insert({name, loc});
 		return loc;
 	}
