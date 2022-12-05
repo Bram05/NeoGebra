@@ -8,7 +8,7 @@ int main()
 {
 	try
 	{
-		Application::s_Instance = new Application;
+		new Application;
 		Application::s_Instance->Run();
 		delete Application::s_Instance;
 	}

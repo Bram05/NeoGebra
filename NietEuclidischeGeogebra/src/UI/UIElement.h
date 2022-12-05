@@ -32,13 +32,13 @@ protected:
 	virtual void NotSelectedAnymore() { std::cout << "Element " << m_Name << " is not selected anymore\n"; }
 	virtual void TextInput(unsigned int codepoint) { /*std::cout << "Got key " << key << '\n';*/ }
 	virtual void SpecialKeyInput(int key, int scancode, int action, int mods) {}
+	virtual void ResizeWindow(int width, int height);
 	friend WindowUI;
 
 	// The bounds of this element
 	double m_LeftX, m_RightX, m_TopY, m_BottomY;
 	std::string m_Name;
 	std::vector<std::shared_ptr<UIElement>> m_SubUIElements;
-	std::vector<std::shared_ptr<Line>> m_Lines;
 	bool m_MouseIsHovering{false};
 	bool m_IsSelected{false};
 };

@@ -100,4 +100,5 @@ void TextInputField::RenderPass(Renderer* r)
 	{
 		r->AddToRenderQueue(l);
 	}
+	UIElement::RenderPass(r);
 }

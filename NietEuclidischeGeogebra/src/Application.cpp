@@ -53,6 +53,7 @@ static void KeyCallback(int key, int scancode, int action, int mods)
 
 Application::Application()
 {
+	Application::s_Instance = this;
 	AssetsFolder = "../../../../NietEuclidischeGeogebra/assets";
 	m_Window = new Window(WindowCreationOptions(1080, 720, "Hello World", MouseClickCallback, TextCallback, MouseMovedCallback, KeyCallback));
 	m_Renderer = new Renderer;
