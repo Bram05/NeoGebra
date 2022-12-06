@@ -127,3 +127,8 @@ void Renderer::AddToRenderQueue(const std::shared_ptr<Graph>& graph)
 {
 	m_GraphRenderer->AddToRenderQueue(graph);
 }
+
+void Renderer::GenTexture(const std::shared_ptr<Graph>& graph) 
+{
+	m_GraphRenderer->GenTexture(graph);
+}

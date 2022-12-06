@@ -33,6 +33,7 @@ void GraphUI::RenderPass(Renderer* r)
 void GraphUI::ResizeWindow(int width, int height)
 {
 	UpdateLines();
+	UpdateGraphs();
 	UIElement::ResizeWindow(width, height);
 }
 
@@ -66,6 +67,20 @@ void GraphUI::UpdateLines()
 
 void GraphUI::UpdateGraphs()
 {
+	equation P2pointDef{ {"p"}, "x = p0 & y = p1 & p0^2 + p1^2 < 1" };
+	equation P2lineDef{ {"l"}, "(x-l0)^2 + (y-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2 & l0^2 + l1^2 > 1" };
+	equation P2incidence{ {"p", "l"}, "(p0-l0)^2 + (p1-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2" };
+	equation P2betweenness{ {"p", "q", "r"}, "((p0 - r0)^2 + (p1 - r1)^2 > (p0 - q0)^2 + (p1 - q1)^2) & ((p0 - r0)^2 + (p1 - r1)^2 > (r0 - q0)^2 + (r1 - q1)^2)" };
+
+	Model P2m(2, P2pointDef, 2, P2lineDef, P2incidence, P2betweenness);
+	line l = P2m.newLine(std::vector<float>{1.25, 0});
+
 	m_Graphs.clear();
-	m_Graphs.push_back(std::make_shared<Graph>(m_LeftX, m_RightX, m_TopY, m_BottomY, -10, 10, -10, -10, std::array{ 1.0f, 0.0f, 0.0f, 1.0f }));
+	m_Graphs.push_back(std::make_shared<Graph>(l, m_LeftX, m_RightX, m_TopY, m_BottomY, -10, 10, -10, -10, std::array{ 1.0f, 0.0f, 0.0f, 1.0f }));
+
+	Renderer* r = Application::Get()->GetRenderer();
+	for (std::shared_ptr<Graph>& graph : m_Graphs)
+	{
+		r->GenTexture(graph);
+	}
 }

@@ -17,17 +17,17 @@ int main()
 	
 
 	Model Sm(1, SpointDef, 2, SlineDef, Sincidence);
-	//Model P2m(2, P2pointDef, 2, P2lineDef, P2incidence, P2betweenness);
+	Model P2m(2, P2pointDef, 2, P2lineDef, P2incidence, P2betweenness);
 	//point p1 = P2m.newPoint(std::vector<float>{0.625,  0.4145780988});
 	//point p2 = P2m.newPoint(std::vector<float>{0.5, 0});
 	//point p3 = P2m.newPoint(std::vector<float>{0.625, -0.4145780988});
-	//line l1 = P2m.newLine(std::vector<float>{1.25, 0});
+	line l1 = P2m.newLine(std::vector<float>{1.25, 0});
 	//line l2 = P2m.newLine(std::vector<float>{1.25, 0});
 	//std::cout << isBetween(p1, p2, p3) << '\n';
 
-	line l1 = Sm.newLine({2, 3});
+	line l = Sm.newLine({2, 3});
 
-	std::cout << Sm.getShader(l1) << std::endl;
+	std::cout << P2m.getShader(l1) << std::endl;
 }	
 
 /*

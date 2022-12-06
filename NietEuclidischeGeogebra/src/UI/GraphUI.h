@@ -2,6 +2,7 @@
 
 #include "UIElement.h"
 #include "GraphRenderer.h"
+#include "Model.h"
 
 class GraphUI : public UIElement
 {

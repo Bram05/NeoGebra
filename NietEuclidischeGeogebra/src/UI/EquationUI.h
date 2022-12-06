@@ -13,7 +13,7 @@ public:
 	~EquationUI();
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
-	TextC text;
+	//TextC text;
 protected:
 	void RenderPass(Renderer* r ) override;
 };
