@@ -11,7 +11,7 @@
 class Shader
 {
 public:
-	// name = the name of shader. For shader assets/shaders/example.vs name would be: example
+	// name = the name of shader. For shader assets/shaders/example.vert name would be: example
 	Shader(const std::string name);
 	~Shader();
 

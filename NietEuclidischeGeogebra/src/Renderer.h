@@ -33,5 +33,4 @@ public:
 private:
 	LineRenderer* m_LineRenderer;
 	SquareRenderer* m_SquareRenderer;
-	
 };

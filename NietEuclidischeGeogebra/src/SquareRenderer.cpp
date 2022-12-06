@@ -9,7 +9,9 @@ Square::Square(float leftX, float rightX, float topY, float bottomY, const std::
 		rightX, bottomY,
 		rightX, topY
 	};
-	unsigned int indices[6] = { // this buffer is technically not specific for every square but I think it's fine like this because of how small it is
+
+	// this buffer is technically not specific for every square but I think it's fine like this because of how small it is
+	unsigned int indices[6] = {
 		0, 1, 2,
 		2, 3, 0
 	};
