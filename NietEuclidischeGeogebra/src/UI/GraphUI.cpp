@@ -10,6 +10,7 @@ GraphUI::GraphUI(float leftX, float rightX, float topY, float bottomY)
 	: UIElement(leftX, rightX, topY, bottomY, "GraphUI")
 {
 	UpdateLines();
+	UpdateGraphs();
 }
 
 GraphUI::~GraphUI()
@@ -21,6 +22,10 @@ void GraphUI::RenderPass(Renderer* r)
 	for (std::shared_ptr<Line>& line : m_Lines)
 	{
 		r->AddToRenderQueue(line);
+	}
+	for (std::shared_ptr<Graph>& graph : m_Graphs)
+	{
+		r->AddToRenderQueue(graph);
 	}
 	UIElement::RenderPass(r);
 }
@@ -57,4 +62,10 @@ void GraphUI::UpdateLines()
 		float x = m_RightX - i * ((m_RightX - m_LeftX) / numVerticalLines);
 		m_Lines.push_back(std::make_shared<Line>(Point(x, m_TopY), Point(x, m_BottomY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
 	}
+}
+
+void GraphUI::UpdateGraphs()
+{
+	m_Graphs.clear();
+	m_Graphs.push_back(std::make_shared<Graph>(m_LeftX, m_RightX, m_TopY, m_BottomY, -10, 10, -10, -10, std::array{ 1.0f, 0.0f, 0.0f, 1.0f }));
 }

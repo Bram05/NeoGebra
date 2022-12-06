@@ -1,11 +1,11 @@
 #pragma once // Instead of using include guards.
 
-class Shader
+class ShaderX
 {
 public:
 	GLuint ID; 
 
-	Shader(const char* vert_path, const char* frag_path)
+	ShaderX(const char* vert_path, const char* frag_path)
 	{
 		char character;
 

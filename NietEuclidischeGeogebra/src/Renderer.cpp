@@ -78,12 +78,14 @@ Renderer::Renderer()
 
 	m_LineRenderer = new LineRenderer;
 	m_SquareRenderer = new SquareRenderer;
+	m_GraphRenderer = new GraphRenderer;
 }
 
 Renderer::~Renderer()
 {
 	delete m_LineRenderer;
 	delete m_SquareRenderer;
+	delete m_GraphRenderer;
 	// I couldn't find cleanup calls for glad
 }
 
@@ -94,6 +96,7 @@ void Renderer::RenderQueues()
 
 	m_SquareRenderer->RenderQueue();
 	m_LineRenderer->RenderQueue();
+	m_GraphRenderer->RenderQueue();
 	#ifdef DEBUG
 	if (s_PrintedMessageThisFrame)
 	{
@@ -118,4 +121,9 @@ void Renderer::AddToRenderQueue(const std::shared_ptr<Line>& line)
 void Renderer::AddToRenderQueue(const std::shared_ptr<Square>& square)
 {
 	m_SquareRenderer->AddToRenderQueue(square);
+}
+
+void Renderer::AddToRenderQueue(const std::shared_ptr<Graph>& graph)
+{
+	m_GraphRenderer->AddToRenderQueue(graph);
 }
