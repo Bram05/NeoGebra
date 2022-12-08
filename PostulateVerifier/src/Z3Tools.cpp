@@ -235,10 +235,6 @@ std::string Z3Tools::recToLisp(const std::string& s, const std::map<std::string,
 	}
 }
 
-std::string Z3Tools::toShader(const std::string& s, const std::map<std::string, float>& vars) {
-	return recToShader(s, vars);
-}
-
 std::string Z3Tools::recToShader(const std::string& s, const std::map<std::string, float>& vars) {
 	bool orEquals = false; // True if the > or < is a >= or <=
 	int operIndex = getNextOperator(s, orEquals);
@@ -250,7 +246,7 @@ std::string Z3Tools::recToShader(const std::string& s, const std::map<std::strin
 			if (vars.count(s)) { return std::to_string(vars.at(s)); }
 			if (s[0] == '(' and s.back() == ')') { return "(" + recToShader(s.substr(1, s.length() - 2), vars) + ")"; }
 			if (s[0] == '[' and s.back() == ']') { return ("abs(" + recToShader(s.substr(1, s.length() - 2), vars) + ')'); }
-			if (s[0] == '!') { return ("(not " + recToShader(s.substr(1, s.length() - 1), vars) + ')'); }
+			if (s[0] == '!') { return ("((" + recToShader(s.substr(1, s.length() - 1), vars) + " == 0.0) ? 1<<100 : 0.0)"); } //Have to look into potential problems
 		}
 		else {
 			if (vars.count(s.substr(1, s.length() - 1))) { return std::to_string(-vars.at(s.substr(1, s.length() - 1))); }
@@ -259,7 +255,7 @@ std::string Z3Tools::recToShader(const std::string& s, const std::map<std::strin
 		}
 		if (s == "t") { return "true"; }
 		if (s == "f") { return "false"; }
-		if (s == "x" or s == "y") { return "xy." + s; }
+		if (s == "x" or s == "y") { return "coords." + s; }
 		throw std::invalid_argument("Invalid statement");
 	}
 
@@ -267,22 +263,22 @@ std::string Z3Tools::recToShader(const std::string& s, const std::map<std::strin
 	std::string s2 = s.substr(operIndex + 1, s.length() - operIndex - 1);
 
 	switch (s[operIndex]) {
-	case '|': return recToShader(s1, vars) + " || " + recToShader(s2, vars);
-	case '&': return recToShader(s1, vars) + " && " + recToShader(s2, vars);
-	case '!': return "not feq(" + recToShader(s1, vars) + ", " + recToShader(s2, vars) + ")";
+	case '|': return "min(" + recToShader(s1, vars) + ", " + recToShader(s2, vars) + ")";
+	case '&': return "abs(" + recToShader(s1, vars) + ") + abs(" + recToShader(s2, vars) + ")";
+	case '!': return "((" + recToShader(s1, vars) + " - " + recToShader(s2, vars) + " == 0.0) ? 1<<100 : 0.0)"; //Have to look into potential problems
 	case '>':
-		if (!orEquals) { return recToShader(s1, vars) + " > " + recToShader(s2, vars); }
-		else { return recToShader(s1, vars) + " >= " + recToShader(s2.substr(1, s2.length() - 1), vars); }
+		if (!orEquals) { return "((" + recToShader(s1, vars) + " > " + recToShader(s2, vars) + ") ? 0.0 : 1<<100)"; }
+		else { return "((" + recToShader(s1, vars) + " >= " + recToShader(s2, vars) + ") ? 0.0 : 1<<100)"; }
 	case '<':
-		if (!orEquals) { return recToShader(s1, vars) + " < " + recToShader(s2, vars); }
-		else { return recToShader(s1, vars) + " <= " + recToShader(s2.substr(1, s2.length() - 1), vars); }
-	case '=': return "feq(" + recToShader(s1, vars) + ", " + recToShader(s2, vars) + ")";
+		if (!orEquals) { return "((" + recToShader(s1, vars) + " < " + recToShader(s2, vars) + ") ? 0.0 : 1<<100)"; }
+		else { return "((" + recToShader(s1, vars) + " <= " + recToShader(s2, vars) + ") ? 0.0 : 1<<100)"; }
+	case '=': return recToShader(s1, vars) + " - " + recToShader(s2, vars);
 	case '+': return recToShader(s1, vars) + " + " + recToShader(s2, vars);
 	case '-': return recToShader(s1, vars) + " - " + recToShader(s2, vars);
 	case '*': return recToShader(s1, vars) + " * " + recToShader(s2, vars);
 	case '/': return recToShader(s1, vars) + " / " + recToShader(s2, vars);
 	case '^': return "pow( " + recToShader(s1, vars) + ", " + recToShader(s2, vars) + ")"; 
-	case '~': return "pow( " + recToShader(s1, vars) + ", (1.0 / " + recToShader(s2, vars) + "))";
+	case '~': return "pow( " + recToShader(s2, vars) + ", (1.0 / " + recToShader(s1, vars) + "))";
 	default:  throw std::invalid_argument("Invalid operator");
 	}
 }

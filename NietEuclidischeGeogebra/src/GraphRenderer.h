@@ -15,7 +15,7 @@ class Graph
 {
 public:
 	//ToDo: change to line/point
-	Graph(line eq, float leftX, float rightX, float topY, float bottomY, int graphWindowLeftX, int graphWindowRightX, int graphWindowTopY, int graphWindowBottomY, const std::array<float, 4>& colour);
+	Graph(NEElement el, float leftX, float rightX, float topY, float bottomY, int graphWindowLeftX, int graphWindowRightX, int graphWindowTopY, int graphWindowBottomY, const std::array<float, 4>& colour);
 	~Graph();
 
 	// Getters and setters
@@ -32,7 +32,7 @@ public:
 private:
 	float m_LeftX, m_RightX, m_TopY, m_BottomY;
 	int m_GraphWindowLeftX, m_GraphWindowRightX, m_GraphWindowTopY, m_GraphWindowBottomY;
-	line m_Eq;
+	NEElement m_El;
 	GLuint m_Vao;
 	GLuint m_Vb;
 	GLuint m_Ib;

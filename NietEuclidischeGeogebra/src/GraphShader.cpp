@@ -7,17 +7,17 @@
 
 enum ShaderType
 {
-	VERTEX_SHADER, FRAGMENT_SHADER, COMPUTE_SHADER
+	VERTEX_SHADER, FRAGMENT_SHADER, COMPUTE_SHADER1, COMPUTE_SHADER2
 };
 
-static int CompileShader(ShaderType type, const std::string &path);
+static int CompileShader(ShaderType type, const std::string& path, const std::string& eq);
+static int CompileShader(ShaderType type, const std::string& path) { return CompileShader(type, path, ""); }
 
 GraphShader::GraphShader(const std::string name)
 	: m_Name{name}
 {
 	CreateShader(name);
-	m_CompShader1 = CreateCompShader(name + "1");
-	m_CompShader2 = CreateCompShader(name + "2");
+	m_CompShader2 = CreateCompShader(name + "2", "");
 }
 
 void GraphShader::CreateShader(const std::string name)
@@ -47,11 +47,11 @@ void GraphShader::CreateShader(const std::string name)
 	glUseProgram(m_Shader);
 }
 
-unsigned int GraphShader::CreateCompShader(const std::string name) 
+unsigned int GraphShader::CreateCompShader(const std::string name, const std::string& eq)
 {
 	unsigned int shader = glCreateProgram();
 	std::string path = AssetsFolder + "/shaders/" + name;
-	int cs = CompileShader(COMPUTE_SHADER, path + ".comp");
+	int cs = CompileShader((name.back() == '1' ? COMPUTE_SHADER1 : COMPUTE_SHADER2), path + ".comp", eq);
 	glAttachShader(shader, cs);
 	glLinkProgram(shader);
 	int result;
@@ -75,6 +75,8 @@ unsigned int GraphShader::CreateCompShader(const std::string name)
 GraphShader::~GraphShader()
 {
 	glDeleteProgram(m_Shader);
+	glDeleteProgram(m_CompShader1);
+	glDeleteProgram(m_CompShader2);
 }
 
 void GraphShader::Bind()
@@ -104,7 +106,12 @@ void GraphShader::SetUniform(const std::string& name, const std::array<float, 4>
 	glUniform4f(loc, arr[0], arr[1], arr[2], arr[3]);
 }
 
-static int CompileShader(ShaderType type, const std::string& path)
+void GraphShader::SetIntUniform(int loc, const std::array<int, 4>& arr) const
+{
+	glUniform4i(loc, arr[0], arr[1], arr[2], arr[3]);
+}
+
+static int CompileShader(ShaderType type, const std::string& path, const std::string& eq)
 {
 	GLuint glType;
 	switch (type)
@@ -113,7 +120,9 @@ static int CompileShader(ShaderType type, const std::string& path)
 		glType = GL_VERTEX_SHADER; break;
 	case FRAGMENT_SHADER:
 		glType = GL_FRAGMENT_SHADER; break;
-	case COMPUTE_SHADER:
+	case COMPUTE_SHADER1:
+		glType = GL_COMPUTE_SHADER; break;
+	case COMPUTE_SHADER2:
 		glType = GL_COMPUTE_SHADER; break;
 	default:
 		throw std::runtime_error(std::string("Unknown shader type ") + std::to_string(type));
@@ -131,6 +140,12 @@ static int CompileShader(ShaderType type, const std::string& path)
 	}
 	GLuint shader = glCreateShader(glType);
 	std::string sourceC = source.str();
+
+	// If the shader is the first compute shader, the formula should be inserted
+	if (type == COMPUTE_SHADER1) {
+		sourceC.replace(sourceC.find("[EQUATION]"), 10, eq);
+	}
+
 	const char* s = sourceC.c_str();
 	glShaderSource(shader, 1, &s, nullptr);
 	glCompileShader(shader);
@@ -150,6 +165,7 @@ static int CompileShader(ShaderType type, const std::string& path)
 
 int GraphShader::GetUniformLocation(const std::string& name) const
 {
+
 	auto it = m_UniformLocations.find(name);
 	if (it == m_UniformLocations.end())
 	{
@@ -162,12 +178,19 @@ int GraphShader::GetUniformLocation(const std::string& name) const
 	return it->second;
 }
 
-unsigned int GraphShader::RunComp(line Eq, float normWidth, float normHeight, int graphWindowLeftX, int graphWindowRightX, int graphWindowTopY, int graphWindowBottomY)
+unsigned int GraphShader::RunComp(NEElement El, float normWidth, float normHeight, int graphWindowLeftX, int graphWindowRightX, int graphWindowTopY, int graphWindowBottomY)
 {
 	auto [windowWidth, windowHeight] = Application::Get()->GetWindow()->GetSize();
 	
 	int width = static_cast<int>(windowWidth * normWidth / 2);
 	int height = static_cast<int>(windowHeight * normHeight / 2); 
+
+	//Create first shader
+	if (m_CompShader1 != NULL) {
+		glDeleteProgram(m_CompShader1);
+	}
+	std::string shaderEquation = El.getShader();
+	m_CompShader1 = CreateCompShader(m_Name + "1", shaderEquation);
 
 	//Create first texture
 	unsigned int texture1;
@@ -189,16 +212,22 @@ unsigned int GraphShader::RunComp(line Eq, float normWidth, float normHeight, in
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, NULL);
 	glBindImageTexture(1, texture2, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
 
+	
+	//Run 1st shader
 	glUseProgram(m_CompShader1);
+	SetIntUniform(1, std::array<int, 4>{ graphWindowLeftX, graphWindowRightX, graphWindowTopY, graphWindowBottomY });
 	glDispatchCompute(width, height, 1);
 
 	//wait until program finishes
 	glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
+	//Run 2nd shader
 	glUseProgram(m_CompShader2);
 	glDispatchCompute(width, height, 1);
 

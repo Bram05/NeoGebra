@@ -11,7 +11,7 @@ void main()
 {   
 
 	
-	colour = vec4(u_Colour.xyz + (1.0 - u_Colour.xyz) * (1.0 - texture( tex, TexCoords).r), 1.0);
+	colour = vec4(u_Colour.xyz + (1.0 - u_Colour.xyz) * (1.0 - abs(texture( tex, TexCoords).r)), 1.0);
 	if (texture( tex, TexCoords).r == 0.0) {
 		colour = vec4(0.0, 0.0, 0.0, 0.0);
 	}

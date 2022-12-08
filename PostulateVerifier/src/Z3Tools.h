@@ -36,7 +36,6 @@ class Z3Tools {
 	static bool replace(std::string& str, const std::string& from, const std::string& to);
 
 	static std::string recToLisp(const std::string& s, const std::map<std::string, float>& vars, std::set<std::string>& toDefine, std::vector<std::pair<std::string, std::string>>& sqrts);
-	static std::string recToShader(const std::string& s, const std::map<std::string, float>& vars);
 	static int getNextOperator(const std::string& s, bool& orEquals);
 public:
 	/**
@@ -64,7 +63,7 @@ public:
 	static equationResult isSolvable(equation s, const std::vector<std::vector<float>>& identifiers);
 	std::string mergeEq(std::string s1, std::string s2);
 	static std::string toLisp(const std::string& s, const std::map<std::string, float>& vars);
-	static std::string toShader(const std::string& s, const std::map<std::string, float>& vars);
 	static void replaceVar(std::string& s, const std::string& from, const std::string& to);
+	static std::string recToShader(const std::string& s, const std::map<std::string, float>& vars);
 	friend equation;
 };

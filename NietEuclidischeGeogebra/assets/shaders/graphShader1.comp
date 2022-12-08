@@ -3,13 +3,18 @@
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 layout(r32f, binding = 0) uniform image2D texture;
+layout( location=1 ) uniform ivec4 u_Window;
+
+float f(vec2 coords) {
+    return [EQUATION];
+}
+//Bugged hem met pow(x, p) x < 0 en p > 3
 
 void main() {
     ivec2 pos = ivec2( gl_GlobalInvocationID.xy );
-    vec2 coords = vec2((float(pos.x) / (gl_NumWorkGroups.x) * 2 - 1) * 2, (float(pos.y) / (gl_NumWorkGroups.y) * 2 - 1) * 2);
-    
-    float out_val = pow( (coords.x - 1.250000), 2.000000) + pow( (coords.y - 0.000000), 2.000000) - pow( (1.000000 / (-2.000000 * (pow( 2.000000, (1.0 / (pow( 1.250000, 2.000000) + pow( 0.000000, 2.000000))))) - 2.000000 * pow( 2.000000, (1.0 / (pow( (pow( 2.000000, (1.0 / (pow( 1.250000, 2.000000) + pow( 0.000000, 2.000000))))), 2.000000) - 1.000000)))) + 0.500000 * (pow( 2.000000, (1.0 / (pow( 1.250000, 2.000000) + pow( 0.000000, 2.000000))))) + 0.500000 * pow( 2.000000, (1.0 / (pow( (pow( 2.000000, (1.0 / (pow( 1.250000, 2.000000) + pow( 0.000000, 2.000000))))), 2.000000) - 1.000000)))), 2.000000);
-    //out_val = coords.x;
+    //u_Window = {x=leftX, y=rightX, z=topY, w=bottomY}
+    vec2 coords = vec2(u_Window.xw) + vec2(pos) / vec2(gl_NumWorkGroups.xy) * vec2(u_Window.y - u_Window.x, u_Window.z - u_Window.w);
 
-    imageStore( texture, pos, vec4( out_val, 0.0, 0.0, 0.0 ) );
+    float err = f(coords);
+    imageStore( texture, pos, vec4( err, 0.0, 0.0, 0.0 ) );
 }

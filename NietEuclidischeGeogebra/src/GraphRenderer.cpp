@@ -1,7 +1,7 @@
 #include "GraphRenderer.h"
 
-Graph::Graph(line l, float leftX, float rightX, float topY, float bottomY, int graphWindowLeftX, int graphWindowRightX, int graphWindowTopY, int graphWindowBottomY, const std::array<float, 4>& colour)
-	: m_Eq{ l },
+Graph::Graph(NEElement el, float leftX, float rightX, float topY, float bottomY, int graphWindowLeftX, int graphWindowRightX, int graphWindowTopY, int graphWindowBottomY, const std::array<float, 4>& colour)
+	: m_El{ el },
 	m_LeftX{ leftX }, m_RightX{ rightX }, m_TopY{ topY }, m_BottomY{ bottomY }, 
 	m_GraphWindowLeftX{ graphWindowLeftX }, m_GraphWindowRightX{ graphWindowRightX }, m_GraphWindowTopY{ graphWindowTopY }, m_GraphWindowBottomY{ graphWindowBottomY }, 
 	m_Colour{ colour }
@@ -87,5 +87,5 @@ void GraphRenderer::RenderQueue()
 void GraphRenderer::GenTexture(const std::shared_ptr<Graph>& graph) {
 	float normWidth = graph->GetRightX() - graph->GetLeftX();
 	float normHeight = graph->GetTopY() - graph->GetBottomY();
-	graph->SetTexture(m_Shader.RunComp(graph->m_Eq, normWidth, normHeight, graph->m_GraphWindowLeftX, graph->m_GraphWindowRightX, graph->m_GraphWindowTopY, graph->m_GraphWindowBottomY));
+	graph->SetTexture(m_Shader.RunComp(graph->m_El, normWidth, normHeight, graph->m_GraphWindowLeftX, graph->m_GraphWindowRightX, graph->m_GraphWindowTopY, graph->m_GraphWindowBottomY));
 }

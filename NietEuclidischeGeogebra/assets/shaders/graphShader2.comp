@@ -11,27 +11,31 @@ void main() {
     ivec2 pos = ivec2( gl_GlobalInvocationID.xy );
 
     float in_val = imageLoad( in_texture, pos ).r;
-    vec4 surrounding = vec4(
-        imageLoad( in_texture, ivec2(pos.x + 1, pos.y) ).r, 
-        imageLoad( in_texture, ivec2(pos.x - 1, pos.y) ).r, 
-        imageLoad( in_texture, ivec2(pos.x, pos.y + 1) ).r, 
-        imageLoad( in_texture, ivec2(pos.x, pos.y - 1) ).r
-    );
-
-    if ((surrounding[0] < 0.5 && surrounding[1] > 0.5) ||
-        (surrounding[0] > 0.5 && surrounding[1] < 0.5) ||
-        (surrounding[2] < 0.5 && surrounding[3] > 0.5) ||
-        (surrounding[2] > 0.5 && surrounding[3] < 0.5))
+    
+    if (in_val == 0.0) 
     {
         imageStore( out_texture, pos, vec4( 1.0, 0.0, 0.0, 0.0 ) );
     }
-    else
+    else 
     {
-        imageStore( out_texture, pos, vec4( 0.0, 0.0, 0.0, 0.0 ) );
-    }
-
-    if (pos.x == 0 || pos.x == gl_NumWorkGroups.x - 1 || pos.y == 0 || pos.y == gl_NumWorkGroups.y - 1 )
-    {
-        imageStore( out_texture, pos, vec4( 0.0, 0.0, 0.0, 0.0 ) );
+        in_val = abs(in_val);
+        int pairs = 0;
+        if(abs(imageLoad( in_texture, ivec2(pos.x-1, pos.y) ).r)   + 0.005 >= in_val && 
+           abs(imageLoad( in_texture, ivec2(pos.x+1, pos.y) ).r)   + 0.005 >= in_val) { pairs++; }
+        if(abs(imageLoad( in_texture, ivec2(pos.x, pos.y-1) ).r)   + 0.005 >= in_val && 
+           abs(imageLoad( in_texture, ivec2(pos.x, pos.y+1) ).r)   + 0.005 >= in_val) { pairs++; }
+        if(abs(imageLoad( in_texture, ivec2(pos.x+1, pos.y+1) ).r) + 0.005 >= in_val && 
+           abs(imageLoad( in_texture, ivec2(pos.x-1, pos.y-1) ).r) + 0.005 >= in_val) { pairs++; }
+        if(abs(imageLoad( in_texture, ivec2(pos.x+1, pos.y-1) ).r) + 0.005 >= in_val && 
+           abs(imageLoad( in_texture, ivec2(pos.x-1, pos.y+1) ).r) + 0.005 >= in_val) { pairs++; }
+        
+        if (pairs >= 4 && in_val < 0.1)
+        { 
+            imageStore( out_texture, pos, vec4( 1.0, 0.0, 0.0, 0.0 ) );
+        }
+        else
+        {
+            imageStore( out_texture, pos, vec4( 0.0, 0.0, 0.0, 0.0 ) );
+        }
     }
 }

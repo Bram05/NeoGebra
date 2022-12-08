@@ -68,15 +68,26 @@ void GraphUI::UpdateLines()
 void GraphUI::UpdateGraphs()
 {
 	equation P2pointDef{ {"p"}, "x = p0 & y = p1 & p0^2 + p1^2 < 1" };
-	equation P2lineDef{ {"l"}, "(x-l0)^2 + (y-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2 & l0^2 + l1^2 > 1" };
+	equation P2lineDef{ {"l"}, "(x-l0)^2 + (y-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2 & l0^2 + l1^2 > 1 & x^2 + y^2 < 1" };
 	equation P2incidence{ {"p", "l"}, "(p0-l0)^2 + (p1-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2" };
 	equation P2betweenness{ {"p", "q", "r"}, "((p0 - r0)^2 + (p1 - r1)^2 > (p0 - q0)^2 + (p1 - q1)^2) & ((p0 - r0)^2 + (p1 - r1)^2 > (r0 - q0)^2 + (r1 - q1)^2)" };
 
 	Model P2m(2, P2pointDef, 2, P2lineDef, P2incidence, P2betweenness);
-	line l = P2m.newLine(std::vector<float>{1.25, 0});
+	NELine l1({ 1.25, 0 }, &P2m);
+	NELine l2({0, 1.25}, &P2m);
+	NEPoint p1({ 0.625,  0.4145780988 }, &P2m, Colour(255,0,0,255));
+	NEPoint p2({ 0.5, 0 }, &P2m, Colour(255, 0, 0, 255));
+	NEPoint p3({ 0.625, -0.4145780988 }, &P2m, Colour(255, 0, 0, 255));
+
+	std::vector<Model*> m_Models = { &P2m };
 
 	m_Graphs.clear();
-	m_Graphs.push_back(std::make_shared<Graph>(l, m_LeftX, m_RightX, m_TopY, m_BottomY, -10, 10, -10, -10, std::array{ 1.0f, 0.0f, 0.0f, 1.0f }));
+	for (Model* m : m_Models) {
+		for (NEElement el : m->getElements()) {
+			Colour colour = el.getColour();
+			m_Graphs.push_back(std::make_shared<Graph>(el, m_LeftX, m_RightX, m_TopY, m_BottomY, -2, 2, 2, -2, std::array<float, 4>{colour.norm_r, colour.norm_g, colour.norm_b, colour.norm_a}));
+		}
+	}
 
 	Renderer* r = Application::Get()->GetRenderer();
 	for (std::shared_ptr<Graph>& graph : m_Graphs)
