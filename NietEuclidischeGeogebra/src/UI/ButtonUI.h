@@ -6,9 +6,9 @@
 class ButtonUI : public UIElement
 {
 public:
-	ButtonUI(double leftX, double rightX, double topY, double bottomY);
+	ButtonUI(double leftX, double rightX, double topY, double bottomY, void(*func)(int,int) = nullptr);
 	~ButtonUI();
-
+	
 	virtual void RenderPass(Renderer* r) override;
 
 protected:
@@ -17,4 +17,5 @@ protected:
 	virtual void NotHoveredAnymore() override;
 private:
 	std::shared_ptr<Square> m_Background;
+	void(*m_Action)(int, int);
 };

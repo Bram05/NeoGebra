@@ -6,12 +6,15 @@
 #include "EquationUI.h"
 #include "ButtonUI.h"
 #include "GraphUI.h"
+#include "MenuUI.h"
 
 WindowUI::WindowUI()
 {
-	m_UIElements.push_back(std::make_shared<EquationUI>(-1.0f, -0.5f, 1.0f, -1.0f));
-	m_UIElements.push_back(std::make_shared<PostulateVerifierResultUI>(0.5f, 1.0f, 1.0f, -1.0f));
-	m_UIElements.push_back(std::make_shared<GraphUI>(-0.5f, 0.5f, 1.0f, -1.0f));
+	//Dit is lager gezet, om ruimte te maken voor de menu bovenaan
+	m_UIElements.push_back(std::make_shared<EquationUI>(-1.0f, -0.5f, 0.9f, -1.0f));
+	m_UIElements.push_back(std::make_shared<PostulateVerifierResultUI>(0.5f, 1.0f, 0.9f, -1.0f));
+	m_UIElements.push_back(std::make_shared<GraphUI>(-0.5f, 0.5f, 0.9f, -1.0f));
+	m_UIElements.push_back(std::make_shared<MenuUI>(-1.0f, 1.0f, 1.0f, 0.9f));
 }
 
 WindowUI::~WindowUI()
