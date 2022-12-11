@@ -6,7 +6,7 @@
 
 ButtonUI::ButtonUI(double leftX, double rightX, double topY, double bottomY, void(*func)(int, int))
 	: UIElement(leftX, rightX, topY, bottomY, "ButtonUI"),
-	  m_Background(std::make_shared<Square>(leftX, rightX, topY, bottomY, std::array{1.0f, 1.0f, 0.0f, 1.0f}))
+	  m_Background(std::make_shared<Square>(leftX, rightX, topY, bottomY, std::array{0.0f, 0.6f, 1.0f, 1.0f}))
 {
 	m_Action = func;
 }
@@ -22,7 +22,7 @@ void ButtonUI::RenderPass(Renderer* r)
 
 void ButtonUI::WasClicked(float x, float y)
 {
-	std::cout << "Button clicked! Closing application" << '\n';
+
 	if (m_Action != nullptr) {
 		m_Action(1,2);
 	}

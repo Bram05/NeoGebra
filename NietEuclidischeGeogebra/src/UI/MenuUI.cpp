@@ -7,12 +7,10 @@
 #include "TextInputField.h"
 #include "TextRenderer.h"
 
-void TestFunction1() {
-	std::cout << "TestFunction1 has been executed" << "\n";
-}
 void TestFunction2(int x, int y) {
 	std::cout << "TestFunction2 has been executed, values: " << x << ", " << y << "\n";
 }
+
 MenuUI::MenuUI(double leftX, double rightX, double topY, double bottomY)
 	: UIElement(leftX, rightX, topY, bottomY, "MenuUI")//, text(500, 500, "red")
 {
@@ -25,14 +23,11 @@ MenuUI::MenuUI(double leftX, double rightX, double topY, double bottomY)
 	// distance = 0.025
 	float buttonWidth = 0.125f;
 	float indent = 0.025f;
-	/*std::vector<void (*)> functions;
-
-	functions.push_back(&TestFunction1);
-	functions.push_back(&TestFunction2);
-	functions.push_back(&TestFunction3);*/
+	std::vector<void(*)(int, int)> functions;//wtf is deze syntax
 
 	for (int i=0; i < 12; i++) {
-			m_SubUIElements.push_back(std::make_shared<ButtonUI>(leftX+ indent +i* buttonWidth, (leftX + i * buttonWidth + buttonWidth), topY-0.01, (topY - 0.09f), &TestFunction2));
+			functions.push_back(&TestFunction2);//voor nu zo, later moeten we natuurlijk elke apart zetten
+			m_SubUIElements.push_back(std::make_shared<ButtonUI>(leftX+ indent +i* buttonWidth, (leftX + i * buttonWidth + buttonWidth), topY-0.01, (topY - 0.09f), functions[i]));
 	
 	}
 
@@ -52,10 +47,4 @@ void MenuUI::RenderPass(Renderer* r)
 	}
 	//text.drawMessage(0);
 	UIElement::RenderPass(r);
-}
-
-
-
-void TestFunction3(int x) {
-	std::cout << "TestFunction3 has been executed, value: " << x << "\n";
 }
