@@ -5,6 +5,7 @@
 #include "LineRenderer.h"
 #include "SquareRenderer.h"
 #include "GraphRenderer.h"
+#include "TextRenderer.h"
 #include "UI/WindowUI.h"
 
 class Application;
@@ -21,6 +22,8 @@ public:
 	// This method calls the underlying renderers to render their queues
 	void RenderQueues();
 
+	std::shared_ptr<Font> GetFont() { return m_TextRenderer->GetFont(); }
+
 	// Update for resizing the window
 	void Resize(int width, int height);
 
@@ -28,6 +31,7 @@ public:
 	void AddToRenderQueue(const std::shared_ptr<Line>& line);
 	void AddToRenderQueue(const std::shared_ptr<Square>& square);
 	void AddToRenderQueue(const std::shared_ptr<Graph>& graph);
+	void AddToRenderQueue(const std::shared_ptr<Text>& m_Texts);
 
 	void GenTexture(const std::shared_ptr<Graph>& graph);
 
@@ -38,4 +42,5 @@ private:
 	LineRenderer* m_LineRenderer;
 	SquareRenderer* m_SquareRenderer;
 	GraphRenderer* m_GraphRenderer;
+	TextRenderer* m_TextRenderer;
 };

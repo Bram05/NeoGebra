@@ -22,6 +22,7 @@ public:
 	// Set the uniform for the shader
 	void SetUniform(const std::string& name, const Maths::Matrix<2,2>& mat) const;
 	void SetUniform(const std::string& name, const std::array<float, 4>& arr) const;
+	void SetUniform(const std::string& name, int i) const;
 
 private:
 	GLuint m_Shader;

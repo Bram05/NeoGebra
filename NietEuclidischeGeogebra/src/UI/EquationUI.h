@@ -5,6 +5,7 @@
 #include "UIElement.h"
 #include "LineRenderer.h"
 #include "TextRenderer.h"
+
 // Represents what will eventually be the part where equations can be written
 class EquationUI : public UIElement
 {
@@ -16,4 +17,5 @@ private:
 	//TextC text;
 protected:
 	void RenderPass(Renderer* r ) override;
+	std::vector<std::shared_ptr<Text>> m_Texts;
 };
