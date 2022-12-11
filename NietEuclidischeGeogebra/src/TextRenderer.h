@@ -44,9 +44,14 @@ public:
 	Text(const std::string& text, float leftX, float rightX, float baseLine, float size);
 	~Text();
 
+	void AddText(const std::vector<int>& letters, int position);
+	void AddText(const std::string& letters, int position);
+
 private:
-	GLuint m_Vao, m_Vb, m_Ib;
-	int m_NumLetters;
+	float m_Size;
+	std::vector<int> m_Text;
+	int m_Begin, m_End;
+	float m_LeftX, m_RightX, m_Baseline;
 	friend TextRenderer;
 };
 
@@ -63,6 +68,7 @@ public:
 
 private:
 	std::shared_ptr<Font> m_Font;
+	GLuint m_Vao, m_Vb, m_Ib;
 	std::queue<std::shared_ptr<Text>> m_RenderQueue;
 	Shader m_TextShader;
 };

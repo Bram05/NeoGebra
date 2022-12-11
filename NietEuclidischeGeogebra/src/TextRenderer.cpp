@@ -10,10 +10,31 @@ TextRenderer::TextRenderer(const std::string& fontName)
 {
 	m_TextShader.SetUniform("u_TextImage", 0);
 	m_Font = std::make_shared<Font>(fontName);
+
+	unsigned int indices[6] {0,1,2,2,3,0};
+
+	glGenVertexArrays(1, &m_Vao);
+	glBindVertexArray(m_Vao);
+
+	glGenBuffers(1, &m_Vb);
+	glBindBuffer(GL_ARRAY_BUFFER, m_Vb);
+	glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(float), NULL, GL_DYNAMIC_DRAW);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
+
+	glGenBuffers(1, &m_Ib);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Ib);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), indices, GL_STATIC_DRAW);
 }
 
 TextRenderer::~TextRenderer()
 {
+	glDeleteBuffers(1, &m_Vb);
+	glDeleteBuffers(1, &m_Ib);
+	glDeleteVertexArrays(1, &m_Vao);
 }
 
 void TextRenderer::AddToRenderQueue(const std::shared_ptr<Text>& m_Text)
@@ -26,13 +47,45 @@ void TextRenderer::RenderQueue()
 	m_TextShader.Bind();
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_Font->GetBitmap());
+	glBindVertexArray(m_Vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_Vb); // Vertex buffers are not kept in the vertex array object and are not required for rendering. We do need it here so we need to explicitly bind it
+	std::shared_ptr<Font> font = Application::Get()->GetRenderer()->GetFont();
+	auto [width, height] = Application::Get()->GetWindow()->GetSize();
 	while (m_RenderQueue.size() != 0)
 	{
 		std::shared_ptr<Text> t = m_RenderQueue.front();
 		m_RenderQueue.pop();
 
-		glBindVertexArray(t->m_Vao);
-		glDrawElements(GL_TRIANGLES, t->m_NumLetters * 6, GL_UNSIGNED_INT, nullptr);
+		float scale = (float)t->m_Size / font->GetSize();
+		float currentX = t->m_LeftX;
+		for (int i{t->m_Begin}; i < t->m_End; ++i)
+		{
+			int c = t->m_Text[i];
+			const CharacterInfo& info{ font->GetCharacterInfo(c) };
+
+			float charLeftX = currentX + (float)info.xOffset / width * scale;
+			float charRightX = charLeftX + (float)info.width / width * scale;
+			float charBottomY = t->m_Baseline;
+			if (c == 'p' || c == 'q' || c == 'y' || c == 'g' || c == 'j')
+				charBottomY -= (float)info.yOffset / height * scale;
+			float charTopY = charBottomY + (float)info.height / height * scale;
+
+			float texLeftX = (float)info.x / font->GetWidth();
+			float texRightX = texLeftX + (float)info.width / font->GetWidth();
+			float texTopY = 1 - ((float)info.y / font->GetHeight());
+			float texBottomY = texTopY - (float)info.height / font->GetHeight();
+
+			float data[16] = {
+				charLeftX,  charBottomY,	texLeftX,  texBottomY,
+				charRightX, charBottomY,	texRightX, texBottomY,
+				charRightX, charTopY,		texRightX, texTopY,
+				charLeftX,  charTopY,		texLeftX,  texTopY
+			};
+			currentX += ((float)info.xAdvance / width) * scale;
+
+			glBufferSubData(GL_ARRAY_BUFFER, 0, 16 * sizeof(float), data);
+			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+		}
 	}
 }
 
@@ -142,7 +195,13 @@ Font::~Font()
 
 CharacterInfo Font::GetCharacterInfo(int character)
 {
-	return m_CharacterInformation.find(character)->second;
+	auto it = m_CharacterInformation.find(character);
+	if (it == m_CharacterInformation.end())
+	{
+		throw std::runtime_error(std::string("Unkown character ") + (char)character + " with code " + std::to_string(character));
+	}
+	return it->second;
+	
 }
 
 Text::Text(const std::string& text, float leftX, float rightX, float baseLine, float size)
@@ -151,71 +210,21 @@ Text::Text(const std::string& text, float leftX, float rightX, float baseLine, f
 }
 
 Text::Text(const std::vector<int>& letters, float leftX, float rightX, float baseLine, float size)
-	: m_NumLetters{(int)letters.size()}, m_Ib {1<<29}, m_Vb{1<<29}
+	: m_Text{letters}, m_LeftX{leftX}, m_RightX{rightX}, m_Baseline{baseLine}, m_Size{size}, m_Begin{0}, m_End{(int)letters.size()}
 {
-	glGenVertexArrays(1, &m_Vao);
-	glBindVertexArray(m_Vao);
-
-	std::array<float,16>* vertexData = new std::array<float,16>[m_NumLetters];
-	std::array<unsigned int,6>* indexData = new std::array<unsigned int,6>[m_NumLetters];
-
-	std::shared_ptr<Font> font = Application::Get()->GetRenderer()->GetFont();
-
-	float scale = (float)size / font->GetSize();
-
-	float currentX = leftX;
-	for (unsigned int i{ 0 }; i < m_NumLetters; ++i)
-	{
-		unsigned int begin = i * 4;
-		indexData[i] = {
-			begin, begin+1, begin+2,
-			begin+2, begin+3, begin
-		};
-
-		auto[width, height] = Application::Get()->GetWindow()->GetSize();
-		const CharacterInfo& info{font->GetCharacterInfo(letters[i])};
-
-		float charLeftX = currentX + (float)info.xOffset / width * scale;
-		float charRightX = charLeftX + (float)info.width / width * scale;
-		float charBottomY = baseLine;
-		if (letters[i] == 'p' || letters[i] == 'q' || letters[i] == 'y' || letters[i] == 'g' || letters[i] == 'j')
-			charBottomY -= (float)info.yOffset / height * scale;
-		float charTopY = charBottomY + (float)info.height / height * scale;
-
-		float texLeftX = (float)info.x / font->GetWidth();
-		float texRightX = texLeftX + (float)info.width / font->GetWidth();
-		float texTopY = 1 - ((float)info.y / font->GetHeight());
-		float texBottomY = texTopY - (float)info.height / font->GetHeight();
-
-		vertexData[i] = {
-			charLeftX,  charBottomY,	texLeftX,  texBottomY,
-			charRightX, charBottomY,	texRightX, texBottomY,
-			charRightX, charTopY,		texRightX, texTopY,
-			charLeftX,  charTopY,		texLeftX,  texTopY
-		};
-
-		currentX += ((float)info.xAdvance / width) * scale;
-	}
-	glGenBuffers(1, &m_Vb);
-	glBindBuffer(GL_ARRAY_BUFFER, m_Vb);
-	glBufferData(GL_ARRAY_BUFFER, 4 * 4 * m_NumLetters * sizeof(float), vertexData, GL_STATIC_DRAW);
-
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2*sizeof(float)));
-
-	glGenBuffers(1, &m_Ib);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Ib);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * m_NumLetters * sizeof(unsigned int), indexData, GL_STATIC_DRAW);
-
-	delete[] vertexData;
-	delete[] indexData;
 }
 
 Text::~Text()
 {
-	glDeleteBuffers(1, &m_Vb);
-	glDeleteBuffers(1, &m_Ib);
-	glDeleteVertexArrays(1, &m_Vao);
+}
+
+void Text::AddText(const std::vector<int>& letters, int position)
+{
+	m_Text.insert(m_Text.begin()+position, letters.begin(), letters.end());
+	m_End += letters.size();
+}
+
+void Text::AddText(const std::string& letters, int position)
+{
+	AddText(std::vector<int>{letters.begin(), letters.end()}, position);
 }

@@ -50,6 +50,12 @@ static void APIENTRY debugMessageCallback(GLenum source, GLenum type, GLuint id,
 	case GL_DEBUG_SEVERITY_NOTIFICATION: std::cerr << "Severity: Notification (anything other than error or performace issue)\n"; break;
 	}
 	std::cerr << "-------------End of debug message------------------\n";
+
+	#ifdef WIN32
+	#ifdef DEBUG
+	__debugbreak();
+	#endif
+	#endif
 }
 
 Renderer::Renderer()
