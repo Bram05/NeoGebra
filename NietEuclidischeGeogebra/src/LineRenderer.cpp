@@ -65,4 +65,7 @@ void Line::SetLocation(Point newBegin, Point newEnd)
 	};
 	glBindBuffer(GL_ARRAY_BUFFER, m_Vb);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(buffer), buffer);
+
+	m_Begin = newBegin;
+	m_End = newEnd;
 }

@@ -24,6 +24,7 @@ public:
 	int GetHeight() const { return m_TotalHeight; }
 	GLuint GetBitmap() const { return m_Bitmap; }
 	int GetSize() const { return m_Size; }
+	int GetLineHeight() const { return m_LineHeight; }
 
 private:
 	GLuint m_Bitmap;
@@ -46,12 +47,18 @@ public:
 
 	void AddText(const std::vector<int>& letters, int position);
 	void AddText(const std::string& letters, int position);
+	void RemoveText(int begin, int num);
+
+	const std::vector<std::pair<int,float>>& GetText() const { return m_Text; }
+	// TODO: make sure the widths are still correct after resizing the window
+
+	int m_Begin, m_End;
 
 private:
 	float m_Size;
-	std::vector<int> m_Text;
-	int m_Begin, m_End;
+	std::vector<std::pair<int,float>> m_Text;
 	float m_LeftX, m_RightX, m_Baseline;
+	float m_Scale;
 	friend TextRenderer;
 };
 

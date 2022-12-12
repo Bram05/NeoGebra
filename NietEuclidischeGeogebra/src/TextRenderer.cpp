@@ -60,15 +60,15 @@ void TextRenderer::RenderQueue()
 		float currentX = t->m_LeftX;
 		for (int i{t->m_Begin}; i < t->m_End; ++i)
 		{
-			int c = t->m_Text[i];
+			int c = t->m_Text[i].first;
 			const CharacterInfo& info{ font->GetCharacterInfo(c) };
 
 			float charLeftX = currentX + (float)info.xOffset / width * scale;
 			float charRightX = charLeftX + (float)info.width / width * scale;
-			float charBottomY = t->m_Baseline;
-			if (c == 'p' || c == 'q' || c == 'y' || c == 'g' || c == 'j')
-				charBottomY -= (float)info.yOffset / height * scale;
-			float charTopY = charBottomY + (float)info.height / height * scale;
+			float charTopY = t->m_Baseline + (float)font->GetLineHeight() / height * scale - (float)info.yOffset / height * scale;
+			float charBottomY = charTopY - (float)info.height / height * scale;
+			/*if (c == 'p' || c == 'q' || c == 'y' || c == 'g' || c == 'j')
+				charBottomY -= (float)info.yOffset / height * scale;*/
 
 			float texLeftX = (float)info.x / font->GetWidth();
 			float texRightX = texLeftX + (float)info.width / font->GetWidth();
@@ -210,8 +210,19 @@ Text::Text(const std::string& text, float leftX, float rightX, float baseLine, f
 }
 
 Text::Text(const std::vector<int>& letters, float leftX, float rightX, float baseLine, float size)
-	: m_Text{letters}, m_LeftX{leftX}, m_RightX{rightX}, m_Baseline{baseLine}, m_Size{size}, m_Begin{0}, m_End{(int)letters.size()}
+	: m_Text{letters.size()}, m_LeftX{leftX}, m_RightX{rightX}, m_Baseline{baseLine}, m_Size{size}, m_Begin{0}, m_End{(int)letters.size()}
 {
+	std::shared_ptr<Font> font = Application::Get()->GetRenderer()->GetFont();
+	auto [width, height] = Application::Get()->GetWindow()->GetSize();
+	
+	float scale = (float)m_Size / font->GetSize();
+	m_Scale = scale;
+	for (int i{0}; i < m_Text.size(); ++i)
+	{
+		int c = letters[i];
+		const CharacterInfo& info{ font->GetCharacterInfo(c) };
+		m_Text[i] = {c, (float)info.xAdvance * scale};
+	}
 }
 
 Text::~Text()
@@ -220,11 +231,30 @@ Text::~Text()
 
 void Text::AddText(const std::vector<int>& letters, int position)
 {
-	m_Text.insert(m_Text.begin()+position, letters.begin(), letters.end());
-	m_End += letters.size();
+	std::vector<std::pair<int,float>> text;
+	text.resize(letters.size());
+	for (int i{ 0 }; i < letters.size(); ++i)
+	{
+		text[i].first = letters[i];
+	}
+
+	std::shared_ptr<Font> font = Application::Get()->GetRenderer()->GetFont();
+	auto [width, height] = Application::Get()->GetWindow()->GetSize();
+	for (int i{ 0 }; i < letters.size(); ++i)
+	{
+		int c = letters[i];
+		const CharacterInfo& info{ font->GetCharacterInfo(c) };
+		text[i].second = (float)info.xAdvance * m_Scale;
+	}
+	m_Text.insert(m_Text.begin()+position, text.begin(), text.end());
 }
 
 void Text::AddText(const std::string& letters, int position)
 {
 	AddText(std::vector<int>{letters.begin(), letters.end()}, position);
+}
+
+void Text::RemoveText(int begin, int num)
+{
+	m_Text.erase(m_Text.begin()+begin, m_Text.begin()+begin+num);
 }

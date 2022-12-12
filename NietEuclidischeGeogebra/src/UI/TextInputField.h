@@ -20,7 +20,11 @@ protected:
 
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
+	std::shared_ptr<Line> m_EditingLine;
 	std::shared_ptr<Text> m_Text;
 	std::string m_Input;
 	int m_Editingindex{0};
+
+	void SetEditingLine();
+	void UpdateEditingIndex(int offset, bool isRemoved);
 };

@@ -89,7 +89,7 @@ Renderer::Renderer()
 	m_LineRenderer = new LineRenderer;
 	m_SquareRenderer = new SquareRenderer;
 	m_GraphRenderer = new GraphRenderer;
-	m_TextRenderer = new TextRenderer("defaultFont");
+	m_TextRenderer = new TextRenderer("arialFont");
 }
 
 Renderer::~Renderer()
