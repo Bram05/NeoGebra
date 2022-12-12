@@ -163,7 +163,7 @@ equationResult Z3Tools::isSolvable(equation s, const std::vector<std::vector<flo
 std::string Z3Tools::toLisp(const std::string& s, const std::map<std::string, float>& vars) {
 	std::set<std::string> toDefine;
 	std::vector<std::pair<std::string, std::string>> sqrts;
-	std::string out = "(assert " + recToLisp(s, vars, toDefine, sqrts) + ")(check-sat)";
+	std::string out = "(assert " + recToLisp(s, vars, toDefine, sqrts, true) + ")(check-sat)";
 
 	for (int i = sqrts.size() - 1; i >= 0; --i) {
 		std::string def = sqrts[i].first;
@@ -177,7 +177,7 @@ std::string Z3Tools::toLisp(const std::string& s, const std::map<std::string, fl
 	return "(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))" + out;
 }
 
-std::string Z3Tools::recToLisp(const std::string& s, const std::map<std::string, float>& vars, std::set<std::string>& toDefine, std::vector<std::pair<std::string, std::string>>& sqrts) {
+std::string Z3Tools::recToLisp(const std::string& s, const std::map<std::string, float>& vars, std::set<std::string>& toDefine, std::vector<std::pair<std::string, std::string>>& sqrts, bool isFirstLayer) {
 	bool orEquals = false; // True if the > or < is a >= or <=
 	int operIndex = getNextOperator(s, orEquals);
 
@@ -206,7 +206,12 @@ std::string Z3Tools::recToLisp(const std::string& s, const std::map<std::string,
 
 	switch (s[operIndex]) {
 	case '|': return "(or " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")";
-	case '&': return "(and " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")";
+	case '&': {
+		if (isFirstLayer) {
+			return recToLisp(s1, vars, toDefine, sqrts) + ")(assert " + recToLisp(s2, vars, toDefine, sqrts, true);
+		}
+		return "(and " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")";
+	}
 	case '!': return "(not (feq " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + "))";
 	case '>':
 		if (!orEquals) { return "(> " + recToLisp(s1, vars, toDefine, sqrts) + " " + recToLisp(s2, vars, toDefine, sqrts) + ")"; }

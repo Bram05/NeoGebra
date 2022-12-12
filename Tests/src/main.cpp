@@ -13,24 +13,28 @@ int main()
 	equation P2pointDef{ {"p"}, "x = p0 & y = p1 & p0^2 + p1^2 < 1" };
 	equation P2lineDef{ {"l"}, "(x-l0)^2 + (y-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2 & l0^2 + l1^2 > 1 & x^2 + y^2 < 1"};
 	equation P2incidence{ {"p", "l"}, "(p0-l0)^2 + (p1-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2" };
+	//equation P2incidence{ {"p", "l"}, "lieoncircle(p0, p1, circle(l0, l1, ...))" };
 	equation P2betweenness{ {"p", "q", "r"}, "((p0 - r0)^2 + (p1 - r1)^2 > (p0 - q0)^2 + (p1 - q1)^2) & ((p0 - r0)^2 + (p1 - r1)^2 > (r0 - q0)^2 + (r1 - q1)^2)"};
 	
 
 	Model Sm(1, SpointDef, 2, SlineDef, Sincidence);
 	Model P2m(2, P2pointDef, 2, P2lineDef, P2incidence, P2betweenness);
-	NEPoint p1({ 0.625,  0.4145780988 }, &P2m);
-	NEPoint p2({0.5, 0}, &P2m);
-	NEPoint p3({ 0.625, -0.4145780988 }, &P2m);
-	NEPoint p333({0.62565, -0.4145780988}, &P2m);
+	std::shared_ptr<Model> P2mPointer = std::make_shared<Model>(P2m);
+	std::shared_ptr<NEPoint> p1(new NEPoint({ 0.625,  0.4145780988 }, P2mPointer));
+	std::shared_ptr<NEPoint> p2(new NEPoint({0.5, 0}, P2mPointer));
+	std::shared_ptr<NEPoint> p3(new NEPoint({ 0.625, -0.4145780988 }, P2mPointer));
 
-	NELine l1({1.25, 0}, &P2m);
+	std::shared_ptr<NELine> l1(new NELine({1.25, 0}, P2mPointer));
 
 	//line l2({1.25, 0}, &P2m);
 	//std::cout << isBetween(p1, p2, p3) << '\n';
 
-	NELine l({2, 3}, &Sm);
+	//std::shared_ptr<NELine> l(new NELine({2, 3}, &Sm));
 
-	std::cout << (p1 == l1) << std::endl;
+	//NELine test = P2m.newLine(p1, p3);
+
+
+	//std::cout << test.getIdentifiers()[0] << ' ' << test.getIdentifiers()[1] << std::endl;
 }	
 
 /*

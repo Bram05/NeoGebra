@@ -29,7 +29,7 @@ public:
 	void AddToRenderQueue(const std::shared_ptr<Square>& square);
 	void AddToRenderQueue(const std::shared_ptr<Graph>& graph);
 
-	void GenTexture(const std::shared_ptr<Graph>& graph);
+	GraphRenderer* GetGraphRenderer() const { return m_GraphRenderer;  }
 
 	~Renderer();
 	friend Application;
