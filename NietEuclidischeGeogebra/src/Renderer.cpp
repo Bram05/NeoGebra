@@ -7,6 +7,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Application.h"
+#include "Constants.h"
 
 static bool s_PrintedMessageThisFrame = false;
 
@@ -49,6 +50,12 @@ static void APIENTRY debugMessageCallback(GLenum source, GLenum type, GLuint id,
 	case GL_DEBUG_SEVERITY_NOTIFICATION: std::cerr << "Severity: Notification (anything other than error or performace issue)\n"; break;
 	}
 	std::cerr << "-------------End of debug message------------------\n";
+
+	#ifdef WIN32
+	#ifdef DEBUG
+	__debugbreak();
+	#endif
+	#endif
 }
 
 Renderer::Renderer()
@@ -76,9 +83,13 @@ Renderer::Renderer()
 	}
 	#endif
 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 	m_LineRenderer = new LineRenderer;
 	m_SquareRenderer = new SquareRenderer;
 	m_GraphRenderer = new GraphRenderer;
+	m_TextRenderer = new TextRenderer("defaultFont");
 }
 
 Renderer::~Renderer()
@@ -86,17 +97,22 @@ Renderer::~Renderer()
 	delete m_LineRenderer;
 	delete m_SquareRenderer;
 	delete m_GraphRenderer;
+	delete m_TextRenderer;
 	// I couldn't find cleanup calls for glad
 }
 
 void Renderer::RenderQueues()
 {
+	/*if (glIsEnabled(GL_BLEND) == GL_FALSE)
+		throw std::runtime_error("Waarschijnlijk heeft Jeroen blending weer uitgezet ofzo");*/
+
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	m_SquareRenderer->RenderQueue();
 	m_LineRenderer->RenderQueue();
 	m_GraphRenderer->RenderQueue();
+	m_TextRenderer->RenderQueue();
 	#ifdef DEBUG
 	if (s_PrintedMessageThisFrame)
 	{
@@ -121,6 +137,11 @@ void Renderer::AddToRenderQueue(const std::shared_ptr<Line>& line)
 void Renderer::AddToRenderQueue(const std::shared_ptr<Square>& square)
 {
 	m_SquareRenderer->AddToRenderQueue(square);
+}
+
+void Renderer::AddToRenderQueue(const std::shared_ptr<Text>& m_Text)
+{
+	m_TextRenderer->AddToRenderQueue(m_Text);
 }
 
 void Renderer::AddToRenderQueue(const std::shared_ptr<Graph>& graph)

@@ -2,6 +2,7 @@
 
 #include "UIElement.h"
 #include "LineRenderer.h"
+#include "TextRenderer.h"
 #include "Renderer.h"
 
 class TextInputField : public UIElement
@@ -19,6 +20,7 @@ protected:
 
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
+	std::shared_ptr<Text> m_Text;
 	std::string m_Input;
 	int m_Editingindex{0};
 };

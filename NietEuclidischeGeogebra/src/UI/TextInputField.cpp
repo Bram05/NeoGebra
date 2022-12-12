@@ -5,7 +5,7 @@
 #include <streambuf>
 
 TextInputField::TextInputField(double leftX, double rightX, double topY, double bottomY)
-	: UIElement(leftX, rightX, topY, bottomY, "TextInputField")
+	: UIElement(leftX, rightX, topY, bottomY, "TextInputField"), m_Text(std::make_shared<Text>(std::vector<int>{}, leftX+0.01f, rightX-0.01f, bottomY+0.05f, 40))
 {
 	m_Lines.push_back(std::make_shared<Line>(Point(leftX, topY), Point(leftX, bottomY)));
 	m_Lines.push_back(std::make_shared<Line>(Point(leftX, bottomY), Point(rightX, bottomY)));
@@ -28,8 +28,9 @@ void TextInputField::IsSelected()
 void TextInputField::TextInput(unsigned int codepoint)
 {
 	m_Input.insert(m_Editingindex, 1, (char)codepoint);
+	m_Text->AddText(std::vector<int>{(int)codepoint}, m_Editingindex);
 	++m_Editingindex;
-	std::cout << "Input is now: " << m_Input << '\n';
+	//std::cout << "Input is now: " << m_Input << '\n';
 }
 
 void TextInputField::SpecialKeyInput(int key, int scancode, int action, int mods)
@@ -100,5 +101,6 @@ void TextInputField::RenderPass(Renderer* r)
 	{
 		r->AddToRenderQueue(l);
 	}
+	r->AddToRenderQueue(m_Text);
 	UIElement::RenderPass(r);
 }

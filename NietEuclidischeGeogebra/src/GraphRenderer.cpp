@@ -88,8 +88,6 @@ void GraphRenderer::AddToRenderQueue(const std::shared_ptr<Graph>& graph)
 void GraphRenderer::RenderQueue()
 {
 	m_Shader.Bind();
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	while (!m_RenderQueue.empty())
 	{
 		std::shared_ptr<Graph> graph{ m_RenderQueue.front() };
