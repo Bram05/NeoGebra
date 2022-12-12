@@ -13,6 +13,8 @@ static bool s_PrintedMessageThisFrame = false;
 
 static void APIENTRY debugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void*)
 {
+	if (id == 131169 || id == 131185 || id == 131218 || id == 131204) return;
+
 	s_PrintedMessageThisFrame = true;
 	std::cerr << "-------------Debug message from OpenGL-------------\n";
 	std::cerr << "ID: " << id << ", message: " << message << '\n';
