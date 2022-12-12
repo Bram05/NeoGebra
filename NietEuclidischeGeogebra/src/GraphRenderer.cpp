@@ -1,11 +1,13 @@
 #include "GraphRenderer.h"
 
-Graph::Graph(NEElement el, float leftX, float rightX, float topY, float bottomY, int graphWindowLeftX, int graphWindowRightX, int graphWindowTopY, int graphWindowBottomY, const std::array<float, 4>& colour)
+Graph::Graph(NEElement& el, float leftX, float rightX, float topY, float bottomY, int graphWindowLeftX, int graphWindowRightX, int graphWindowTopY, int graphWindowBottomY, const RGBColour& colour)
 	: m_El{ el },
-	m_LeftX{ leftX }, m_RightX{ rightX }, m_TopY{ topY }, m_BottomY{ bottomY }, 
-	m_GraphWindowLeftX{ graphWindowLeftX }, m_GraphWindowRightX{ graphWindowRightX }, m_GraphWindowTopY{ graphWindowTopY }, m_GraphWindowBottomY{ graphWindowBottomY }, 
+	m_LeftX{ leftX }, m_RightX{ rightX }, m_TopY{ topY }, m_BottomY{ bottomY },
+	m_GraphWindowLeftX{ graphWindowLeftX }, m_GraphWindowRightX{ graphWindowRightX }, m_GraphWindowTopY{ graphWindowTopY }, m_GraphWindowBottomY{ graphWindowBottomY },
 	m_Colour{ colour }
-{	
+{
+	GraphShader::CreateCompShader("graphShader1", m_El.getShader(), m_CompShader1);
+
 	float buffer[16] = {
 		leftX,	topY,	 0.0f, 1.0f,
 		leftX,	bottomY, 0.0f, 0.0f,
@@ -38,19 +40,36 @@ Graph::~Graph()
 	glDeleteBuffers(1, &m_Vb);
 	glDeleteBuffers(1, &m_Ib);
 	glDeleteVertexArrays(1, &m_Vao);
+	glDeleteProgram(m_CompShader1);
 }
 
-/*void Graph::SetPosition(float leftX, float rightX, float topY, float bottomY)
-{
-	float buffer[8] = {
-		leftX, topY,
-		leftX, bottomY,
-		rightX, bottomY,
-		rightX, topY
+void Graph::GenTexture(float leftX, float rightX, float topY, float bottomY, int graphWindowLeftX, int graphWindowRightX, int graphWindowTopY, int graphWindowBottomY, GraphRenderer* rendPtr) {
+	m_LeftX = leftX;
+	m_RightX = rightX;
+	m_TopY = topY;
+	m_BottomY = bottomY;
+	m_GraphWindowLeftX = graphWindowLeftX;
+	m_GraphWindowRightX = graphWindowRightX;
+	m_GraphWindowTopY = graphWindowTopY;
+	m_GraphWindowBottomY = graphWindowBottomY;
+
+	float buffer[16] = {
+		leftX,	topY,	 0.0f, 1.0f,
+		leftX,	bottomY, 0.0f, 0.0f,
+		rightX,	bottomY, 1.0f, 0.0f,
+		rightX,	topY,	 1.0f, 1.0f
 	};
-	glBindBuffer(GL_ARRAY_BUFFER, m_Vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, m_Vb);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(buffer), buffer, GL_STATIC_DRAW);
-}*/
+
+	float normWidth = rightX - leftX;
+	float normHeight = topY - bottomY;
+	if (m_Texture != NULL) {
+		glDeleteTextures(1, &m_Texture);
+	}
+	m_Texture = rendPtr->m_Shader.RunComp(normWidth, normHeight, m_GraphWindowLeftX, m_GraphWindowRightX, m_GraphWindowTopY, m_GraphWindowBottomY, m_CompShader1);
+}
 
 GraphRenderer::GraphRenderer()
 	: m_Shader("graphShader")
@@ -71,18 +90,20 @@ void GraphRenderer::RenderQueue()
 	m_Shader.Bind();
 	while (!m_RenderQueue.empty())
 	{
-		std::shared_ptr<Graph> graph{m_RenderQueue.front()};
+		std::shared_ptr<Graph> graph{ m_RenderQueue.front() };
 		m_RenderQueue.pop();
 
 		m_Shader.SetTexture(graph->m_Texture);
-		m_Shader.SetUniform("u_Colour", graph->m_Colour);
+		RGBColour c = graph->m_Colour;
+		m_Shader.SetUniform("u_Colour", { c.norm_r, c.norm_g, c.norm_b, c.norm_a });
 		glBindVertexArray(graph->m_Vao);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}
 }
 
-void GraphRenderer::GenTexture(const std::shared_ptr<Graph>& graph) {
-	float normWidth = graph->GetRightX() - graph->GetLeftX();
-	float normHeight = graph->GetTopY() - graph->GetBottomY();
-	graph->SetTexture(m_Shader.RunComp(graph->m_El, normWidth, normHeight, graph->m_GraphWindowLeftX, graph->m_GraphWindowRightX, graph->m_GraphWindowTopY, graph->m_GraphWindowBottomY));
+bool operator==(const NEElement e, const std::shared_ptr<Graph> g) {
+	return e.getID() == g->getElement().getID();
 }
+bool operator!=(const NEElement e, const std::shared_ptr<Graph> g) { return !(e == g); }
+bool operator==(const std::shared_ptr<Graph> g, const NEElement e) { return   e == g; }
+bool operator!=(const std::shared_ptr<Graph> g, const NEElement e) { return !(e == g); }

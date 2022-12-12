@@ -17,6 +17,7 @@ protected:
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
 	std::vector<std::shared_ptr<Graph>> m_Graphs;
+	std::vector<std::shared_ptr<Model>> m_Models;
 
 	void UpdateLines();
 	void UpdateGraphs();

@@ -9,6 +9,19 @@ constexpr int horizontalLineDiff{100};
 GraphUI::GraphUI(float leftX, float rightX, float topY, float bottomY)
 	: UIElement(leftX, rightX, topY, bottomY, "GraphUI")
 {
+	equation P2pointDef{ {"p"}, "x = p0 & y = p1 & p0^2 + p1^2 < 1" };
+	equation P2lineDef{ {"l"}, "(x-l0)^2 + (y-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2 & l0^2 + l1^2 > 1 & x^2 + y^2 < 1" };
+	equation P2incidence{ {"p", "l"}, "(p0-l0)^2 + (p1-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2" };
+	equation P2betweenness{ {"p", "q", "r"}, "((p0 - r0)^2 + (p1 - r1)^2 > (p0 - q0)^2 + (p1 - q1)^2) & ((p0 - r0)^2 + (p1 - r1)^2 > (r0 - q0)^2 + (r1 - q1)^2)" };
+
+	m_Models.push_back(std::make_shared<Model>(2, P2pointDef, 2, P2lineDef, P2incidence, P2betweenness));
+	std::shared_ptr<NELine> l1 = std::make_shared<NELine>(std::vector<float>{ 1.25f, 0 }, m_Models[0]);
+	std::shared_ptr<NELine> l2 = std::make_shared<NELine>(std::vector<float>{ 0, 1.25f }, m_Models[0]);
+	std::shared_ptr<NEPoint> p1 = std::make_shared<NEPoint>(std::vector<float>{ 0.625f,  0.4145780988f }, m_Models[0]);
+	std::shared_ptr<NEPoint> p2 = std::make_shared<NEPoint>(std::vector<float>{ 0.5f, 0 }, m_Models[0]);
+	std::shared_ptr<NEPoint> p3 = std::make_shared<NEPoint>(std::vector<float>{ 0.625f, -0.4145780988f }, m_Models[0]);
+
+
 	UpdateLines();
 	UpdateGraphs();
 }
@@ -67,31 +80,40 @@ void GraphUI::UpdateLines()
 
 void GraphUI::UpdateGraphs()
 {
-	equation P2pointDef{ {"p"}, "x = p0 & y = p1 & p0^2 + p1^2 < 1" };
-	equation P2lineDef{ {"l"}, "(x-l0)^2 + (y-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2 & l0^2 + l1^2 > 1 & x^2 + y^2 < 1" };
-	equation P2incidence{ {"p", "l"}, "(p0-l0)^2 + (p1-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2" };
-	equation P2betweenness{ {"p", "q", "r"}, "((p0 - r0)^2 + (p1 - r1)^2 > (p0 - q0)^2 + (p1 - q1)^2) & ((p0 - r0)^2 + (p1 - r1)^2 > (r0 - q0)^2 + (r1 - q1)^2)" };
-
-	Model P2m(2, P2pointDef, 2, P2lineDef, P2incidence, P2betweenness);
-	NELine l1({ 1.25, 0 }, &P2m);
-	NELine l2({0, 1.25}, &P2m);
-	NEPoint p1({ 0.625,  0.4145780988 }, &P2m, Colour(255,0,0,255));
-	NEPoint p2({ 0.5, 0 }, &P2m, Colour(255, 0, 0, 255));
-	NEPoint p3({ 0.625, -0.4145780988 }, &P2m, Colour(255, 0, 0, 255));
-
-	std::vector<Model*> m_Models = { &P2m };
-
-	m_Graphs.clear();
-	for (Model* m : m_Models) {
-		for (NEElement el : m->getElements()) {
-			Colour colour = el.getColour();
-			m_Graphs.push_back(std::make_shared<Graph>(el, m_LeftX, m_RightX, m_TopY, m_BottomY, -2, 2, 2, -2, std::array<float, 4>{colour.norm_r, colour.norm_g, colour.norm_b, colour.norm_a}));
+	GraphRenderer* rendPtr = Application::Get()->GetRenderer()->GetGraphRenderer();
+	for (std::shared_ptr<Model> m : m_Models) {
+		// Add new graphs
+		for (NEElement& el : m->getElements()) {
+			bool found = false;
+			for (std::shared_ptr<Graph> graph: m_Graphs) {
+				if (el == graph) { found = true; break; }
+			}
+			if (!found) {
+				m_Graphs.push_back(std::make_shared<Graph>(el, m_LeftX, m_RightX, m_TopY, m_BottomY, -2, 2, 2, -2, el.getColour()));
+			}
 		}
-	}
 
-	Renderer* r = Application::Get()->GetRenderer();
-	for (std::shared_ptr<Graph>& graph : m_Graphs)
-	{
-		r->GenTexture(graph);
+		// Remove old graphs that no longer exist
+		// Go backwards through vector to avoid index shifting when removing element
+		for (int i = m_Graphs.size() - 1; i >= 0; --i) {
+			std::shared_ptr<Graph> graph = m_Graphs[i];
+			bool found = false;
+			for (NEElement& el : m->getElements()) {
+				if (el == graph) {
+					found = true;
+					if (el.getColour() != graph->getColour()) {
+						graph->setColour(el.getColour());
+					}
+					break;
+				}
+			}
+			if (!found) {
+				m_Graphs.erase(m_Graphs.begin() + i);
+			}
+			else {
+				//Need to regenerate texture because graph moved
+				graph->GenTexture(m_LeftX, m_RightX, m_TopY, m_BottomY, -2, 2, 2, -2, rendPtr);
+			}
+		}
 	}
 }

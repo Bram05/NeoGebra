@@ -5,6 +5,14 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 layout(r32f, binding = 0) uniform image2D in_texture;
 layout(r32f, binding = 1) uniform image2D out_texture;
 
+bool fgteFromOffsetInPairs(ivec2 offset, float val, ivec2 pos) 
+{
+    ivec2 coord1 = pos + offset;
+    ivec2 coord2 = pos - offset;
+    return abs(imageLoad( in_texture, coord1).r) + 0.01 >= val &&
+           abs(imageLoad( in_texture, coord2).r) + 0.01 >= val;
+}
+
 void main() {
     int thickness = 5;
 
@@ -20,16 +28,13 @@ void main() {
     {
         in_val = abs(in_val);
         int pairs = 0;
-        if(abs(imageLoad( in_texture, ivec2(pos.x-1, pos.y) ).r)   + 0.005 >= in_val && 
-           abs(imageLoad( in_texture, ivec2(pos.x+1, pos.y) ).r)   + 0.005 >= in_val) { pairs++; }
-        if(abs(imageLoad( in_texture, ivec2(pos.x, pos.y-1) ).r)   + 0.005 >= in_val && 
-           abs(imageLoad( in_texture, ivec2(pos.x, pos.y+1) ).r)   + 0.005 >= in_val) { pairs++; }
-        if(abs(imageLoad( in_texture, ivec2(pos.x+1, pos.y+1) ).r) + 0.005 >= in_val && 
-           abs(imageLoad( in_texture, ivec2(pos.x-1, pos.y-1) ).r) + 0.005 >= in_val) { pairs++; }
-        if(abs(imageLoad( in_texture, ivec2(pos.x+1, pos.y-1) ).r) + 0.005 >= in_val && 
-           abs(imageLoad( in_texture, ivec2(pos.x-1, pos.y+1) ).r) + 0.005 >= in_val) { pairs++; }
+        for (int i = 0; i < 4; ++i) {
+            if(fgteFromOffsetInPairs(ivec2( pow(2, i),  0), in_val, pos)) { pairs++; }
+            if(fgteFromOffsetInPairs(ivec2( 0,  pow(2, i)), in_val, pos)) { pairs++; }
+        }
         
-        if (pairs >= 4 && in_val < 0.1)
+        
+        if (pairs == 8 && in_val < 0.1)
         { 
             imageStore( out_texture, pos, vec4( 1.0, 0.0, 0.0, 0.0 ) );
         }

@@ -45,7 +45,7 @@ void Square::SetPosition(float leftX, float rightX, float topY, float bottomY)
 		rightX, bottomY,
 		rightX, topY
 	};
-	glBindBuffer(GL_ARRAY_BUFFER, m_Vao);
+	glBindBuffer(GL_ARRAY_BUFFER, m_Vb);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(buffer), buffer, GL_STATIC_DRAW);
 }
 

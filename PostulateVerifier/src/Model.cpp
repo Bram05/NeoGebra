@@ -1,27 +1,40 @@
 #include "Model.h"
 #include "Z3Tools.h"
 
-NEElement::NEElement(const std::vector<float>& identifiers, const equation& def, const int identNum, NEType type, Model* model, const Colour& colour)
+RGBColour::RGBColour() : RGBColour(0,0,0,0) {}
+
+RGBColour::RGBColour(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+	: r{ r }, g{ g }, b{ b }, a{ a },
+	norm_r{ r / float(255) }, norm_g{ g / float(255) }, norm_b{ b / float(255) }, norm_a{ a / float(255) } {}
+RGBColour::RGBColour(int r, int g, int b, int a)
+	: RGBColour(static_cast<uint8_t>(r), static_cast<uint8_t>(g), static_cast<uint8_t>(b), static_cast<uint8_t>(a)) {}
+RGBColour::RGBColour(const RGBColour& c) : RGBColour(c.r, c.g, c.b, c.a) { }
+
+NEElement::NEElement(const std::vector<float>& identifiers, const equation& def, const int identNum, NEType type, std::shared_ptr<Model> model, const RGBColour& colour, bool checkValidity)
 	: m_Identifiers{ identifiers }, m_Def{ def }, m_Type{ type }, m_Model{ model }, m_Colour{ colour }
 {
-	if (identifiers.size() != identNum or !Z3Tools::isSolvable(def, { identifiers }).sat) {
-		throw std::invalid_argument("Invalid point");
+	if (checkValidity) {
+		if (identifiers.size() != identNum or !Z3Tools::isSolvable(def, { identifiers }).sat) {
+			throw std::invalid_argument("Invalid point");
+		}
 	}
-	else {
-		m_ID = m_Model->m_Elements.size();
-		m_Model->m_Elements.push_back(*this);
+
+	if (m_Model->m_Elements.size() > 0) {
+		m_ID = m_Model->m_Elements.back().getID() + 1; //ToDo
 	}
+	else { m_ID = 0; }
+	m_Model->m_Elements.push_back(*this);
 }
 
 std::string NEElement::getShader() {
 	return Z3Tools::recToShader(m_Def.eq, Z3Tools::extractVars(m_Def, std::vector<std::vector<float>>{m_Identifiers}));
 }
 
-NEPoint::NEPoint(const std::vector<float>& identifiers, Model* m, const Colour& colour)
-	: NEElement(identifiers, m->m_PointDef, m->m_PointIdentifiers, point, m, colour) {}
+NEPoint::NEPoint(const std::vector<float>& identifiers, std::shared_ptr<Model> m, const RGBColour& colour, bool checkValidity)
+	: NEElement(identifiers, m->m_PointDef, m->m_PointIdentifiers, point, m, colour, checkValidity) {}
 
-NELine::NELine(const std::vector<float>& identifiers, Model* m, const Colour& colour)
-	: NEElement(identifiers, m->m_LineDef, m->m_LineIdentifiers, line, m, colour) {}
+NELine::NELine(const std::vector<float>& identifiers, std::shared_ptr<Model> m, const RGBColour& colour, bool checkValidity)
+	: NEElement(identifiers, m->m_LineDef, m->m_LineIdentifiers, line, m, colour, checkValidity) {}
 
 Model::Model(unsigned int pointIdentifiers,
 	const equation& pointDef,
@@ -49,6 +62,9 @@ NELine Model::newLine(NEPoint p1, NEPoint p2) {
 	equation halfEq = m_IncidenceConstr;
 	halfEq.vars.erase(std::next(halfEq.vars.begin()));
 	equation eq = halfEq + halfEq;
+	equation tmp = { {}, "l1 = 0" };
+	eq = eq + tmp;
+	eq.eq = "((pa0-l0)^2+(pa1-l1)^2=(1/(-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1))+0.5*(2~(l0^2+l1^2))+0.5*2~((2~(l0^2+l1^2))^2-1))^2)&(l1=0)";
 	equationResult res = Z3Tools::isSolvable(eq, { p1.getIdentifiers(), p2.getIdentifiers() });
 	if (!res.sat) {
 		throw std::invalid_argument("I-1 failed");
@@ -72,10 +88,11 @@ bool operator==(const NEElement lhs, const NEElement rhs) {
 		return false;
 	}
 
-	// If (x, y) exists for one element that doesn't exist for the other, the elements are not the same
 	if (lhs.getIdentifiers() == rhs.getIdentifiers()) {
 		return true;
 	}
+
+	// If (x, y) exists for one element that doesn't exist for the other, the elements are not the same
 	equation constr1 = lhs.getDef() + !lhs.getDef();
 	equation constr2 = !lhs.getDef() + lhs.getDef();
 	if (Z3Tools::isSolvable(constr1, { lhs.getIdentifiers(), rhs.getIdentifiers() }).sat or
@@ -88,6 +105,10 @@ bool operator==(const NEElement lhs, const NEElement rhs) {
 }
 
 bool operator!=(const NEElement lhs, const NEElement rhs) { return !(lhs == rhs); }
+
+
+bool operator==(const RGBColour c1, const RGBColour c2) { return c1.r == c2.r && c1.g == c2.g && c1.b == c2.b && c1.a == c2.a; }
+bool operator!=(const RGBColour c1, const RGBColour c2) { return !(c1 == c2); }
 
 bool operator>>(const NEPoint p, const NELine l) {
 	if (p.getModel() != l.getModel()) {

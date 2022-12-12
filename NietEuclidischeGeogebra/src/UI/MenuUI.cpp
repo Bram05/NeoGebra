@@ -24,10 +24,10 @@ MenuUI::MenuUI(double leftX, double rightX, double topY, double bottomY)
 	float buttonWidth = 0.125f;
 	float indent = 0.025f;
 	std::vector<void(*)(int, int)> functions;//wtf is deze syntax
-
+	std::vector<std::string> textList = {"File", "Open", "Edit", "View", "Hi", "Among","Us","Riad", "Bram", "Jer", "Ome","Yo","Rood"};
 	for (int i=0; i < 12; i++) {
 			functions.push_back(&TestFunction2);//voor nu zo, later moeten we natuurlijk elke apart zetten
-			m_SubUIElements.push_back(std::make_shared<ButtonUI>(leftX+ indent +i* buttonWidth, (leftX + i * buttonWidth + buttonWidth), topY-0.01, (topY - 0.09f), functions[i]));
+			m_SubUIElements.push_back(std::make_shared<ButtonUI>(leftX+ indent +i* buttonWidth, (leftX + i * buttonWidth + buttonWidth), topY-0.01, (topY - 0.09f), functions[i], textList[i]));
 	
 	}
 

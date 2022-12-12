@@ -15,7 +15,7 @@ class Graph
 {
 public:
 	//ToDo: change to line/point
-	Graph(NEElement el, float leftX, float rightX, float topY, float bottomY, int graphWindowLeftX, int graphWindowRightX, int graphWindowTopY, int graphWindowBottomY, const std::array<float, 4>& colour);
+	Graph(NEElement& el, float leftX, float rightX, float topY, float bottomY, int graphWindowLeftX, int graphWindowRightX, int graphWindowTopY, int graphWindowBottomY, const RGBColour& colour);
 	~Graph();
 
 	// Getters and setters
@@ -24,19 +24,21 @@ public:
 	double GetRightX() const { return m_RightX; }
 	double GetBottomY() const { return m_BottomY; }
 
-	void SetTexture(unsigned int texture) { m_Texture = texture; }
+	void GenTexture(float leftX, float rightX, float topY, float bottomY, int graphWindowLeftX, int graphWindowRightX, int graphWindowTopY, int graphWindowBottomY, GraphRenderer* rendPtr);
 
-	//void SetPosition(float leftX, float rightX, float topY, float bottomY);
-
-	std::array<float, 4> m_Colour;
+	RGBColour getColour() const { return m_Colour; };
+	void setColour(const RGBColour& colour) { m_Colour = colour; }
+	NEElement& getElement() const { return m_El; };
 private:
+	RGBColour m_Colour;
 	float m_LeftX, m_RightX, m_TopY, m_BottomY;
 	int m_GraphWindowLeftX, m_GraphWindowRightX, m_GraphWindowTopY, m_GraphWindowBottomY;
-	NEElement m_El;
+	NEElement& m_El;
 	GLuint m_Vao;
 	GLuint m_Vb;
 	GLuint m_Ib;
-	unsigned int m_Texture;
+	unsigned int m_CompShader1 = NULL;
+	unsigned int m_Texture = NULL;
 	friend GraphRenderer;
 };
 
@@ -49,11 +51,16 @@ public:
 
 	// Add the line to the queue to be rendered this frame
 	void AddToRenderQueue(const std::shared_ptr<Graph>& graph);
-	void GenTexture(const std::shared_ptr<Graph>& graph);
 
 	// Render all the lines
 	void RenderQueue();
 private:
 	std::queue<std::shared_ptr<Graph>> m_RenderQueue;
 	GraphShader m_Shader;
+	friend Graph;
 };
+
+bool operator==(const NEElement e, const std::shared_ptr<Graph> g);
+bool operator!=(const NEElement e, const std::shared_ptr<Graph> g);
+bool operator==(const std::shared_ptr<Graph> g, const NEElement e);
+bool operator!=(const std::shared_ptr<Graph> g, const NEElement e);
