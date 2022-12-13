@@ -1,5 +1,4 @@
 #include "Model.h"
-#include "Z3Tools.h"
 
 RGBColour::RGBColour() : RGBColour(0,0,0,0) {}
 
@@ -10,11 +9,11 @@ RGBColour::RGBColour(int r, int g, int b, int a)
 	: RGBColour(static_cast<uint8_t>(r), static_cast<uint8_t>(g), static_cast<uint8_t>(b), static_cast<uint8_t>(a)) {}
 RGBColour::RGBColour(const RGBColour& c) : RGBColour(c.r, c.g, c.b, c.a) { }
 
-NEElement::NEElement(const std::vector<float>& identifiers, const equation& def, const int identNum, NEType type, std::shared_ptr<Model> model, const RGBColour& colour, bool checkValidity)
+NEElement::NEElement(const std::vector<float>& identifiers, const Equation& def, const int identNum, NEType type, std::shared_ptr<Model> model, const RGBColour& colour, bool checkValidity)
 	: m_Identifiers{ identifiers }, m_Def{ def }, m_Type{ type }, m_Model{ model }, m_Colour{ colour }
 {
 	if (checkValidity) {
-		if (identifiers.size() != identNum or !Z3Tools::isSolvable(def, { identifiers }).sat) {
+		if (identifiers.size() != identNum or !def.getSolution({identifiers}).sat) {
 			throw std::invalid_argument("Invalid point");
 		}
 	}
@@ -27,7 +26,7 @@ NEElement::NEElement(const std::vector<float>& identifiers, const equation& def,
 }
 
 std::string NEElement::getShader() {
-	return Z3Tools::recToShader(m_Def.eq, Z3Tools::extractVars(m_Def, std::vector<std::vector<float>>{m_Identifiers}));
+	return m_Def.toShader({ m_Identifiers });
 }
 
 NEPoint::NEPoint(const std::vector<float>& identifiers, std::shared_ptr<Model> m, const RGBColour& colour, bool checkValidity)
@@ -37,11 +36,11 @@ NELine::NELine(const std::vector<float>& identifiers, std::shared_ptr<Model> m, 
 	: NEElement(identifiers, m->m_LineDef, m->m_LineIdentifiers, line, m, colour, checkValidity) {}
 
 Model::Model(unsigned int pointIdentifiers,
-	const equation& pointDef,
+	const Equation& pointDef,
 	unsigned int lineIdentifiers,
-	const equation& lineDef,
-	const equation& incidenceConstr,
-	const equation& betweennessConstr)
+	const Equation& lineDef,
+	const Equation& incidenceConstr,
+	const Equation& betweennessConstr)
 	:
 	m_PointIdentifiers{ pointIdentifiers },
 	m_PointDef{ pointDef },
@@ -59,20 +58,19 @@ Model::Model(const Model& m) :
 	m_BetweennessConstr{ m.m_BetweennessConstr } {}
 
 NELine Model::newLine(NEPoint p1, NEPoint p2) {
-	equation halfEq = m_IncidenceConstr;
-	halfEq.vars.erase(std::next(halfEq.vars.begin()));
-	equation eq = halfEq + halfEq;
-	equation tmp = { {}, "l1 = 0" };
+	Equation halfEq = m_IncidenceConstr;
+	halfEq.m_VarNames.erase(std::next(halfEq.m_VarNames.begin()));
+	Equation eq = halfEq + halfEq;
+	Equation tmp = { {}, "l1 = 0" };
 	eq = eq + tmp;
-	eq.eq = "((pa0-l0)^2+(pa1-l1)^2=(1/(-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1))+0.5*(2~(l0^2+l1^2))+0.5*2~((2~(l0^2+l1^2))^2-1))^2)&(l1=0)";
-	equationResult res = Z3Tools::isSolvable(eq, { p1.getIdentifiers(), p2.getIdentifiers() });
+	eq.m_EquationString = "((pa0-l0)^2+(pa1-l1)^2=(1/(-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1))+0.5*(2~(l0^2+l1^2))+0.5*2~((2~(l0^2+l1^2))^2-1))^2)&(l1=0)";
+	equationResult res = eq.getSolution({ p1.getIdentifiers(), p2.getIdentifiers() });
 	if (!res.sat) {
 		throw std::invalid_argument("I-1 failed");
 	}
 	for (int i = 0; i < res.m->num_consts(); ++i) {
 		z3::func_decl f = res.m->get_const_decl(i);
 		std::cout << f.name() << std::endl;
-
 	}
 
 	return { { 1.25, 0 }, p1.getModel() };
@@ -93,10 +91,10 @@ bool operator==(const NEElement lhs, const NEElement rhs) {
 	}
 
 	// If (x, y) exists for one element that doesn't exist for the other, the elements are not the same
-	equation constr1 = lhs.getDef() + !lhs.getDef();
-	equation constr2 = !lhs.getDef() + lhs.getDef();
-	if (Z3Tools::isSolvable(constr1, { lhs.getIdentifiers(), rhs.getIdentifiers() }).sat or
-		Z3Tools::isSolvable(constr2, { lhs.getIdentifiers(), rhs.getIdentifiers() }).sat) {
+	Equation constr1 = lhs.getDef() + !lhs.getDef();
+	Equation constr2 = !lhs.getDef() + lhs.getDef();
+	if (constr1.getSolution({ lhs.getIdentifiers(), rhs.getIdentifiers() }).sat or
+		constr2.getSolution({ lhs.getIdentifiers(), rhs.getIdentifiers() }).sat) {
 		return false;
 	}
 	else {
@@ -117,8 +115,8 @@ bool operator>>(const NEPoint p, const NELine l) {
 	}
 
 	//Custom condition
-	equation eq = p.getModel()->m_IncidenceConstr;
-	return Z3Tools::eval(eq.eq, Z3Tools::extractVars(eq, std::vector<std::vector<float>>{p.getIdentifiers(), l.getIdentifiers()}));
+	Equation eq = p.getModel()->m_IncidenceConstr;
+	return eq.isTrue({p.getIdentifiers(), l.getIdentifiers()});
 }
 
 bool isBetween(const NEPoint p1, const NEPoint p2, const NEPoint p3) {
@@ -131,7 +129,7 @@ bool isBetween(const NEPoint p1, const NEPoint p2, const NEPoint p3) {
 	// ToDo: fix line from two point
 
 	//Custom condition
-	equation eq = p1.getModel()->m_BetweennessConstr;
-	return Z3Tools::eval(eq.eq, Z3Tools::extractVars(eq, std::vector<std::vector<float>>{p1.getIdentifiers(), p2.getIdentifiers(), p3.getIdentifiers()}));
+	Equation eq = p1.getModel()->m_BetweennessConstr;
+	return eq.isTrue({ p1.getIdentifiers(), p2.getIdentifiers(), p3.getIdentifiers() });
 }
 
