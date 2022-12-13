@@ -31,7 +31,6 @@ void TextInputField::IsSelected()
 
 void TextInputField::TextInput(unsigned int codepoint)
 {
-	m_Input.insert(m_Editingindex, 1, (char)codepoint);
 	m_Text->AddText(std::vector<int>{(int)codepoint}, m_Editingindex);
 	UpdateEditingIndex(m_Editingindex+1, true);
 	SetEditingLine();
@@ -49,7 +48,7 @@ void TextInputField::SpecialKeyInput(int key, int scancode, int action, int mods
 		{
 			int index = m_Editingindex - 2;
 			if (index == -2) index = -1;
-			while (index >= 0 && m_Input[index] != ' ')
+			while (index >= 0 && m_Text->GetText()[index].first != ' ')
 				--index;
 			++index;
 			UpdateEditingIndex(index, false);
@@ -65,9 +64,9 @@ void TextInputField::SpecialKeyInput(int key, int scancode, int action, int mods
 		if (mods & GLFW_MOD_CONTROL)
 		{
 			int index = m_Editingindex;
-			if (index == m_Input.size())
+			if (index == m_Text->GetText().size())
 				index -= 1;
-			while (index < m_Input.size() - 1 && m_Input[index] != ' ')
+			while (index < m_Text->GetText().size() - 1 && m_Text->GetText()[index].first != ' ')
 				++index;
 			++index;
 			UpdateEditingIndex(index, false);
@@ -75,23 +74,21 @@ void TextInputField::SpecialKeyInput(int key, int scancode, int action, int mods
 		}
 		else
 		{
-			UpdateEditingIndex(std::min(m_Editingindex+1, (int)m_Input.size()), false);
+			UpdateEditingIndex(std::min(m_Editingindex+1, (int)m_Text->GetText().size()), false);
 			SetEditingLine();
 		}
 		break;
 	case GLFW_KEY_BACKSPACE:
-		if (m_Editingindex != 0 && m_Input.size() >= m_Editingindex)
+		if (m_Editingindex != 0 && m_Text->GetText().size() >= m_Editingindex)
 		{
-			m_Input.erase(m_Editingindex-1, 1);
 			m_Text->RemoveText(m_Editingindex-1, 1);
 			UpdateEditingIndex(m_Editingindex-1, true);
 			SetEditingLine();
 		}
 		break;
 	case GLFW_KEY_DELETE:
-		if (m_Editingindex < m_Input.size())
+		if (m_Editingindex < m_Text->GetText().size())
 		{
-			m_Input.erase(m_Editingindex, 1);
 			m_Text->RemoveText(m_Editingindex, 1);
 			UpdateEditingIndex(m_Editingindex, true);
 		}
@@ -131,7 +128,7 @@ void TextInputField::SetEditingLine()
 	const std::vector<std::pair<int,float>>& text = m_Text->GetText();
 
 	float x = m_LeftX + 0.01f;
-	for (int i{m_Text->m_Begin}; i < m_Editingindex; ++i)
+	for (int i{m_Text->m_RenderBegin}; i < m_Editingindex; ++i)
 	{
 		x += text[i].second / width;
 	}
@@ -143,113 +140,93 @@ void TextInputField::UpdateEditingIndex(int newIndex, bool isRemoved)
 	auto[width, height] = Application::Get()->GetWindow()->GetSize();
 	int offset = (newIndex - m_Editingindex);
 	m_Editingindex = newIndex;
+	auto font{Application::Get()->GetRenderer()->GetFont()};
 	if (offset >= 0) // Offset is 0 after delete is pressed
 	{
-		if (m_Editingindex > m_Text->m_End)
+		// TODO hij gaat er nog wel eens overheen
+		if (m_Editingindex > m_Text->m_RenderEnd)
 		{
-			m_Text->m_End = m_Editingindex; // maybe change this to += offset for a nicer effect when jumping around
-			m_Text->m_Begin = m_Text->m_End-1;
+			m_Text->m_RenderEnd = m_Editingindex; // maybe change this to += offset for a nicer effect when jumping around
+			m_Text->m_RenderBegin = m_Text->m_RenderEnd-1;
 			float totalRenderWidth{ 0.0f };
-			while (totalRenderWidth < m_RightX - m_LeftX - 2 * 0.01f)
+			float renderWidthAddition{ 0.0f };
+			float lastCharacterAddition{0.0f};
+			while (totalRenderWidth + lastCharacterAddition < m_RightX - m_LeftX - 2 * 0.01f)
 			{
-				if (m_Text->m_Begin == -1)
+				if (m_Text->m_RenderBegin == -1)
 				{
-					m_Text->m_Begin = -2;
+					m_Text->m_RenderBegin = -2;
 					break;
 				}
-				totalRenderWidth += m_Text->GetText()[m_Text->m_Begin].second / width;
-				--m_Text->m_Begin;
+				totalRenderWidth += renderWidthAddition;
+				renderWidthAddition = m_Text->GetText()[m_Text->m_RenderBegin].second / width;
+				const CharacterInfo& info{ font->GetCharacterInfo(m_Text->GetText()[m_Text->m_RenderBegin].first) };
+				lastCharacterAddition = ((float)info.width) / width * m_Text->GetScale();
+				--m_Text->m_RenderBegin;
 			}
-			m_Text->m_Begin += 2;
+			m_Text->m_RenderBegin += 2;
 		}
 		else
 		{
-			m_Text->m_End = m_Text->m_Begin;
-			float totalRenderWidth{0.0f};
-			while (totalRenderWidth < m_RightX - m_LeftX - 2 * 0.01f && m_Text->m_End < m_Text->GetText().size())
+			m_Text->m_RenderEnd = m_Text->m_RenderBegin;
+			float totalRenderWidth{ 0.0f };
+			float renderWidthAddition{ 0.0f };
+			float lastCharacterAddition{0.0f};
+			while (totalRenderWidth + lastCharacterAddition < m_RightX - m_LeftX - 2 * 0.01f && m_Text->m_RenderEnd < m_Text->GetText().size())
 			{
-				totalRenderWidth += m_Text->GetText()[m_Text->m_End].second / width;
-				++m_Text->m_End;
+				totalRenderWidth += renderWidthAddition;
+				renderWidthAddition = m_Text->GetText()[m_Text->m_RenderEnd].second / width;
+				const CharacterInfo& info{ font->GetCharacterInfo(m_Text->GetText()[m_Text->m_RenderEnd].first) };
+				lastCharacterAddition = ((float)info.width) / width * m_Text->GetScale();
+				++m_Text->m_RenderEnd;
 			}
-			--m_Text->m_End;
-		}/*
-		m_Text->m_End += offset;
-		float totalRenderWidth{0.0f};
-		bool outOfBounds{false};
-		for (int i{ m_Text->m_Begin }; i < m_Text->m_End; ++i)
-		{
-			totalRenderWidth += m_Text->GetText()[i].second / width;
-			if (totalRenderWidth > m_RightX - m_LeftX - 2 * 0.01f)
-			{
-				outOfBounds = true;
-				break;
-			}
+			if (totalRenderWidth + lastCharacterAddition >= m_RightX - m_LeftX - 2 * 0.01f)
+				--m_Text->m_RenderEnd;
 		}
-		if (outOfBounds)
-		{
-			while (totalRenderWidth >= m_RightX - m_LeftX - 2 * 0.01f)
-			{
-				totalRenderWidth -= m_Text->GetText()[m_Text->m_Begin].second / width;
-				++m_Text->m_Begin;
-			}
-		}*/
 	}
 	else
 	{
-		if (m_Editingindex < m_Text->m_Begin)
+		if (m_Editingindex < m_Text->m_RenderBegin)
 		{
-			m_Text->m_Begin = m_Editingindex;
-			m_Text->m_End = m_Text->m_Begin;
-			float totalRenderWidth{ 0.0f };
-			while (totalRenderWidth < m_RightX - m_LeftX - 2 * 0.01f)
+			m_Text->m_RenderBegin = m_Editingindex;
+			if (isRemoved && m_Text->m_RenderBegin > 0)
 			{
-				if (m_Text->m_End == m_Text->GetText().size())
+				m_Text->m_RenderBegin -= 1;// TODO: maybe change this to jump a few characters back to show what is being deleted
+			}
+			m_Text->m_RenderEnd = m_Text->m_RenderBegin;
+			float totalRenderWidth{ 0.0f };
+			float renderWidthAddition{0.0f};
+			float lastCharacterAddition{0.0f};
+			while (totalRenderWidth + lastCharacterAddition < m_RightX - m_LeftX - 2 * 0.01f)
+			{
+				totalRenderWidth += renderWidthAddition;
+				if (m_Text->m_RenderEnd == m_Text->GetText().size())
 				{
-					m_Text->m_End -= 1;
+					m_Text->m_RenderEnd += 1;
 					break;
 				}
-				totalRenderWidth += m_Text->GetText()[m_Text->m_End].second / width;
-				++m_Text->m_End;
+				renderWidthAddition = m_Text->GetText()[m_Text->m_RenderEnd].second / width;
+				const CharacterInfo& info = font->GetCharacterInfo(m_Text->GetText()[m_Text->m_RenderEnd].first);
+				lastCharacterAddition = ((float)info.width) / width * m_Text->GetScale();
+				++m_Text->m_RenderEnd;
 			}
-			if (isRemoved)
-				m_Text->m_End -= 1;
+			--m_Text->m_RenderEnd;
 		}
 		else
 		{
-			m_Text->m_End = m_Text->m_Begin;
+			m_Text->m_RenderEnd = m_Text->m_RenderBegin;
 			float totalRenderWidth{ 0.0f };
-			while (totalRenderWidth < m_RightX - m_LeftX - 2 * 0.01f && m_Text->m_End < m_Text->GetText().size())
+			float renderWidthAddition{0.0f};
+			float lastCharacterAddition{0.0f};
+			while (totalRenderWidth + lastCharacterAddition < m_RightX - m_LeftX - 2 * 0.01f && m_Text->m_RenderEnd < m_Text->GetText().size())
 			{
-				totalRenderWidth += m_Text->GetText()[m_Text->m_End].second / width;
-				++m_Text->m_End;
+				totalRenderWidth += renderWidthAddition;
+				renderWidthAddition = m_Text->GetText()[m_Text->m_RenderEnd].second / width;
+				const CharacterInfo& info{ font->GetCharacterInfo(m_Text->GetText()[m_Text->m_RenderEnd].first) };
+				lastCharacterAddition = ((float)info.width) / width * m_Text->GetScale();
+				++m_Text->m_RenderEnd;
 			}
-			//if (m_Text->m_End != 0)
-				//--m_Text->m_End;
+			--m_Text->m_RenderEnd;
 		}
 	}
-	/*
-
-	else
-	{
-		m_Text->m_Begin += offset;
-		float totalRenderWidth{ 0.0f };
-		bool outOfBounds{ false };
-		for (int i{ m_Text->m_Begin }; i < m_Text->m_End; ++i)
-		{
-			totalRenderWidth += m_Text->GetText()[i].second / width;
-			if (totalRenderWidth > m_RightX - m_LeftX - 2 * 0.01f)
-			{
-				outOfBounds = true;
-				break;
-			}
-		}
-		if (outOfBounds)
-		{
-			while (totalRenderWidth >= m_RightX - m_LeftX - 2 * 0.01f)
-			{
-				totalRenderWidth -= m_Text->GetText()[m_Text->m_End].second / width;
-				--m_Text->m_End;
-			}
-		}
-	}*/
 }

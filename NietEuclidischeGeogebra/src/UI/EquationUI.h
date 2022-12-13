@@ -16,6 +16,6 @@ private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
 	//TextC text;
 protected:
-	void RenderPass(Renderer* r ) override;
+	void RenderPass(Renderer* r) override;
 	std::vector<std::shared_ptr<Text>> m_Texts;
 };

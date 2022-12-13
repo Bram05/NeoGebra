@@ -53,11 +53,11 @@ static void APIENTRY debugMessageCallback(GLenum source, GLenum type, GLuint id,
 	}
 	std::cerr << "-------------End of debug message------------------\n";
 
-	#ifdef WIN32
-	#ifdef DEBUG
+#ifdef WIN32
+#ifdef DEBUG
 	__debugbreak();
-	#endif
-	#endif
+#endif
+#endif
 }
 
 Renderer::Renderer()
@@ -69,7 +69,7 @@ Renderer::Renderer()
 	}
 	std::cout << "Loaded GL version " << glGetString(GL_VERSION) << '\n';
 
-	#ifdef DEBUG
+#ifdef DEBUG
 	int flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 	if (!(flags & GL_CONTEXT_FLAG_DEBUG_BIT))
@@ -83,7 +83,7 @@ Renderer::Renderer()
 		glDebugMessageCallback(debugMessageCallback, nullptr);
 		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, true);
 	}
-	#endif
+#endif
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -115,12 +115,12 @@ void Renderer::RenderQueues()
 	m_LineRenderer->RenderQueue();
 	m_GraphRenderer->RenderQueue();
 	m_TextRenderer->RenderQueue();
-	#ifdef DEBUG
+#ifdef DEBUG
 	if (s_PrintedMessageThisFrame)
 	{
 		glDisable(GL_DEBUG_OUTPUT);
 	}
-	#endif
+#endif
 }
 
 void Renderer::Resize(int width, int height)

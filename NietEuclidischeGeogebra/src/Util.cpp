@@ -1,10 +1,12 @@
+// Standard library files and some others are automatically included from the precompiled header
+// https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
 #include "Util.h"
 
 #include "Application.h"
 
 float Util::ConvertToOpenGLCoordinate(int num, bool isX)
 {
-	auto[width, height] = Application::Get()->GetWindow()->GetSize();
+	auto [width, height] = Application::Get()->GetWindow()->GetSize();
 	if (isX)
 	{
 		return 2 * (((float)num / width) - 0.5);

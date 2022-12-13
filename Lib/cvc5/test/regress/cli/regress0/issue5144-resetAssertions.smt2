@@ -1,5 +1,0 @@
-(set-logic QF_LIA)
-(set-info :status sat)
-(assert (= 0 1))
-(reset-assertions)
-(check-sat)

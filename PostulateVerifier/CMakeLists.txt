@@ -2,7 +2,7 @@ project ("PostulateVerifier")
 
 add_library ("PostulateVerifier" STATIC "src/Model.cpp" "include/PostulateVerifier/PostulateVerifier.h" "src/Equation.cpp" "src/Equation.h")
 
-target_precompile_headers (${PROJECT_NAME} PRIVATE "<stack>" "<queue>" "<map>" "<iostream>" "<sstream>" "<algorithm>" "<vector>" "<string>" "<tuple>" "<stdexcept>" "<memory>" "<fstream>" "<filesystem>")
+target_precompile_headers (${PROJECT_NAME} PRIVATE "<stack>" "<queue>" "<map>" "<iostream>" "<array>" "<sstream>" "<algorithm>" "<vector>" "<string>" "<tuple>" "<stdexcept>" "<memory>" "<fstream>" "<filesystem>")
 target_include_directories(${PROJECT_NAME} PUBLIC "src" "${CMAKE_HOME_DIRECTORY}/Lib/Z3/src/api/c++")
 target_link_libraries(${PROJECT_NAME} glfw libz3)
 

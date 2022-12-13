@@ -4,14 +4,12 @@
 
 #include <glad/glad.h>
 
-#include "Maths/Matrix.h"
-
 // Handles an OpenGL shader object
 // The shaders are written in GLSL
 class Shader
 {
 public:
-	// name = the name of shader. For shader assets/shaders/example.vert name would be: example
+	// Creates the shader. name = the name of shader. For shader assets/shaders/example.vert/.frag name would be: example
 	Shader(const std::string name);
 	~Shader();
 
@@ -20,7 +18,6 @@ public:
 	void UnBind();
 
 	// Set the uniform for the shader
-	void SetUniform(const std::string& name, const Maths::Matrix<2,2>& mat) const;
 	void SetUniform(const std::string& name, const std::array<float, 4>& arr) const;
 	void SetUniform(const std::string& name, int i) const;
 
@@ -28,6 +25,6 @@ private:
 	GLuint m_Shader;
 	mutable std::map<std::string, int> m_UniformLocations;
 	std::string m_Name;
-	
+
 	int GetUniformLocation(const std::string& name) const;
 };

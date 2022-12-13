@@ -35,7 +35,7 @@ private:
 	Renderer* m_Renderer;
 	WindowUI* m_WindowUI;
 
-	double m_LastFrameTime{0.0};
+	double m_LastFrameTime{ 0.0 };
 	std::stack<double> m_LastFpss;
 	double m_TimeSinceLastFpsUpdate{ 0.0 };
 

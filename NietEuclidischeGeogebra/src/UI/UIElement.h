@@ -39,6 +39,6 @@ protected:
 	double m_LeftX, m_RightX, m_TopY, m_BottomY;
 	std::string m_Name;
 	std::vector<std::shared_ptr<UIElement>> m_SubUIElements;
-	bool m_MouseIsHovering{false};
-	bool m_IsSelected{false};
+	bool m_MouseIsHovering{ false };
+	bool m_IsSelected{ false };
 };

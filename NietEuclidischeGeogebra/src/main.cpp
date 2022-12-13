@@ -7,9 +7,9 @@
 int main()
 {
 
-	new Application;
-	Application::s_Instance->Run();
-	delete Application::s_Instance;
+	Application* app{ new Application };
+	app->Run();
+	delete app;
 	
 	return 0;
 }

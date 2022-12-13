@@ -9,10 +9,10 @@ enum ShaderType
 	VERTEX_SHADER, FRAGMENT_SHADER
 };
 
-static int CompileShader(ShaderType type, const std::string &path);
+static int CompileShader(ShaderType type, const std::string& path);
 
 Shader::Shader(const std::string name)
-	: m_Name{name}
+	: m_Name{ name }
 {
 	m_Shader = glCreateProgram();
 	std::string path = AssetsFolder + "/shaders/" + name;
@@ -52,12 +52,6 @@ void Shader::Bind()
 void Shader::UnBind()
 {
 	glUseProgram(0);
-}
-
-void Shader::SetUniform(const std::string& name, const Maths::Matrix<2, 2>& mat) const
-{
-	int loc = GetUniformLocation(name);
-	glUniformMatrix2fv(loc, 1, GL_FALSE, &mat.m_Data[0]);
 }
 
 void Shader::SetUniform(const std::string& name, const std::array<float, 4>& arr) const
@@ -122,7 +116,7 @@ int Shader::GetUniformLocation(const std::string& name) const
 		int loc = glGetUniformLocation(m_Shader, name.c_str());
 		if (loc == -1)
 			throw std::runtime_error("Uniform " + name + " for shader " + m_Name + " was not found or is not used");
-		m_UniformLocations.insert({name, loc});
+		m_UniformLocations.insert({ name, loc });
 		return loc;
 	}
 	return it->second;

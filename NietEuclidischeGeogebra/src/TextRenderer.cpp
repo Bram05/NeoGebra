@@ -6,12 +6,11 @@
 #include "Application.h"
 
 TextRenderer::TextRenderer(const std::string& fontName)
-	: m_TextShader("textShader")
+	: m_TextShader("textShader"), m_Font(std::make_shared<Font>(fontName))
 {
 	m_TextShader.SetUniform("u_TextImage", 0);
-	m_Font = std::make_shared<Font>(fontName);
 
-	unsigned int indices[6] {0,1,2,2,3,0};
+	unsigned int indices[6]{ 0,1,2,2,3,0 };
 
 	glGenVertexArrays(1, &m_Vao);
 	glBindVertexArray(m_Vao);
@@ -58,17 +57,23 @@ void TextRenderer::RenderQueue()
 
 		float scale = (float)t->m_Size / font->GetSize();
 		float currentX = t->m_LeftX;
-		for (int i{t->m_Begin}; i < t->m_End; ++i)
+		float currentY = t->m_Baseline;
+		for (int i{ t->m_RenderBegin }; i < t->m_RenderEnd; ++i)
 		{
 			int c = t->m_Text[i].first;
 			const CharacterInfo& info{ font->GetCharacterInfo(c) };
 
 			float charLeftX = currentX + (float)info.xOffset / width * scale;
 			float charRightX = charLeftX + (float)info.width / width * scale;
-			float charTopY = t->m_Baseline + (float)font->GetLineHeight() / height * scale - (float)info.yOffset / height * scale;
+			if (charRightX > t->m_RightX)
+			{
+				currentX = t->m_LeftX;
+				currentY -= (float)font->GetLineHeight() / height * scale;
+				charLeftX = currentX + (float)info.xOffset / width * scale;
+				charRightX = charLeftX + (float)info.width / width * scale;
+			}
+			float charTopY = currentY + (float)font->GetBase() / height * scale - (float)info.yOffset / height * scale;
 			float charBottomY = charTopY - (float)info.height / height * scale;
-			/*if (c == 'p' || c == 'q' || c == 'y' || c == 'g' || c == 'j')
-				charBottomY -= (float)info.yOffset / height * scale;*/
 
 			float texLeftX = (float)info.x / font->GetWidth();
 			float texRightX = texLeftX + (float)info.width / font->GetWidth();
@@ -81,7 +86,7 @@ void TextRenderer::RenderQueue()
 				charRightX, charTopY,		texRightX, texTopY,
 				charLeftX,  charTopY,		texLeftX,  texTopY
 			};
-			currentX += ((float)info.xAdvance / width) * scale;
+			currentX += (((float)info.xAdvance) / width) * scale;
 
 			glBufferSubData(GL_ARRAY_BUFFER, 0, 16 * sizeof(float), data);
 			glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
@@ -90,7 +95,7 @@ void TextRenderer::RenderQueue()
 }
 
 Font::Font(const std::string& fontName)
-	: m_LineHeight{-1}, m_Size{-1}
+	: m_LineHeight{ -1 }, m_Size{ -1 }, m_Base{ -1 }
 {
 	std::ifstream file(AssetsFolder + "/fonts/" + fontName + "/info.txt");
 	if (!file)
@@ -110,6 +115,10 @@ Font::Font(const std::string& fontName)
 		else if (word.compare(0, 5, "size=") == 0)
 		{
 			m_Size = std::atoi(&word[5]);
+		}
+		else if (word.compare(0, 5, "base=") == 0)
+		{
+			m_Base = std::atoi(&word[5]);
 		}
 		else if (word.compare(0, 4, "char") == 0)
 		{
@@ -143,13 +152,13 @@ Font::Font(const std::string& fontName)
 				else if (word.compare(0, 5, "chnl=") == 0)
 					info.channel = std::atoi(&word[5]);
 			}
-			m_CharacterInformation.insert({character, info});
+			m_CharacterInformation.insert({ character, info });
 		}
 	}
 
 	int width, height, numChannels;
 	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data{ stbi_load((AssetsFolder + "/fonts/" + fontName + "/bitmap.png").c_str(), &width, &height, &numChannels, 0)};
+	unsigned char* data{ stbi_load((AssetsFolder + "/fonts/" + fontName + "/bitmap.png").c_str(), &width, &height, &numChannels, 0) };
 	if (!data)
 		throw std::runtime_error("Failed to load bitmap for font: " + fontName);
 	m_TotalHeight = height;
@@ -201,7 +210,6 @@ CharacterInfo Font::GetCharacterInfo(int character)
 		throw std::runtime_error(std::string("Unkown character ") + (char)character + " with code " + std::to_string(character));
 	}
 	return it->second;
-	
 }
 
 Text::Text(const std::string& text, float leftX, float rightX, float baseLine, float size)
@@ -210,18 +218,18 @@ Text::Text(const std::string& text, float leftX, float rightX, float baseLine, f
 }
 
 Text::Text(const std::vector<int>& letters, float leftX, float rightX, float baseLine, float size)
-	: m_Text{letters.size()}, m_LeftX{leftX}, m_RightX{rightX}, m_Baseline{baseLine}, m_Size{size}, m_Begin{0}, m_End{(int)letters.size()}
+	: m_Text{ letters.size() }, m_LeftX{ leftX }, m_RightX{ rightX }, m_Baseline{ baseLine }, m_Size{ size }, m_RenderBegin{ 0 }, m_RenderEnd{ (int)letters.size() }
 {
 	std::shared_ptr<Font> font = Application::Get()->GetRenderer()->GetFont();
 	auto [width, height] = Application::Get()->GetWindow()->GetSize();
-	
+
 	float scale = (float)m_Size / font->GetSize();
 	m_Scale = scale;
-	for (int i{0}; i < m_Text.size(); ++i)
+	for (int i{ 0 }; i < m_Text.size(); ++i)
 	{
 		int c = letters[i];
 		const CharacterInfo& info{ font->GetCharacterInfo(c) };
-		m_Text[i] = {c, (float)info.xAdvance * scale};
+		m_Text[i] = { c, (float)info.xAdvance * scale };
 	}
 }
 
@@ -231,7 +239,7 @@ Text::~Text()
 
 void Text::AddText(const std::vector<int>& letters, int position)
 {
-	std::vector<std::pair<int,float>> text;
+	std::vector<std::pair<int, float>> text;
 	text.resize(letters.size());
 	for (int i{ 0 }; i < letters.size(); ++i)
 	{
@@ -246,7 +254,7 @@ void Text::AddText(const std::vector<int>& letters, int position)
 		const CharacterInfo& info{ font->GetCharacterInfo(c) };
 		text[i].second = (float)info.xAdvance * m_Scale;
 	}
-	m_Text.insert(m_Text.begin()+position, text.begin(), text.end());
+	m_Text.insert(m_Text.begin() + position, text.begin(), text.end());
 }
 
 void Text::AddText(const std::string& letters, int position)
@@ -256,5 +264,5 @@ void Text::AddText(const std::string& letters, int position)
 
 void Text::RemoveText(int begin, int num)
 {
-	m_Text.erase(m_Text.begin()+begin, m_Text.begin()+begin+num);
+	m_Text.erase(m_Text.begin() + begin, m_Text.begin() + begin + num);
 }

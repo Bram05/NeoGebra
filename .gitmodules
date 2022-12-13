@@ -4,12 +4,9 @@
 [submodule "Lib/Z3"]
 	path = Lib/Z3
 	url = https://github.com/Z3Prover/z3.git
-[submodule "Lib/FreeType"]
-	path = Lib/FreeType
-	url = https://gitlab.freedesktop.org/freetype/freetype.git
-[submodule "Lib/cadical"]
-	path = Lib/cadical
-	url = https://github.com/arminbiere/cadical.git
 [submodule "Lib/glm"]
 	path = Lib/glm
 	url = https://github.com/g-truc/glm.git
+[submodule "ClangFormat"]
+	path = ClangFormat
+	url = https://github.com/Bram05/CppClangFormat.git

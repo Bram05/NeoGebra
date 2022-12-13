@@ -33,7 +33,7 @@ public:
 	void AddToRenderQueue(const std::shared_ptr<Graph>& graph);
 	void AddToRenderQueue(const std::shared_ptr<Text>& m_Texts);
 
-	GraphRenderer* GetGraphRenderer() const { return m_GraphRenderer;  }
+	GraphRenderer* GetGraphRenderer() const { return m_GraphRenderer; }
 
 	~Renderer();
 	friend Application;
