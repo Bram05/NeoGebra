@@ -4,7 +4,7 @@
 #include "Application.h"
 #include "Util.h"
 
-constexpr int horizontalLineDiff{100};
+constexpr int horizontalLineDiff{ 100 };
 
 GraphUI::GraphUI(float leftX, float rightX, float topY, float bottomY)
 	: UIElement(leftX, rightX, topY, bottomY, "GraphUI")
@@ -17,7 +17,7 @@ GraphUI::GraphUI(float leftX, float rightX, float topY, float bottomY)
 	m_Models.push_back(std::make_shared<Model>(2, P2pointDef, 2, P2lineDef, P2incidence, P2betweenness));
 	std::shared_ptr<NELine> l1 = std::make_shared<NELine>(std::vector<float>{ 1.25f, 0 }, m_Models[0]);
 	std::shared_ptr<NELine> l2 = std::make_shared<NELine>(std::vector<float>{ 0, 1.25f }, m_Models[0]);
-	std::shared_ptr<NEPoint> p1 = std::make_shared<NEPoint>(std::vector<float>{ 0.625f,  0.4145780988f }, m_Models[0], RGBColour(255,0,0,255));
+	std::shared_ptr<NEPoint> p1 = std::make_shared<NEPoint>(std::vector<float>{ 0.625f, 0.4145780988f }, m_Models[0], RGBColour(255, 0, 0, 255));
 	std::shared_ptr<NEPoint> p2 = std::make_shared<NEPoint>(std::vector<float>{ 0.5f, 0 }, m_Models[0], RGBColour(255, 0, 0, 255));
 	std::shared_ptr<NEPoint> p3 = std::make_shared<NEPoint>(std::vector<float>{ 0.625f, -0.4145780988f }, m_Models[0], RGBColour(255, 0, 0, 255));
 
@@ -85,7 +85,7 @@ void GraphUI::UpdateGraphs()
 		// Add new graphs
 		for (NEElement& el : m->getElements()) {
 			bool found = false;
-			for (std::shared_ptr<Graph> graph: m_Graphs) {
+			for (std::shared_ptr<Graph> graph : m_Graphs) {
 				if (el == graph) { found = true; break; }
 			}
 			if (!found) {

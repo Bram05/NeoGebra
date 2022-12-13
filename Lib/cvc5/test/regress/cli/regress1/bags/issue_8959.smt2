@@ -1,5 +1,0 @@
-(set-logic ALL)
-(set-info :status sat)
-(declare-fun e () (Table String String String))
-(assert (= (table.group e) (bag (bag (tuple "" "" "") 1) 1)))
-(check-sat)

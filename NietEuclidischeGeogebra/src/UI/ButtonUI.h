@@ -1,3 +1,5 @@
+// Standard library files and some others are automatically included from the precompiled header
+// https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
 #pragma once
 
 #include "UIElement.h"
@@ -7,9 +9,9 @@
 class ButtonUI : public UIElement
 {
 public:
-	ButtonUI(double leftX, double rightX, double topY, double bottomY, void(*func)(int,int) = nullptr, std::string text = "Null");
+	ButtonUI(double leftX, double rightX, double topY, double bottomY, void(*func)(int, int) = nullptr, std::string text = "Null");
 	~ButtonUI();
-	
+
 	virtual void RenderPass(Renderer* r) override;
 
 protected:

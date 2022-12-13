@@ -13,7 +13,7 @@ public:
 	WindowUI();
 	~WindowUI();
 
-	// Call the render on all the contained UI elements
+	// Call the renderpass on all the contained UI elements
 	void RenderPass(Renderer* r);
 
 	// Ask if this position is in any UI element
@@ -26,6 +26,6 @@ public:
 private:
 	std::vector<std::shared_ptr<UIElement>> m_UIElements;
 	std::shared_ptr<UIElement> Hit(const std::shared_ptr<UIElement>& element, float x, float y);
-	std::shared_ptr<UIElement> m_CurrentlyHoveredElement{nullptr};
-	std::shared_ptr<UIElement> m_SelectedElement{nullptr};
+	std::shared_ptr<UIElement> m_CurrentlyHoveredElement{ nullptr };
+	std::shared_ptr<UIElement> m_SelectedElement{ nullptr };
 };

@@ -16,7 +16,7 @@ static void MouseClickCallback(int mouseButton, int action, int mods)
 		//<< "mouse button was " << (action == Action::pressed ? "pressed" : "released") << '\n';
 	if (mouseButton == MouseButton::left && action == Action::pressed)
 	{
-		auto[x, y] = Application::Get()->GetWindow()->GetMouseLocation();
+		auto [x, y] = Application::Get()->GetWindow()->GetMouseLocation();
 		float newX = Util::ConvertToOpenGLCoordinate(x, true);
 		float newY = Util::ConvertToOpenGLCoordinate(y, false);
 		Application::Get()->GetWindowUI()->MouseClicked(newX, newY);
@@ -32,12 +32,6 @@ static void MouseMovedCallback(int x, int y)
 
 static void TextCallback(unsigned int codepoint)
 {
-	/*
-	if (codepoint == GLFW_KEY_ESCAPE)
-	{
-		std::cout << "\nEscape key pressed, closing application\n" << std::flush;
-		Application::Get()->GetWindow()->SetShouldClose(true);
-	}*/
 	Application::Get()->GetWindowUI()->TextInput(codepoint);
 }
 
@@ -46,7 +40,7 @@ static void KeyCallback(int key, int scancode, int action, int mods)
 	if (key == GLFW_KEY_ESCAPE)
 	{
 		std::cout << "\nEscape key pressed, closing application\n" << std::flush;
-		Application::Get()->GetWindow()->SetShouldClose(true);
+		Application::Get()->GetWindow()->Close();
 	}
 	Application::Get()->GetWindowUI()->SpecialKeyInput(key, scancode, action, mods);
 }

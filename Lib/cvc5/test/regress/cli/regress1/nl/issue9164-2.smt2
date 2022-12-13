@@ -1,6 +1,0 @@
-(set-logic QF_NRA)
-(set-info :status sat)
-(declare-const a Real) 
-(declare-const b Real) 
-(assert (> (/ 1.0 (/ a b)) (/ (* a a) a))) 
-(check-sat)

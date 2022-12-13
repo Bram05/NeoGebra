@@ -5,11 +5,15 @@
 #include "TextRenderer.h"
 #include "Renderer.h"
 
+// A text input field that takes input and renders it
 class TextInputField : public UIElement
 {
 public:
 	TextInputField(double leftX, double rightX, double topY, double bottomY);
 	~TextInputField();
+
+	// Get the text as a vector of the unicode character and the width of this character
+	const std::vector<std::pair<int, float>>& GetText() const { return m_Text->GetText(); }
 
 protected:
 	virtual void IsSelected() override;
@@ -22,8 +26,7 @@ private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
 	std::shared_ptr<Line> m_EditingLine;
 	std::shared_ptr<Text> m_Text;
-	std::string m_Input;
-	int m_Editingindex{0};
+	int m_Editingindex{ 0 };
 
 	void SetEditingLine();
 	void UpdateEditingIndex(int offset, bool isRemoved);

@@ -1,5 +1,0 @@
-(set-logic ALL)
-(set-info :status unsat)
-(declare-datatypes ((E 0)) (((c (a Bool)))))
-(assert (forall ((v E)) (a v)))
-(check-sat)

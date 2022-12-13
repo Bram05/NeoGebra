@@ -1,7 +1,7 @@
 #include "SquareRenderer.h"
 
 Square::Square(float leftX, float rightX, float topY, float bottomY, const std::array<float, 4>& colour)
-	: m_LeftX{ leftX }, m_RightX{ rightX }, m_TopY{ topY }, m_BottomY{ bottomY }, m_Colour{colour}
+	: m_LeftX{ leftX }, m_RightX{ rightX }, m_TopY{ topY }, m_BottomY{ bottomY }, m_Colour{ colour }
 {
 	float buffer[8] = {
 		leftX, topY,
@@ -68,7 +68,7 @@ void SquareRenderer::RenderQueue()
 	m_Shader.Bind();
 	while (!m_RenderQueue.empty())
 	{
-		std::shared_ptr<Square> square{m_RenderQueue.front()};
+		std::shared_ptr<Square> square{ m_RenderQueue.front() };
 		m_RenderQueue.pop();
 
 		m_Shader.SetUniform("u_Colour", square->m_Colour);

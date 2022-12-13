@@ -14,7 +14,7 @@ static int CompileShader(ShaderType type, const std::string& path, const std::st
 static int CompileShader(ShaderType type, const std::string& path) { return CompileShader(type, path, ""); }
 
 GraphShader::GraphShader(const std::string name)
-	: m_Name{name}
+	: m_Name{ name }
 {
 	CreateShader(name);
 	CreateCompShader(name + "2", "", m_CompShader2);
@@ -172,7 +172,7 @@ int GraphShader::GetUniformLocation(const std::string& name) const
 		int loc = glGetUniformLocation(m_Shader, name.c_str());
 		if (loc == -1)
 			throw std::runtime_error("Uniform " + name + " for shader " + m_Name + " was not found or is not used");
-		m_UniformLocations.insert({name, loc});
+		m_UniformLocations.insert({ name, loc });
 		return loc;
 	}
 	return it->second;
@@ -181,9 +181,9 @@ int GraphShader::GetUniformLocation(const std::string& name) const
 unsigned int GraphShader::RunComp(float normWidth, float normHeight, int graphWindowLeftX, int graphWindowRightX, int graphWindowTopY, int graphWindowBottomY, unsigned int compShader1)
 {
 	auto [windowWidth, windowHeight] = Application::Get()->GetWindow()->GetSize();
-	
+
 	int width = static_cast<int>(windowWidth * normWidth / 2);
-	int height = static_cast<int>(windowHeight * normHeight / 2); 
+	int height = static_cast<int>(windowHeight * normHeight / 2);
 
 	//Create first texture
 	unsigned int texture1;
@@ -211,7 +211,7 @@ unsigned int GraphShader::RunComp(float normWidth, float normHeight, int graphWi
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, NULL);
 	glBindImageTexture(1, texture2, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
 
-	
+
 	//Run 1st shader
 	glUseProgram(compShader1);
 	SetIntUniform(1, std::array<int, 4>{ graphWindowLeftX, graphWindowRightX, graphWindowTopY, graphWindowBottomY });

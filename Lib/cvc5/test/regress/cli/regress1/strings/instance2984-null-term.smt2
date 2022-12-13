@@ -1,5 +1,0 @@
-(set-logic ALL)
-(set-info :status unsat)
-(declare-const X String)
-(assert (not (str.in_re X (re.union (str.to_re "") (re.comp (str.to_re "")) (re.* (str.to_re ""))))))
-(check-sat)
