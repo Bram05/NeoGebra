@@ -6,15 +6,10 @@
 // Entry point
 int main()
 {
-	try
-	{
-		new Application;
-		Application::s_Instance->Run();
-		delete Application::s_Instance;
-	}
-	catch (const std::exception& e)
-	{
-		std::cout << "Error! description = " << e.what() << '\n';
-	}
+
+	new Application;
+	Application::s_Instance->Run();
+	delete Application::s_Instance;
+	
 	return 0;
 }

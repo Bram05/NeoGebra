@@ -18,15 +18,18 @@ float kernel[5][5] =
 	
 void main()
 {   
-	colour = u_Colour * texture(tex, TexCoords).r * kernel[0][0];
+	colour = vec4(1.0,1.0,1.0,1.0) * texture(tex, TexCoords).r * kernel[0][0];
 
     for (int x = 0; x < 5; x++) {
         for (int y = 0; y < 5; y++) {
             vec2 coord = TexCoords + vec2(x, y ) / vec2(textureSize(tex,0));
 
-            colour += u_Colour * texture(tex, coord).r * kernel[x][y];
+            colour += texture(tex, coord).r * kernel[x][y];
         }
     }
+
+	colour = min(colour, 1.0);
+	colour *= u_Colour;
 
 	//colour = vec4(texture(tex, TexCoords).r, 0.0,0.0,1.0);
 

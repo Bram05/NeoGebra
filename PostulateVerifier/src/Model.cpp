@@ -57,6 +57,11 @@ Model::Model(const Model& m) :
 	m_IncidenceConstr{ m.m_IncidenceConstr },
 	m_BetweennessConstr{ m.m_BetweennessConstr } {}
 
+void Model::addExtraEquation(Equation& eq, const RGBColour& colour) {
+	eq.m_VarNames = {"noVarName"};
+	m_Elements.push_back(NEElement({}, eq, 0, notype, shared_from_this(), colour, false));
+}
+
 NELine Model::newLine(NEPoint p1, NEPoint p2) {
 	Equation halfEq = m_IncidenceConstr;
 	halfEq.m_VarNames.erase(std::next(halfEq.m_VarNames.begin()));
