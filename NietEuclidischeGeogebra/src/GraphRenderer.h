@@ -49,7 +49,7 @@ public:
 	GraphRenderer();
 	~GraphRenderer();
 
-	// Add the line to the queue to be rendered this frame
+	//Add the line to the queue to be rendered this frame
 	void AddToRenderQueue(const std::shared_ptr<Graph>& graph);
 
 	// Render all the lines

@@ -1,9 +1,7 @@
 #pragma once
 #include <vector>
 #include <string>
-#include "Z3Tools.h"
-
-#define _VARIADIC_MAX 10
+#include "Equation.h"
 
 class Model;
 class NEElement;
@@ -30,13 +28,13 @@ protected:
 	NEType m_Type;
 	int m_ID;
 	std::vector<float> m_Identifiers; 
-	equation m_Def;
+	Equation m_Def;
 	RGBColour m_Colour;
 	std::shared_ptr<Model> m_Model;
-	NEElement(const std::vector<float>& identifiers, const equation& def, const int identNum, NEType type, std::shared_ptr<Model> model, const RGBColour& colour, bool checkValidity);
+	NEElement(const std::vector<float>& identifiers, const Equation& def, const int identNum, NEType type, std::shared_ptr<Model> model, const RGBColour& colour, bool checkValidity);
 public:
 	const std::vector<float>& getIdentifiers() const { return NEElement::m_Identifiers; }
-	const equation& getDef() const { return NEElement::m_Def; }
+	const Equation& getDef() const { return NEElement::m_Def; }
 	std::shared_ptr<Model> getModel() const { return NEElement::m_Model; }
 	std::string getShader();
 	int getID() const { return m_ID; }
@@ -69,13 +67,15 @@ public:
 class Model {
 	std::vector<NEElement> m_Elements;
 
-	equation m_PointDef;
-	equation m_LineDef;
-	equation m_IncidenceConstr;
-	equation m_BetweennessConstr;
+	Equation m_PointDef;
+	Equation m_LineDef;
+	Equation m_IncidenceConstr;
+	Equation m_BetweennessConstr;
 
 	unsigned int m_PointIdentifiers;
 	unsigned int m_LineIdentifiers;
+
+	std::vector<Equation> extraEquations;
 
 public:
 	/**
@@ -90,11 +90,11 @@ public:
 	* @param incidenceConstr A string with the condition for a point to lie on a line, tested using operator>>.
 	*/
 	Model(unsigned int pointIdentifiers,
-		const equation& pointDef,
+		const Equation& pointDef,
 		unsigned int lineIdentifiers,
-		const equation& lineDef,
-		const equation& incidenceConstr,
-		const equation& betweennessConstr = { {}, "" });
+		const Equation& lineDef,
+		const Equation& incidenceConstr,
+		const Equation& betweennessConstr = { {}, "" });
 
 	/// Copy an existing Model object. 
 	Model(const Model& g);
