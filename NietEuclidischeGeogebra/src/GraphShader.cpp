@@ -10,14 +10,14 @@ enum ShaderType
 	VERTEX_SHADER, FRAGMENT_SHADER, COMPUTE_SHADER1, COMPUTE_SHADER2
 };
 
-static int CompileShader(ShaderType type, const std::string& path, const std::string& comp1Eq);
+static int CompileShader(ShaderType type, const std::string& path, const std::string& insertText);
 static int CompileShader(ShaderType type, const std::string& path) { return CompileShader(type, path, ""); }
 
 GraphShader::GraphShader(const std::string name)
 	: m_Name{ name }
 {
 	CreateShader(name);
-	CreateCompShader(name + "2", "", m_CompShader2);
+	CreateCompShader(m_Name + "2", "", m_CompShader2);
 }
 
 void GraphShader::CreateShader(const std::string name)
@@ -47,7 +47,7 @@ void GraphShader::CreateShader(const std::string name)
 	glUseProgram(m_Shader);
 }
 
-void GraphShader::CreateCompShader(const std::string name, const std::string& comp1Eq, unsigned int& shaderProgram)
+void GraphShader::CreateCompShader(const std::string name, const std::string& insertText, unsigned int& shaderProgram)
 {
 	// If it exists, delete old shader
 	if (shaderProgram != NULL) {
@@ -57,7 +57,7 @@ void GraphShader::CreateCompShader(const std::string name, const std::string& co
 	shaderProgram = glCreateProgram();
 
 	std::string path = AssetsFolder + "/shaders/" + name;
-	int cs = CompileShader((name.back() == '1' ? COMPUTE_SHADER1 : COMPUTE_SHADER2), path + ".comp", comp1Eq);
+	int cs = CompileShader((name.back() == '1' ? COMPUTE_SHADER1 : COMPUTE_SHADER2), path + ".comp", insertText);
 	glAttachShader(shaderProgram, cs);
 	glLinkProgram(shaderProgram);
 	int result;
@@ -103,12 +103,25 @@ void GraphShader::SetUniform(const std::string& name, const std::array<float, 4>
 	glUniform4f(loc, arr[0], arr[1], arr[2], arr[3]);
 }
 
-void GraphShader::SetIntUniform(int loc, const std::array<int, 4>& arr) const
-{
-	glUniform4i(loc, arr[0], arr[1], arr[2], arr[3]);
+void GraphShader::SetUniform(const std::string& name, int val) const {
+	int loc = GetUniformLocation(name);
+	glUniform1i(loc, val);
 }
 
-static int CompileShader(ShaderType type, const std::string& path, const std::string& comp1Eq)
+void GraphShader::SetUniform2d(const std::string& name, const std::array<std::array<int, 7>, 7>& arr) const {
+	int loc = GetUniformLocation(name + "[0][0]");
+	for (int i = 0; i < 7; ++i) {
+		std::array<int, 7> subArr = arr[i];
+		glUniform1iv(loc + 7*i, 7, &subArr[0]);
+	}
+}
+
+void GraphShader::SetUniform(const int loc, const std::array<float, 4>& arr) const
+{
+	glUniform4f(loc, arr[0], arr[1], arr[2], arr[3]);
+}
+
+static int CompileShader(ShaderType type, const std::string& path, const std::string& insertText)
 {
 	GLuint glType;
 	switch (type)
@@ -140,10 +153,7 @@ static int CompileShader(ShaderType type, const std::string& path, const std::st
 
 	// If the shader is the first compute shader, the formula should be inserted
 	if (type == COMPUTE_SHADER1) {
-		sourceC.replace(sourceC.find("[EQUATION]"), 10, comp1Eq);
-	}
-	else if (type == COMPUTE_SHADER2) {
-		//generate kernel
+		sourceC.replace(sourceC.find("[EQUATION]"), 10, insertText);
 	}
 
 	const char* s = sourceC.c_str();
@@ -178,7 +188,7 @@ int GraphShader::GetUniformLocation(const std::string& name) const
 	return it->second;
 }
 
-unsigned int GraphShader::RunComp(float normWidth, float normHeight, int graphWindowLeftX, int graphWindowRightX, int graphWindowTopY, int graphWindowBottomY, unsigned int compShader1)
+unsigned int GraphShader::RunComp(float normWidth, float normHeight, float midCoordX, float midCoordY, float unitLengthPixels, unsigned int compShader1)
 {
 	auto [windowWidth, windowHeight] = Application::Get()->GetWindow()->GetSize();
 
@@ -214,7 +224,11 @@ unsigned int GraphShader::RunComp(float normWidth, float normHeight, int graphWi
 
 	//Run 1st shader
 	glUseProgram(compShader1);
-	SetIntUniform(1, std::array<int, 4>{ graphWindowLeftX, graphWindowRightX, graphWindowTopY, graphWindowBottomY });
+	// Left Right Top Bottom
+	SetUniform(1, std::array<float, 4>{ midCoordX - 0.5f * width / unitLengthPixels,
+										midCoordX + 0.5f * width / unitLengthPixels,
+										midCoordY + 0.5f * height / unitLengthPixels, 
+										midCoordX - 0.5f * height / unitLengthPixels });
 	glDispatchCompute(width, height, 1);
 
 	//wait until program finishes

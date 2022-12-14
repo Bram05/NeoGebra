@@ -13,7 +13,7 @@ float Util::ConvertToOpenGLCoordinate(int num, bool isX)
 	}
 	else
 	{
-		return -2 * (((float)num / height) - 0.5);
+		return 2 * (((float)num / height) - 0.5);
 	}
 }
 
