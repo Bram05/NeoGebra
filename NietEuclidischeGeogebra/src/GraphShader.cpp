@@ -228,7 +228,7 @@ unsigned int GraphShader::RunComp(float normWidth, float normHeight, float midCo
 	SetUniform(1, std::array<float, 4>{ midCoordX - 0.5f * width / unitLengthPixels,
 										midCoordX + 0.5f * width / unitLengthPixels,
 										midCoordY + 0.5f * height / unitLengthPixels, 
-										midCoordX - 0.5f * height / unitLengthPixels });
+										midCoordY - 0.5f * height / unitLengthPixels });
 	glDispatchCompute(width, height, 1);
 
 	//wait until program finishes

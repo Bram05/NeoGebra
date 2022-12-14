@@ -21,6 +21,10 @@ static void MouseClickCallback(int mouseButton, int action, int mods)
 		float newY = -Util::ConvertToOpenGLCoordinate(y, false);
 		Application::Get()->GetWindowUI()->MouseClicked(newX, newY);
 	}
+	if (mouseButton == MouseButton::left && action == Action::released)
+	{
+		Application::Get()->GetWindowUI()->MouseReleased();
+	}
 }
 
 static void MouseMovedCallback(int x, int y)

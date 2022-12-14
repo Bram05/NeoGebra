@@ -7,7 +7,7 @@
 GraphUI::GraphUI(float leftX, float rightX, float topY, float bottomY)
 	: UIElement(leftX, rightX, topY, bottomY, "GraphUI")
 {
-	m_MidCoordX = 0.0f, m_MidCoordY = 0.0f, m_UnitLengthPixels = 135.0f;
+	m_MidCoordX = -1.0f, m_MidCoordY = -1.0f, m_UnitLengthPixels = 135.0f;
 
 	Equation P2pointDef{ {"p"}, "x = p0 & y = p1 & p0^2 + p1^2 < 1" };
 	Equation P2lineDef{ {"l"}, "(x-l0)^2 + (y-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2 & l0^2 + l1^2 > 1 & x^2 + y^2 < 1" };
@@ -53,6 +53,20 @@ void GraphUI::ResizeWindow(int width, int height)
 	UpdateLines();
 	UpdateGraphs();
 	UIElement::ResizeWindow(width, height);
+}
+
+void GraphUI::WasClicked(float x, float y) {
+	m_XBeforeDrag = x;
+	m_YBeforeDrag = y;
+	m_MidCoordXBeforeDrag = m_MidCoordX;
+	m_MidCoordYBeforeDrag = m_MidCoordY;
+}
+
+void GraphUI::DraggedUpdate(float x, float y) {
+	m_MidCoordX = m_MidCoordXBeforeDrag - (Util::ConvertToPixelCoordinate(x, true) - Util::ConvertToPixelCoordinate(m_XBeforeDrag, true)) / m_UnitLengthPixels;
+	m_MidCoordY = m_MidCoordYBeforeDrag - (Util::ConvertToPixelCoordinate(y, false) - Util::ConvertToPixelCoordinate(m_YBeforeDrag, false)) / m_UnitLengthPixels;
+	UpdateLines();
+	UpdateGraphs();
 }
 
 void GraphUI::UpdateLines()

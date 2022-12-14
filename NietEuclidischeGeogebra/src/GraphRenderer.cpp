@@ -49,7 +49,7 @@ void Graph::GenTexture(float leftX, float rightX, float topY, float bottomY, flo
 	m_TopY = topY;
 	m_BottomY = bottomY;
 	m_MidCoordX = midCoordX;
-	m_MidCoordX = midCoordY;
+	m_MidCoordY = midCoordY;
 	m_UnitLengthPixels = unitLengthPixels;
 
 	float buffer[16] = {

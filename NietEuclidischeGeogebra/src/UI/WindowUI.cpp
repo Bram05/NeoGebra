@@ -31,6 +31,7 @@ void WindowUI::RenderPass(Renderer* r)
 
 std::shared_ptr<UIElement> WindowUI::MouseClicked(float x, float y)
 {
+	m_MouseDown = true;
 	for (std::shared_ptr<UIElement>& element : m_UIElements)
 	{
 		std::shared_ptr<UIElement> el = Hit(element, x, y);
@@ -46,6 +47,7 @@ std::shared_ptr<UIElement> WindowUI::MouseClicked(float x, float y)
 				}
 				el->IsSelected();
 				el->m_IsSelected = true;
+				el->m_IsBeingDragged = true;
 				m_SelectedElement = el;
 			}
 			return el;
@@ -60,8 +62,18 @@ std::shared_ptr<UIElement> WindowUI::MouseClicked(float x, float y)
 	return nullptr;
 }
 
-std::shared_ptr<UIElement> WindowUI::MouseMoved(float x, float y)
+void WindowUI::MouseReleased()
 {
+	m_MouseDown = false;
+	m_SelectedElement->m_IsBeingDragged = false;
+}
+
+std::shared_ptr<UIElement> WindowUI::MouseMoved(float x, float y)
+{	
+	if (m_MouseDown) {
+		m_SelectedElement->DraggedUpdate(x, y);
+	}
+
 	for (std::shared_ptr<UIElement>& element : m_UIElements)
 	{
 		std::shared_ptr<UIElement> el = Hit(element, x, y);
