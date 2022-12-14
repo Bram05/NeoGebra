@@ -21,6 +21,8 @@ private:
 	std::vector<std::shared_ptr<Graph>> m_Graphs;
 	std::vector<std::shared_ptr<Model>> m_Models;
 
+	float m_MidCoordX, m_MidCoordY, m_UnitLengthPixels;
+
 	void UpdateLines();
 	void UpdateGraphs();
 };

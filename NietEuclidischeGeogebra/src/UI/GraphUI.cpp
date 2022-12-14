@@ -4,11 +4,11 @@
 #include "Application.h"
 #include "Util.h"
 
-constexpr int horizontalLineDiff{ 100 };
-
 GraphUI::GraphUI(float leftX, float rightX, float topY, float bottomY)
 	: UIElement(leftX, rightX, topY, bottomY, "GraphUI")
 {
+	m_MidCoordX = 0.0f, m_MidCoordY = 0.0f, m_UnitLengthPixels = 135.0f;
+
 	Equation P2pointDef{ {"p"}, "x = p0 & y = p1 & p0^2 + p1^2 < 1" };
 	Equation P2lineDef{ {"l"}, "(x-l0)^2 + (y-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2 & l0^2 + l1^2 > 1 & x^2 + y^2 < 1" };
 	Equation P2incidence{ {"p", "l"}, "(p0-l0)^2 + (p1-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2" };
@@ -68,18 +68,31 @@ void GraphUI::UpdateLines()
 	float pixelLeftX = Util::ConvertToPixelCoordinate(m_LeftX, true);
 	float pixelRightX = Util::ConvertToPixelCoordinate(m_RightX, true);
 
-	int numHorizontalLines{ (int)((pixelTopY - pixelBottomY) / horizontalLineDiff) };
-	for (int i = 0; i < numHorizontalLines; i++)
-	{
-		float y = m_TopY - i * ((m_TopY - m_BottomY) / numHorizontalLines);
+	float midPixelX = (pixelLeftX + pixelRightX) / 2;
+	float midPixelY = (pixelTopY + pixelBottomY) / 2;
+
+	//Pixel nearest to midpixel with  from floored whole coordinate in pixels (+1 for small correction, maybe better fix later)
+	float nearMidPixelX = midPixelX - (m_MidCoordX - (int)(m_MidCoordX)) * m_UnitLengthPixels + 1;
+	float nearMidPixelY = midPixelY - (m_MidCoordY - (int)(m_MidCoordY)) * m_UnitLengthPixels + 1;
+
+	for (int i = 0; i < (nearMidPixelX - pixelLeftX) / m_UnitLengthPixels; ++i) {
+		float x = Util::ConvertToOpenGLCoordinate(nearMidPixelX - i * m_UnitLengthPixels, true);
+		m_Lines.push_back(std::make_shared<Line>(Point(x, m_TopY), Point(x, m_BottomY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+	}
+
+	for (int i = 1; i < (pixelRightX - nearMidPixelX) / m_UnitLengthPixels; ++i) {
+		float x = Util::ConvertToOpenGLCoordinate(nearMidPixelX + i * m_UnitLengthPixels, true);
+		m_Lines.push_back(std::make_shared<Line>(Point(x, m_TopY), Point(x, m_BottomY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+	}
+
+	for (int i = 0; i < (nearMidPixelY - pixelBottomY) / m_UnitLengthPixels; ++i) {
+		float y = Util::ConvertToOpenGLCoordinate(nearMidPixelY - i * m_UnitLengthPixels, false);
 		m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, y), Point(m_RightX, y), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
 	}
 
-	int numVerticalLines{ (int)((pixelRightX - pixelLeftX) / horizontalLineDiff) };
-	for (int i = 0; i < numVerticalLines; i++)
-	{
-		float x = m_RightX - i * ((m_RightX - m_LeftX) / numVerticalLines);
-		m_Lines.push_back(std::make_shared<Line>(Point(x, m_TopY), Point(x, m_BottomY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+	for (int i = 1; i < (pixelTopY - nearMidPixelY) / m_UnitLengthPixels; ++i) {
+		float y = Util::ConvertToOpenGLCoordinate(nearMidPixelY + i * m_UnitLengthPixels, false);
+		m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, y), Point(m_RightX, y), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
 	}
 }
 
@@ -95,7 +108,7 @@ void GraphUI::UpdateGraphs()
 				if (el == graph) { found = true; break; }
 			}
 			if (!found) {
-				m_Graphs.push_back(std::make_shared<Graph>(el, m_LeftX, m_RightX, m_TopY, m_BottomY, -2, 2, 2, -2, el.getColour()));
+				m_Graphs.push_back(std::make_shared<Graph>(el, m_LeftX, m_RightX, m_TopY, m_BottomY, m_MidCoordX, m_MidCoordY, m_UnitLengthPixels, el.getColour()));
 			}
 		}
 		// Add new graphs
@@ -105,7 +118,7 @@ void GraphUI::UpdateGraphs()
 				if (el == graph) { found = true; break; }
 			}
 			if (!found) {
-				m_Graphs.push_back(std::make_shared<Graph>(el, m_LeftX, m_RightX, m_TopY, m_BottomY, -2, 2, 2, -2, el.getColour()));
+				m_Graphs.push_back(std::make_shared<Graph>(el, m_LeftX, m_RightX, m_TopY, m_BottomY, m_MidCoordX, m_MidCoordY, m_UnitLengthPixels, el.getColour()));
 			}
 		}
 
@@ -133,7 +146,7 @@ void GraphUI::UpdateGraphs()
 			}
 			else {
 				//Need to regenerate texture because graph moved
-				graph->GenTexture(m_LeftX, m_RightX, m_TopY, m_BottomY, -2, 2, 2, -2, rendPtr);
+				graph->GenTexture(m_LeftX, m_RightX, m_TopY, m_BottomY, m_MidCoordX, m_MidCoordY, m_UnitLengthPixels, rendPtr);
 			}
 		}
 	}

@@ -3,7 +3,7 @@
 layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 layout(r32f, binding = 0) uniform image2D texture;
-layout( location=1 ) uniform ivec4 u_Window;
+layout( location=1 ) uniform vec4 u_Window;
 
 float f(vec2 coords) {
     return [EQUATION];
@@ -16,5 +16,6 @@ void main() {
     vec2 coords = vec2(u_Window.xw) + vec2(pos) / vec2(gl_NumWorkGroups.xy) * vec2(u_Window.y - u_Window.x, u_Window.z - u_Window.w);
 
     float err = f(coords);
+
     imageStore( texture, pos, vec4( err, 0.0, 0.0, 0.0 ) );
 }

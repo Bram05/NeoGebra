@@ -15,7 +15,7 @@ class Graph
 {
 public:
 	//ToDo: change to line/point
-	Graph(NEElement& el, float leftX, float rightX, float topY, float bottomY, int graphWindowLeftX, int graphWindowRightX, int graphWindowTopY, int graphWindowBottomY, const RGBColour& colour);
+	Graph(NEElement& el, float leftX, float rightX, float topY, float bottomY, float midCoordX, float midCoordY, float unitLengthPixels, const RGBColour& colour);
 	~Graph();
 
 	// Getters and setters
@@ -24,7 +24,7 @@ public:
 	double GetRightX() const { return m_RightX; }
 	double GetBottomY() const { return m_BottomY; }
 
-	void GenTexture(float leftX, float rightX, float topY, float bottomY, int graphWindowLeftX, int graphWindowRightX, int graphWindowTopY, int graphWindowBottomY, GraphRenderer* rendPtr);
+	void GenTexture(float leftX, float rightX, float topY, float bottomY, float midCoordX, float midCoordY, float unitLengthPixels, GraphRenderer* rendPtr);
 
 	RGBColour getColour() const { return m_Colour; };
 	void setColour(const RGBColour& colour) { m_Colour = colour; }
@@ -32,7 +32,7 @@ public:
 private:
 	RGBColour m_Colour;
 	float m_LeftX, m_RightX, m_TopY, m_BottomY;
-	int m_GraphWindowLeftX, m_GraphWindowRightX, m_GraphWindowTopY, m_GraphWindowBottomY;
+	float m_MidCoordX, m_MidCoordY, m_UnitLengthPixels;
 	NEElement& m_El;
 	GLuint m_Vao;
 	GLuint m_Vb;
@@ -52,10 +52,14 @@ public:
 	//Add the line to the queue to be rendered this frame
 	void AddToRenderQueue(const std::shared_ptr<Graph>& graph);
 
+	void setLineThickness(int pixels);
+
 	// Render all the lines
 	void RenderQueue();
 private:
 	std::queue<std::shared_ptr<Graph>> m_RenderQueue;
+	int m_LineThickness;
+	std::array<std::array<int, 7>, 7> m_Kernel;
 	GraphShader m_Shader;
 	friend Graph;
 };
