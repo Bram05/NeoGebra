@@ -29,7 +29,7 @@ void ButtonUI::WasClicked(float x, float y)
 {
 
 	if (m_Action != nullptr) {
-		m_Action(1, 2);
+		m_Action(5, 5);
 	}
 	else {
 		std::cout << "niks" << "\n";
