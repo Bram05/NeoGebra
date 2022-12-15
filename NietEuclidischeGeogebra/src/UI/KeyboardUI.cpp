@@ -31,7 +31,7 @@ KeyboardUI::KeyboardUI(double leftX, double rightX, double topY, double bottomY)
 	float buttonWidth = 0.1f;
 	float indent = 0.0175f;
 	 
-	std::vector<void(*)(int, int)> functions = {&test,&test, &test, &test, &test,&test,&test, &test, &test, &test };//wtf is deze syntax
+	std::vector<void(*)(int, int)> functions = {&insertKey,&insertKey, &insertKey, &insertKey, &insertKey,&insertKey,&insertKey, &insertKey, &insertKey, &insertKey };//wtf is deze syntax
 	std::vector<std::string> textList = {"a", "b", "c", "f", "x","(", ")", "d", "e", "g","h", "i" };
 	int x = 0;
 	for (int i=0; i < 10; i++) {
