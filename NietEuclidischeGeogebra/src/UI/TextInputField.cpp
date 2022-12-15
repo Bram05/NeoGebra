@@ -226,7 +226,7 @@ void TextInputField::UpdateEditingIndex(int newIndex, bool isRemoved)
 				lastCharacterAddition = ((float)info.width) / width * m_Text->GetScale();
 				++m_Text->m_RenderEnd;
 			}
-			--m_Text->m_RenderEnd;
+			//--m_Text->m_RenderEnd;
 		}
 	}
 }

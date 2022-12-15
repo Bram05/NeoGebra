@@ -91,7 +91,7 @@ Renderer::Renderer()
 	m_LineRenderer = new LineRenderer;
 	m_SquareRenderer = new SquareRenderer;
 	m_GraphRenderer = new GraphRenderer;
-	m_TextRenderer = new TextRenderer("arialFont");
+	m_TextRenderer = new TextRenderer("defaultFont");
 }
 
 Renderer::~Renderer()
@@ -105,8 +105,8 @@ Renderer::~Renderer()
 
 void Renderer::RenderQueues()
 {
-	/*if (glIsEnabled(GL_BLEND) == GL_FALSE)
-		throw std::runtime_error("Waarschijnlijk heeft Jeroen blending weer uitgezet ofzo");*/
+	if (glIsEnabled(GL_BLEND) == GL_FALSE)
+		throw std::runtime_error("Waarschijnlijk heeft Jeroen blending weer uitgezet ofzo");
 
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);

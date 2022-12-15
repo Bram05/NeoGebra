@@ -33,7 +33,7 @@ public:
 	std::vector<std::string> m_VarNames;
 	std::string m_EquationString;
 	Equation(const Equation& e1, const Equation& e2);
-	Equation(std::vector<std::string> varNames, std::string equationString);
+	Equation(const std::vector<std::string>& varNames, const std::string& equationString);
 
 	/**
 	* Recursive function used to check if equation in string form is true. Input string must not contain spaces.
@@ -49,5 +49,5 @@ public:
 	std::string toShader(const std::vector<std::vector<float>>& identifiers) const;
 };
 
-Equation operator+(const Equation e1, const Equation e2);
-Equation operator!(const Equation e);
+Equation operator+(const Equation& e1, const Equation& e2);
+Equation operator!(const Equation& e);

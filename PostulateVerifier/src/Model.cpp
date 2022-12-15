@@ -14,7 +14,7 @@ NEElement::NEElement(const std::vector<float>& identifiers, const Equation& def,
 {
 	if (checkValidity) {
 		if (identifiers.size() != identNum or !def.getSolution({identifiers}).sat) {
-			throw std::invalid_argument("Invalid point");
+			throw std::invalid_argument("Invalid element");
 		}
 	}
 
@@ -76,7 +76,7 @@ NELine Model::newLine(NEPoint p1, NEPoint p2) {
 	return { { 1.25, 0 }, p1.getModel() };
 }
 
-bool operator==(const NEElement lhs, const NEElement rhs) {
+bool operator==(const NEElement& lhs, const NEElement& rhs) {
 	if (lhs.getModel() != rhs.getModel()) {
 		//Later isomorphism
 		return false;
@@ -102,13 +102,13 @@ bool operator==(const NEElement lhs, const NEElement rhs) {
 	}
 }
 
-bool operator!=(const NEElement lhs, const NEElement rhs) { return !(lhs == rhs); }
+bool operator!=(const NEElement& lhs, const NEElement& rhs) { return !(lhs == rhs); }
 
 
-bool operator==(const RGBColour c1, const RGBColour c2) { return c1.r == c2.r && c1.g == c2.g && c1.b == c2.b && c1.a == c2.a; }
-bool operator!=(const RGBColour c1, const RGBColour c2) { return !(c1 == c2); }
+bool operator==(const RGBColour& c1, const RGBColour& c2) { return c1.r == c2.r && c1.g == c2.g && c1.b == c2.b && c1.a == c2.a; }
+bool operator!=(const RGBColour& c1, const RGBColour& c2) { return !(c1 == c2); }
 
-bool operator>>(const NEPoint p, const NELine l) {
+bool operator>>(const NEPoint& p, const NELine& l) {
 	if (p.getModel() != l.getModel()) {
 		//Later isomorphism
 		return false;
@@ -119,7 +119,7 @@ bool operator>>(const NEPoint p, const NELine l) {
 	return eq.isTrue({p.getIdentifiers(), l.getIdentifiers()});
 }
 
-bool isBetween(const NEPoint p1, const NEPoint p2, const NEPoint p3) {
+bool isBetween(const NEPoint& p1, const NEPoint& p2, const NEPoint& p3) {
 	if (p1.getModel() != p2.getModel() || p2.getModel() != p3.getModel()) {
 		//Later isomorphism
 		return false;

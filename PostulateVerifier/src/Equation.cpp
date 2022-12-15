@@ -47,7 +47,7 @@ std::map<std::string, float> Equation::linkVars(const std::vector<std::vector<fl
 	return m;
 }
 
-Equation::Equation(std::vector<std::string> varNames, std::string equationString) : m_VarNames{ varNames }, m_EquationString{ equationString }
+Equation::Equation(const std::vector<std::string>& varNames, const std::string& equationString) : m_VarNames{ varNames }, m_EquationString{ equationString }
 {
 	replaceAll(m_EquationString, " ", "");
 }
@@ -93,11 +93,11 @@ void Equation::replaceVarName(std::string& s, const std::string& from, const std
 	}
 }
 
-Equation operator+(const Equation e1, const Equation e2) {
+Equation operator+(const Equation& e1, const Equation& e2) {
 	return Equation{ e1, e2 };
 }
 
-Equation operator!(const Equation e) {
+Equation operator!(const Equation& e) {
 	return Equation{ e.m_VarNames, "!(" + e.m_EquationString + ")" };
 }
 

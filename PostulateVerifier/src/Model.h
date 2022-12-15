@@ -33,6 +33,7 @@ protected:
 	std::shared_ptr<Model> m_Model;
 	NEElement(const std::vector<float>& identifiers, const Equation& def, const int identNum, NEType type, std::shared_ptr<Model> model, const RGBColour& colour, bool checkValidity);
 public:
+	virtual ~NEElement() {}
 	const std::vector<float>& getIdentifiers() const { return NEElement::m_Identifiers; }
 	const Equation& getDef() const { return NEElement::m_Def; }
 	std::shared_ptr<Model> getModel() const { return NEElement::m_Model; }
@@ -103,19 +104,19 @@ public:
 
 	NELine newLine(NEPoint p1, NEPoint p2);
 
-	friend bool operator==(const NEElement lhs, const NEElement rhs);
-	friend bool operator>>(const NEPoint p, const NELine l);
-	friend bool isBetween(const NEPoint p1, const NEPoint p2, const NEPoint p3);
+	friend bool operator==(const NEElement& lhs, const NEElement& rhs);
+	friend bool operator>>(const NEPoint& p, const NELine& l);
+	friend bool isBetween(const NEPoint& p1, const NEPoint& p2, const NEPoint& p3);
 	friend NEElement;
 	friend NEPoint;
 	friend NELine;
 };
 
-bool operator==(const NEElement lhs, const NEElement rhs);
-bool operator!=(const NEElement lhs, const NEElement rhs);
-bool operator==(const RGBColour c1, const RGBColour c2);
-bool operator!=(const RGBColour c1, const RGBColour c2);
+bool operator==(const NEElement& lhs, const NEElement& rhs);
+bool operator!=(const NEElement& lhs, const NEElement& rhs);
+bool operator==(const RGBColour& c1, const RGBColour& c2);
+bool operator!=(const RGBColour& c1, const RGBColour& c2);
 
 /// Incidence check: Checks if point p lies on line l. 
-bool operator>>(const NEPoint p, const NELine l);
-bool isBetween(const NEPoint p1, const NEPoint p2, const NEPoint p3);
+bool operator>>(const NEPoint& p, const NELine& l);
+bool isBetween(const NEPoint& p1, const NEPoint& p2, const NEPoint& p3);
