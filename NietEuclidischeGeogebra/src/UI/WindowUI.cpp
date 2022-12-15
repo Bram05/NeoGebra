@@ -67,12 +67,14 @@ std::shared_ptr<UIElement> WindowUI::MouseClicked(float x, float y)
 void WindowUI::MouseReleased()
 {
 	m_MouseDown = false;
-	m_SelectedElement->m_IsBeingDragged = false;
+	if (m_SelectedElement != nullptr) {
+		m_SelectedElement->m_IsBeingDragged = false;
+	}
 }
 
 std::shared_ptr<UIElement> WindowUI::MouseMoved(float x, float y)
 {	
-	if (m_MouseDown) {
+	if (m_MouseDown && m_SelectedElement != nullptr) {
 		m_SelectedElement->DraggedUpdate(x, y);
 	}
 
