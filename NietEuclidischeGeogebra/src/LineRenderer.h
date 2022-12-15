@@ -6,6 +6,7 @@
 
 #include "Shader.h"
 #include "Objects.h"
+#include "SquareRenderer.h"
 
 class LineRenderer;
 
@@ -13,7 +14,7 @@ class LineRenderer;
 class Line
 {
 public:
-	Line(Point begin, Point end, const std::array<float, 4>& colour = {1.0f, 0.0f, 0.0f, 1.0f});
+	Line(Point begin, Point end, const std::array<float, 4>& colour = {1.0f, 0.0f, 0.0f, 1.0f}, float thickness = 3.0f);
 	~Line();
 
 	// Getters and setters
@@ -26,7 +27,8 @@ public:
 private:
 	Point m_Begin, m_End;
 	GLuint m_Vao;
-	GLuint m_Vb;
+	GLuint m_Vb, m_Ib;
+	float m_Thickness;
 	std::array<float, 4> m_Colour;
 	friend LineRenderer;
 };

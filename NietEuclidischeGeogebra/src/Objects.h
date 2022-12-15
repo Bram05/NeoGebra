@@ -6,3 +6,20 @@ struct Point
 {
 	float x, y;
 };
+
+static Point operator+(const Point& p1, const Point& p2)
+{
+	return {p1.x + p2.x, p1.y + p2.y};
+}
+static Point operator-(const Point& p1, const Point& p2)
+{
+	return { p1.x - p2.x, p1.y - p2.y };
+}
+static Point operator/(const Point& p1, float value)
+{
+	return { p1.x / value, p1.y / value };
+}
+static Point operator*(const Point& p1, float value)
+{
+	return { p1.x * value, p1.y * value };
+}

@@ -29,17 +29,34 @@ void LineRenderer::RenderQueue()
 
 		m_Shader.SetUniform("u_Colour", l->m_Colour);
 		glBindVertexArray(l->m_Vao);
-		glDrawArrays(GL_LINES, 0, 2);
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 	}
 }
 
-Line::Line(Point begin, Point end, const std::array<float, 4>& colour /*= { 1.0f, 0.0f, 0.0f, 1.0f }*/)
-	: m_Begin{begin}, m_End{end}, m_Colour{colour}
+Line::Line(Point begin, Point end, const std::array<float, 4>& colour /*= { 1.0f, 0.0f, 0.0f, 1.0f }*/, float thickness /*= 1.0f*/)
+	: m_Begin{ begin }, m_End{ end }, m_Colour{ colour }, m_Thickness{ thickness }
 {
-	float buffer[4] = {
-		begin.x, begin.y,
-		end.x, end.y
+	auto[width, height] = Application::Get()->GetWindow()->GetSize();
+	Point diffVec = end - begin;
+	Point perpendicularVector{ diffVec.y, diffVec.x };
+	float length{ std::sqrt(diffVec.x * diffVec.x + diffVec.y * diffVec.y) };
+	Point normalizedPerpendicular{ perpendicularVector / length };
+
+	normalizedPerpendicular.y = -normalizedPerpendicular.y;
+
+	Point beginTop = begin + normalizedPerpendicular * (thickness / width); // I think some of these might need to be changed to height
+	Point beginBottom = begin - normalizedPerpendicular * (thickness / width);
+	Point endTop = end + normalizedPerpendicular * (thickness / width);
+	Point endBottom = end - normalizedPerpendicular * (thickness / width);
+
+	float buffer[8] = {
+		beginTop.x, beginTop.y,
+		beginBottom.x, beginBottom.y,
+		endBottom.x, endBottom.y,
+		endTop.x, endTop.y,
 	};
+	unsigned int indices[6] = { 0,1,2,2,3,0 };
+
 	glGenVertexArrays(1, &m_Vao);
 	glBindVertexArray(m_Vao);
 
@@ -49,19 +66,36 @@ Line::Line(Point begin, Point end, const std::array<float, 4>& colour /*= { 1.0f
 
 	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0, 0);
+
+	glGenBuffers(1, &m_Ib);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_Ib);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 }
 
 Line::~Line()
 {
 	glDeleteBuffers(1, &m_Vb);
+	glDeleteBuffers(1, &m_Ib);
 	glDeleteVertexArrays(1, &m_Vao);
 }
 
 void Line::SetLocation(Point newBegin, Point newEnd)
 {
-	float buffer[4] = {
-		newBegin.x, newBegin.y,
-		newEnd.x, newEnd.y
+	Point diffVec = newEnd - newBegin;
+	Point perpendicularVector{ diffVec.y, diffVec.x };
+	float length{ std::sqrt(diffVec.x * diffVec.x + diffVec.y * diffVec.y) };
+	Point normalizedPerpendicular{ diffVec / length };
+
+	Point beginTop = newBegin + normalizedPerpendicular * m_Thickness;
+	Point beginBottom = newBegin - normalizedPerpendicular * m_Thickness;
+	Point endTop = newEnd + normalizedPerpendicular * m_Thickness;
+	Point endBottom = newEnd - normalizedPerpendicular * m_Thickness;
+
+	float buffer[8] = {
+		beginTop.x, beginTop.y,
+		beginBottom.x, beginBottom.y,
+		endBottom.x, endBottom.y,
+		endTop.x, endTop.y,
 	};
 	glBindBuffer(GL_ARRAY_BUFFER, m_Vb);
 	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(buffer), buffer);
