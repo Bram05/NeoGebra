@@ -26,6 +26,7 @@ public:
 
 protected:
 	virtual void WasClicked(float x, float y) { /*std::cout << "Hit element " << m_Name << '\n'; */ }
+	virtual void DraggedUpdate(float x, float y) { /*std::cout << "Dragged update" << m_Name << '\n'; */ }
 	virtual void IsHovered(float x, float y) { /*std::cout << "Hovered over element " << m_Name << '\n'; */ }
 	virtual void NotHoveredAnymore() { /*std::cout << "Not hovering over element " << m_Name << " anymore\n";*/ }
 	virtual void IsSelected() { std::cout << "Element " << m_Name << " is selected\n"; }
@@ -41,4 +42,5 @@ protected:
 	std::vector<std::shared_ptr<UIElement>> m_SubUIElements;
 	bool m_MouseIsHovering{ false };
 	bool m_IsSelected{ false };
+	bool m_IsBeingDragged{ false };
 };

@@ -6,15 +6,10 @@
 // Entry point
 int main()
 {
-	try
-	{
-		Application* app{ new Application };
-		app->Run();
-		delete app;
-	}
-	catch (const std::exception& e)
-	{
-		std::cout << "Error! description = " << e.what() << '\n';
-	}
+
+	Application* app{ new Application };
+	app->Run();
+	delete app;
+	
 	return 0;
 }

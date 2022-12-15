@@ -42,6 +42,8 @@ public:
 	NEType getType() const { return m_Type; }
 	RGBColour getColour() const { return m_Colour; }
 	void setColour(const RGBColour& c) { m_Colour = c; }
+
+	friend Model;
 };
 
 /// class used to define a point belonging to a model m. 
@@ -65,7 +67,7 @@ public:
 * Use operator== and operator!= to compare points and lines.
 * Use operator>> to test incidence (point >> line).
 */
-class Model {
+class Model : public std::enable_shared_from_this<Model> {
 	std::vector<NEElement> m_Elements;
 
 	Equation m_PointDef;
@@ -76,7 +78,7 @@ class Model {
 	unsigned int m_PointIdentifiers;
 	unsigned int m_LineIdentifiers;
 
-	std::vector<Equation> extraEquations;
+	std::vector<NEElement> m_ExtraEquations;
 
 public:
 	/**
@@ -99,6 +101,9 @@ public:
 
 	/// Copy an existing Model object. 
 	Model(const Model& g);
+
+	void addExtraEquation(Equation& eq, const RGBColour& colour = RGBColour(125,125,125,255));
+	std::vector<NEElement>& getExtraEquations() { return m_ExtraEquations; }
 
 	std::vector<NEElement>& getElements() { return m_Elements; }
 

@@ -6,11 +6,11 @@
 #include "LineRenderer.h"
 #include "TextRenderer.h"
 // Represents what will eventually be the part where equations can be written
-class MenuUI : public UIElement
+class KeyboardUI : public UIElement
 {
 public:
-	MenuUI(double leftX, double rightX, double topY, double bottomY);
-	~MenuUI();
+	KeyboardUI(double leftX, double rightX, double topY, double bottomY);
+	~KeyboardUI();
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
 	std::vector<std::shared_ptr<Text>> m_Texts; 

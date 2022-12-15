@@ -25,10 +25,12 @@ public:
 
 	// Set the uniform for the shader
 	void SetUniform(const std::string& name, const std::array<float, 4>& arr) const;
-	void SetIntUniform(int loc, const std::array<int, 4>& arr) const;
+	void SetUniform(const std::string& name, int val) const;
+	void SetUniform2d(const std::string& name, const std::array<std::array<int, 7>, 7>& arr) const;
+	void SetUniform(const int loc, const std::array<float, 4>& arr) const;
 
-	unsigned int RunComp(float normWidth, float normHeight, int graphWindowLeftX, int graphWindowRightX, int graphWindowTopY, int graphWindowBottomY, unsigned int compShader1);
-	static void CreateCompShader(const std::string name, const std::string& comp1Eq, unsigned int& shaderProgram);
+	unsigned int RunComp(float normWidth, float normHeight, float midCoordX, float midCoordY, float unitLengthPixels, unsigned int compShader1);
+	static void CreateCompShader(const std::string name, const std::string& insertText, unsigned int& shaderProgram);
 private:
 	void CreateShader(const std::string name);
 	GLuint m_Shader;

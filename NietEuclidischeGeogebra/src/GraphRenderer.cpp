@@ -1,9 +1,9 @@
 #include "GraphRenderer.h"
 
-Graph::Graph(NEElement& el, float leftX, float rightX, float topY, float bottomY, int graphWindowLeftX, int graphWindowRightX, int graphWindowTopY, int graphWindowBottomY, const RGBColour& colour)
+Graph::Graph(NEElement& el, float leftX, float rightX, float topY, float bottomY, float midCoordX, float midCoordY, float unitLengthPixels, const RGBColour& colour)
 	: m_El{ el },
 	m_LeftX{ leftX }, m_RightX{ rightX }, m_TopY{ topY }, m_BottomY{ bottomY },
-	m_GraphWindowLeftX{ graphWindowLeftX }, m_GraphWindowRightX{ graphWindowRightX }, m_GraphWindowTopY{ graphWindowTopY }, m_GraphWindowBottomY{ graphWindowBottomY },
+	m_MidCoordX{ midCoordX }, m_MidCoordY{ midCoordY }, m_UnitLengthPixels{ unitLengthPixels },
 	m_Colour{ colour }
 {
 	GraphShader::CreateCompShader("graphShader1", m_El.getShader(), m_CompShader1);
@@ -43,15 +43,14 @@ Graph::~Graph()
 	glDeleteProgram(m_CompShader1);
 }
 
-void Graph::GenTexture(float leftX, float rightX, float topY, float bottomY, int graphWindowLeftX, int graphWindowRightX, int graphWindowTopY, int graphWindowBottomY, GraphRenderer* rendPtr) {
+void Graph::GenTexture(float leftX, float rightX, float topY, float bottomY, float midCoordX, float midCoordY, float unitLengthPixels, GraphRenderer* rendPtr) {
 	m_LeftX = leftX;
 	m_RightX = rightX;
 	m_TopY = topY;
 	m_BottomY = bottomY;
-	m_GraphWindowLeftX = graphWindowLeftX;
-	m_GraphWindowRightX = graphWindowRightX;
-	m_GraphWindowTopY = graphWindowTopY;
-	m_GraphWindowBottomY = graphWindowBottomY;
+	m_MidCoordX = midCoordX;
+	m_MidCoordY = midCoordY;
+	m_UnitLengthPixels = unitLengthPixels;
 
 	float buffer[16] = {
 		leftX,	topY,	 0.0f, 1.0f,
@@ -68,12 +67,13 @@ void Graph::GenTexture(float leftX, float rightX, float topY, float bottomY, int
 	if (m_Texture != NULL) {
 		glDeleteTextures(1, &m_Texture);
 	}
-	m_Texture = rendPtr->m_Shader.RunComp(normWidth, normHeight, m_GraphWindowLeftX, m_GraphWindowRightX, m_GraphWindowTopY, m_GraphWindowBottomY, m_CompShader1);
+	m_Texture = rendPtr->m_Shader.RunComp(normWidth, normHeight, m_MidCoordX, m_MidCoordY, m_UnitLengthPixels, m_CompShader1);
 }
 
 GraphRenderer::GraphRenderer()
 	: m_Shader("graphShader")
 {
+	setLineThickness(3);
 }
 
 GraphRenderer::~GraphRenderer()
@@ -83,6 +83,24 @@ GraphRenderer::~GraphRenderer()
 void GraphRenderer::AddToRenderQueue(const std::shared_ptr<Graph>& graph)
 {
 	m_RenderQueue.push(graph);
+}
+
+void GraphRenderer::setLineThickness(int pixels) {
+	if (pixels > 8 or pixels < 1) { 
+		throw std::invalid_argument("Invalid line thickness"); 
+	} 
+	m_LineThickness = pixels; 
+	if (pixels % 2 == 0) { --m_LineThickness;  }
+
+	int mid = m_LineThickness / 2;
+	int maxD = std::pow(m_LineThickness/2, 2) + 1 - pixels % 2;
+	for (int x = 0; x < 7; ++x) {
+		for (int y = 0; y < 7; ++y) {
+			int d = std::pow(x - mid, 2) + std::pow(y - mid, 2);
+			if (d <= maxD) { m_Kernel[y][x] = 1; }
+			else { m_Kernel[y][x] = 0; }
+		}
+	}
 }
 
 void GraphRenderer::RenderQueue()
@@ -96,6 +114,8 @@ void GraphRenderer::RenderQueue()
 		m_Shader.SetTexture(graph->m_Texture);
 		RGBColour c = graph->m_Colour;
 		m_Shader.SetUniform("u_Colour", { c.norm_r, c.norm_g, c.norm_b, c.norm_a });
+		m_Shader.SetUniform("u_KernelSize", m_LineThickness);
+		m_Shader.SetUniform2d("u_Kernel", m_Kernel);
 		glBindVertexArray(graph->m_Vao);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 	}

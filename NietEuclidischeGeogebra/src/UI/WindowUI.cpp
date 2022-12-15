@@ -16,7 +16,11 @@ WindowUI::WindowUI()
 	m_UIElements.push_back(std::make_shared<PostulateVerifierResultUI>(0.5f, 1.0f, 0.9f, -1.0f));
 	m_UIElements.push_back(std::make_shared<GraphUI>(-0.5f, 0.5f, 0.9f, -1.0f));
 	m_UIElements.push_back(std::make_shared<MenuUI>(-1.0f, 1.0f, 1.0f, 0.9f));
+<<<<<<< HEAD
 	m_UIElements.push_back(std::make_shared<TabUI>(-1.0f, 0.0f, 0.8f, 0.0f));
+=======
+
+>>>>>>> f314ecb9953697460e2203ce68ffcb56c1f1ac43
 }
 
 WindowUI::~WindowUI()
@@ -33,6 +37,7 @@ void WindowUI::RenderPass(Renderer* r)
 
 std::shared_ptr<UIElement> WindowUI::MouseClicked(float x, float y)
 {
+	m_MouseDown = true;
 	for (std::shared_ptr<UIElement>& element : m_UIElements)
 	{
 		std::shared_ptr<UIElement> el = Hit(element, x, y);
@@ -48,6 +53,7 @@ std::shared_ptr<UIElement> WindowUI::MouseClicked(float x, float y)
 				}
 				el->IsSelected();
 				el->m_IsSelected = true;
+				el->m_IsBeingDragged = true;
 				m_SelectedElement = el;
 			}
 			return el;
@@ -62,8 +68,18 @@ std::shared_ptr<UIElement> WindowUI::MouseClicked(float x, float y)
 	return nullptr;
 }
 
-std::shared_ptr<UIElement> WindowUI::MouseMoved(float x, float y)
+void WindowUI::MouseReleased()
 {
+	m_MouseDown = false;
+	m_SelectedElement->m_IsBeingDragged = false;
+}
+
+std::shared_ptr<UIElement> WindowUI::MouseMoved(float x, float y)
+{	
+	if (m_MouseDown) {
+		m_SelectedElement->DraggedUpdate(x, y);
+	}
+
 	for (std::shared_ptr<UIElement>& element : m_UIElements)
 	{
 		std::shared_ptr<UIElement> el = Hit(element, x, y);

@@ -14,8 +14,6 @@ bool fgteFromOffsetInPairs(ivec2 offset, float val, ivec2 pos)
 }
 
 void main() {
-    int thickness = 5;
-
     ivec2 pos = ivec2( gl_GlobalInvocationID.xy );
 
     float in_val = imageLoad( in_texture, pos ).r;

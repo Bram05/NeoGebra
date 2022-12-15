@@ -18,15 +18,19 @@ static void MouseClickCallback(int mouseButton, int action, int mods)
 	{
 		auto [x, y] = Application::Get()->GetWindow()->GetMouseLocation();
 		float newX = Util::ConvertToOpenGLCoordinate(x, true);
-		float newY = Util::ConvertToOpenGLCoordinate(y, false);
+		float newY = -Util::ConvertToOpenGLCoordinate(y, false);
 		Application::Get()->GetWindowUI()->MouseClicked(newX, newY);
+	}
+	if (mouseButton == MouseButton::left && action == Action::released)
+	{
+		Application::Get()->GetWindowUI()->MouseReleased();
 	}
 }
 
 static void MouseMovedCallback(int x, int y)
 {
 	float newX = Util::ConvertToOpenGLCoordinate(x, true);
-	float newY = Util::ConvertToOpenGLCoordinate(y, false);
+	float newY = -Util::ConvertToOpenGLCoordinate(y, false);
 	Application::Get()->GetWindowUI()->MouseMoved(newX, newY);
 }
 
