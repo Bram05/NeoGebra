@@ -3,8 +3,8 @@
 #include <typeinfo>
 
 constexpr int numButtons{ 2 };
-TabUI::TabUI(float leftX, float rightX, float topY, float bottomY)
-	: UIElement(leftX, rightX, topY, bottomY, "TabUI")
+TabUI::TabUI(float leftX, float rightX, float topY, float bottomY, void(*callback)(void*, int), void* obj)
+	: UIElement(leftX, rightX, topY, bottomY, "TabUI"), m_Callback{callback}, m_Obj{obj}
 {
 	const float padding{ 0.06f };
 	float width{ rightX - 2 * 0.06f - leftX };
@@ -12,7 +12,7 @@ TabUI::TabUI(float leftX, float rightX, float topY, float bottomY)
 	m_Buttons.push_back(std::make_shared<PermaButtonUI>((rightX + leftX) / 2 + 0.5 * padding, rightX - 0.06f, topY - 0.05f, std::max(topY - 0.3f, bottomY + 0.05f), 1, this));
 
 	for (const std::shared_ptr<PermaButtonUI>& button : m_Buttons)
-		m_SubUIElements.push_back(button);
+		m_SubUIElements.push_back({button});
 }
 
 TabUI::~TabUI()
@@ -32,4 +32,5 @@ void TabUI::ButtonClicked(int value)
 			continue;
 		m_Buttons[i]->SetActivation(false);
 	}
+	m_Callback(m_Obj, value);
 }

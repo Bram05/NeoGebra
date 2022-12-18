@@ -6,7 +6,7 @@
 class TabUI : public UIElement
 {
 public:
-	TabUI(float leftX, float rightX, float topY, float bottomY);
+	TabUI(float leftX, float rightX, float topY, float bottomY, void(*callback)(void*,int), void* obj);
 	~TabUI();
 
 	virtual void RenderPass(Renderer* r) override;
@@ -14,4 +14,6 @@ public:
 
 private:
 	std::vector<std::shared_ptr<PermaButtonUI>> m_Buttons;
+	void(*m_Callback)(void*, int);
+	void* m_Obj;
 };

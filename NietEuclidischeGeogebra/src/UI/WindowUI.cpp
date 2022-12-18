@@ -11,12 +11,10 @@
 
 WindowUI::WindowUI()
 {
-	//Dit is lager gezet, om ruimte te maken voor de menu bovenaan
-	m_UIElements.push_back(std::make_shared<EquationUI>(-1.0f, -0.5f, 0.7f, -1.0f));
+	m_UIElements.push_back(std::make_shared<EquationUI>(-1.0f, -0.5f, 0.9f, -1.0f));
 	m_UIElements.push_back(std::make_shared<PostulateVerifierResultUI>(0.5f, 1.0f, 0.9f, -1.0f));
 	m_UIElements.push_back(std::make_shared<GraphUI>(-0.5f, 0.5f, 0.9f, -1.0f));
 	m_UIElements.push_back(std::make_shared<MenuUI>(-1.0f, 1.0f, 1.0f, 0.9f));
-	m_UIElements.push_back(std::make_shared<TabUI>(-1.0f, -0.5f, 0.9f, 0.7f));
 }
 
 WindowUI::~WindowUI()
@@ -132,11 +130,14 @@ void WindowUI::ResizeWindow(int width, int height)
 
 std::shared_ptr<UIElement> WindowUI::Hit(const std::shared_ptr<UIElement>& element, float x, float y)
 {
+
 	if (x > element->m_LeftX && x < element->m_RightX && y > element->m_BottomY && y < element->m_TopY)
 	{
-		for (const std::shared_ptr<UIElement>& element : element->m_SubUIElements)
+		for (const SubUIElement& nextElement : element->m_SubUIElements)
 		{
-			std::shared_ptr<UIElement> res = Hit(element, x, y);
+			if (!nextElement.shouldRender)
+				continue;
+			std::shared_ptr<UIElement> res = Hit(nextElement.element, x, y);
 			if (res)
 			{
 				return res;

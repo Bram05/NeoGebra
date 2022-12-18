@@ -36,7 +36,7 @@ MenuUI::MenuUI(double leftX, double rightX, double topY, double bottomY)
 	std::vector<void(*)(int, int)> functions = {&TestFunction2,&TestFunction3 ,&TestFunction2 ,&TestFunction2 ,&TestFunction2 ,&TestFunction2 ,&TestFunction2 ,&TestFunction2 ,&TestFunction2 ,&TestFunction2 ,&TestFunction2 ,&TestFunction2 };//wtf is deze syntax
 	std::vector<std::string> textList = {"Add", "Min", "Add", "Add", "Add", "Add","Add","Add", "Add", "Add", "Add","Add","Add"};
 	for (int i=0; i < 12; i++) {
-	 	m_SubUIElements.push_back(std::make_shared<ButtonUI>(leftX+ indent +i* buttonWidth, (leftX + i * buttonWidth + buttonWidth), topY-0.01, (topY - 0.09f), functions[i], textList[i]));
+	 	m_SubUIElements.push_back({std::make_shared<ButtonUI>(leftX+ indent +i* buttonWidth, (leftX + i * buttonWidth + buttonWidth), topY-0.01, (topY - 0.09f), functions[i], textList[i])});
 	}
 	 
 }    

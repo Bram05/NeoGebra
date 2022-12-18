@@ -5,6 +5,9 @@
 #include "UIElement.h"
 #include "LineRenderer.h"
 #include "TextRenderer.h"
+#include "TextInputField.h"
+
+static void ButtonClickedCallback(void*,int);
 
 // Represents what will eventually be the part where equations can be written
 class EquationUI : public UIElement
@@ -12,10 +15,16 @@ class EquationUI : public UIElement
 public:
 	EquationUI(double leftX, double rightX, double topY, double bottomY);
 	~EquationUI();
-private:
-	std::vector<std::shared_ptr<Line>> m_Lines;
-	//TextC text;
+
 protected:
 	void RenderPass(Renderer* r) override;
 	std::vector<std::shared_ptr<Text>> m_Texts;
+
+private:
+	std::vector<std::shared_ptr<Line>> m_Lines;
+	int m_TextInputFieldIndex;
+
+	void ButtonClicked(int value);
+	friend void ButtonClickedCallback(void*,int);
+
 };

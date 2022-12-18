@@ -36,10 +36,10 @@ KeyboardUI::KeyboardUI(double leftX, double rightX, double topY, double bottomY)
 	int x = 0;
 	for (int i=0; i < 10; i++) {
 		if (i <= 4) {
-			m_SubUIElements.push_back(std::make_shared<ButtonUI>(leftX + indent + i * buttonWidth, (leftX + i * buttonWidth + buttonWidth), topY - 0.01, (topY - 0.09f), functions[i], textList[i]));
+			m_SubUIElements.push_back({std::make_shared<ButtonUI>(leftX + indent + i * buttonWidth, (leftX + i * buttonWidth + buttonWidth), topY - 0.01, (topY - 0.09f), functions[i], textList[i])});
 			continue;
 		}																																	
-		m_SubUIElements.push_back(std::make_shared<ButtonUI>(leftX + indent + x * buttonWidth, (leftX + x * buttonWidth + buttonWidth), topY - 0.01-0.1f, (topY - 0.09f-0.1f), functions[i], textList[i]));
+		m_SubUIElements.push_back({std::make_shared<ButtonUI>(leftX + indent + x * buttonWidth, (leftX + x * buttonWidth + buttonWidth), topY - 0.01-0.1f, (topY - 0.09f-0.1f), functions[i], textList[i])});
 		x++;		
 	}
 }    

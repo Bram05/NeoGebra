@@ -14,13 +14,13 @@ public:
 
 	// Get the text as a vector of the unicode character and the width of this character
 	const std::vector<std::pair<int, float>>& GetText() const { return m_Text->GetText(); }
+	virtual void RenderPass(Renderer* r) override;
 
 protected:
 	virtual void IsSelected() override;
+	virtual void NotSelectedAnymore() override;
 	virtual void TextInput(unsigned int codepoint) override;
 	virtual void SpecialKeyInput(int key, int scancode, int action, int mods) override;
-	virtual void NotSelectedAnymore() override;
-	virtual void RenderPass(Renderer* r) override;
 
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;

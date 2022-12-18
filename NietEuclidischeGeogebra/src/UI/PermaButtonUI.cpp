@@ -36,6 +36,8 @@ void PermaButtonUI::RenderPass(Renderer* r)
 
 void PermaButtonUI::WasClicked(float x, float y)
 {
+	if (m_IsActivated)
+		return;
 	SetActivation(true);
 	m_Parent->ButtonClicked(m_Value);
 }
