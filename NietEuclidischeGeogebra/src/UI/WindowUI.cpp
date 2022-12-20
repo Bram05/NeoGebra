@@ -9,6 +9,11 @@
 #include "MenuUI.h"
 #include "TabUI.h"
 
+
+void tabTest(int x, int y) {
+		std::cout << x << " " << y << "\n";
+}
+
 WindowUI::WindowUI()
 {
 	//Dit is lager gezet, om ruimte te maken voor de menu bovenaan
@@ -16,7 +21,7 @@ WindowUI::WindowUI()
 	m_UIElements.push_back(std::make_shared<PostulateVerifierResultUI>(0.5f, 1.0f, 0.9f, -1.0f));
 	m_UIElements.push_back(std::make_shared<GraphUI>(-0.5f, 0.5f, 0.9f, -1.0f));
 	m_UIElements.push_back(std::make_shared<MenuUI>(-1.0f, 1.0f, 1.0f, 0.9f));
-	m_UIElements.push_back(std::make_shared<TabUI>(-1.0f, -0.5f, 0.9f, 0.7f));
+	m_UIElements.push_back(std::make_shared<TabUI>(-1.0f, -0.5f, 0.9f, 0.7f, &tabTest));
 }
 
 WindowUI::~WindowUI()

@@ -5,16 +5,24 @@
 #include "UIElement.h"
 #include "LineRenderer.h"
 #include "TextRenderer.h"
+
 // Represents what will eventually be the part where equations can be written
 class KeyboardUI : public UIElement
 {
 public:
 	KeyboardUI(double leftX, double rightX, double topY, double bottomY);
 	~KeyboardUI();
+
+	
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
 	std::vector<std::shared_ptr<Text>> m_Texts; 
+
+	int m_Tab = 0;
+	void LoadTab(int i);
+	
 	//TextC text;
 protected:
 	void RenderPass(Renderer* r) override;
+	
 };

@@ -8,14 +8,18 @@
 #include "TextRenderer.h"
 
 void insertKey(int x, int y) {
-	switch (x) {
+	/*switch (x) {
 	case 1:
 		break;
 	case 2:
 		break;
 
-	}
+	}*/
 	std::cout << x << " " << y;
+}
+
+void KeyboardUI::LoadTab(int i) {
+	m_Tab = i;
 }
 
 KeyboardUI::KeyboardUI(double leftX, double rightX, double topY, double bottomY)
@@ -37,7 +41,6 @@ KeyboardUI::KeyboardUI(double leftX, double rightX, double topY, double bottomY)
 	for (int i=0; i < 10; i++) {
 		if (i <= 4) {
 			m_SubUIElements.push_back(std::make_shared<ButtonUI>(leftX + indent + i * buttonWidth, (leftX + i * buttonWidth + buttonWidth), topY - 0.01, (topY - 0.09f), functions[i], textList[i]));
-			continue;
 		}																																	
 		m_SubUIElements.push_back(std::make_shared<ButtonUI>(leftX + indent + x * buttonWidth, (leftX + x * buttonWidth + buttonWidth), topY - 0.01-0.1f, (topY - 0.09f-0.1f), functions[i], textList[i]));
 		x++;		
@@ -54,6 +57,12 @@ void KeyboardUI::RenderPass(Renderer* r)
 	{
 		r->AddToRenderQueue(line);
 	}
-	
+	if (m_Tab == 0) {
+		//render dit
+	}
+	else if (m_Tab == 1) {
+		//render dit
+	}
+
 	UIElement::RenderPass(r);
 }
