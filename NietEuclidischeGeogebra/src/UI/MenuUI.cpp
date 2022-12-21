@@ -51,7 +51,7 @@ void MenuUI::RenderPass(Renderer* r)
 	{
 		r->AddToRenderQueue(line);
 	}
-	m_Texts.push_back(std::make_shared<Text>(std::to_string(value), -1 + 1.6, 1, 0.5f, 144));
+	m_Texts.push_back(std::make_shared<Text>(std::to_string(value), 0.6f, 1, 0.5f, 144));
 	for (std::shared_ptr<Text>& text: m_Texts)
 	{
 		r->AddToRenderQueue(text);

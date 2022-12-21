@@ -12,14 +12,14 @@ class KeyboardUI : public UIElement
 public:
 	KeyboardUI(double leftX, double rightX, double topY, double bottomY);
 	~KeyboardUI();
-
+	void LoadTab(int i);
 	
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
 	std::vector<std::shared_ptr<Text>> m_Texts; 
 
 	int m_Tab = 0;
-	void LoadTab(int i);
+
 	
 	//TextC text;
 protected:
