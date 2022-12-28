@@ -6,7 +6,7 @@
 class TabUI : public UIElement
 {
 public:
-	TabUI(float leftX, float rightX, float topY, float bottomY, void(*callback)(void*,int), void* obj);
+	TabUI(float leftX, float rightX, float topY, float bottomY, int startingButton, void(*callback)(void*,int), void* obj);
 	~TabUI();
 
 	void ButtonClicked(int value);

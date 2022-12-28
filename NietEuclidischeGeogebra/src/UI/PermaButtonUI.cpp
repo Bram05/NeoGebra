@@ -26,7 +26,6 @@ void PermaButtonUI::SetActivation(bool value)
 	{
 		m_Background->m_Colour = std::array<float, 4>{ 0.0f, 1.0f, 1.0f, 1.0f };
 	}
-	std::cout << "Colour changed, this = " << this << '\n';
 }
 
 void PermaButtonUI::RenderPass(Renderer* r)

@@ -24,7 +24,7 @@ EquationUI::EquationUI(double leftX, double rightX, double topY, double bottomY)
 	m_SubUIElements.push_back({std::make_shared<TextInputField>(leftX, rightX, topY - 0.2f, topY - 0.4f)});
 	m_TextInputFieldIndex = m_SubUIElements.size()-1;
 	m_SubUIElements.push_back({std::make_shared<KeyboardUI>(leftX, rightX, topY - 1.7f, bottomY)});
-	m_SubUIElements.push_back({std::make_shared<TabUI>(leftX, rightX, topY, topY - 0.2f, &ButtonClickedCallback, this)});
+	m_SubUIElements.push_back({std::make_shared<TabUI>(leftX, rightX, topY, topY - 0.2f, 0, &ButtonClickedCallback, this)});
 		//m_Texts.push_back(std::make_shared<Text>("ABCDEFGHIJKLMNOPQRSTUVWXYZ", -1.0f, 0.0f, 0.5f, 72));
 		//m_Texts.push_back(std::make_shared<Text>("abcdefghijklmnopqrstuvwxyz123456789", -1.0f, 0.0f, -0.5f, 100));
 		//m_Texts.push_back(std::make_shared<Text>(std::vector<int>{8704, 8707}, -1.0f, 0.0f, 0.0f, 72));
