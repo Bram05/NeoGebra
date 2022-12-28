@@ -7,24 +7,7 @@
 GraphUI::GraphUI(float leftX, float rightX, float topY, float bottomY)
 	: UIElement(leftX, rightX, topY, bottomY, "GraphUI")
 {
-	m_MidCoordX = -1.0f, m_MidCoordY = -1.0f, m_UnitLengthPixels = 135.0f;
-
-	Equation P2pointDef{ {"p"}, "x = p0 & y = p1 & p0^2 + p1^2 < 1" };
-	Equation P2lineDef{ {"l"}, "(x-l0)^2 + (y-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2 & l0^2 + l1^2 > 1 & x^2 + y^2 < 1" };
-	Equation P2incidence{ {"p", "l"}, "(p0-l0)^2 + (p1-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2" };
-	Equation P2betweenness{ {"p", "q", "r"}, "((p0 - r0)^2 + (p1 - r1)^2 > (p0 - q0)^2 + (p1 - q1)^2) & ((p0 - r0)^2 + (p1 - r1)^2 > (r0 - q0)^2 + (r1 - q1)^2)" };
-
-	m_Models.push_back(std::make_shared<Model>(2, P2pointDef, 2, P2lineDef, P2incidence, P2betweenness));
-
-	Equation P2border{ {}, "x^2 + y^2 = 1"};
-	m_Models[0]->addExtraEquation(P2border);
-
-	std::shared_ptr<NELine> l1 = std::make_shared<NELine>(std::vector<float>{ 1.25f, 0 }, m_Models[0]);
-	std::shared_ptr<NELine> l2 = std::make_shared<NELine>(std::vector<float>{ 0, 1.25f }, m_Models[0]);
-	std::shared_ptr<NEPoint> p1 = std::make_shared<NEPoint>(std::vector<float>{ 0.625f, 0.4145780988f }, m_Models[0], RGBColour(255, 0, 0, 255));
-	std::shared_ptr<NEPoint> p2 = std::make_shared<NEPoint>(std::vector<float>{ 0.5f, 0 }, m_Models[0], RGBColour(255, 0, 0, 255));
-	std::shared_ptr<NEPoint> p3 = std::make_shared<NEPoint>(std::vector<float>{ 0.625f, -0.4145780988f }, m_Models[0], RGBColour(255, 0, 0, 255));
-
+	m_MidCoordX = 0.0f, m_MidCoordY = 0.0f, m_UnitLengthPixels = 135.0f;
 
 	UpdateLines();
 	UpdateGraphs();
@@ -53,6 +36,11 @@ void GraphUI::ResizeWindow(int width, int height)
 	UpdateLines();
 	UpdateGraphs();
 	UIElement::ResizeWindow(width, height);
+}
+
+void GraphUI::UpdateGraphUI()
+{
+	UpdateGraphs();
 }
 
 void GraphUI::WasClicked(float x, float y) {
@@ -91,22 +79,22 @@ void GraphUI::UpdateLines()
 
 	for (int i = 0; i < (nearMidPixelX - pixelLeftX) / m_UnitLengthPixels; ++i) {
 		float x = Util::ConvertToOpenGLCoordinate(nearMidPixelX - i * m_UnitLengthPixels, true);
-		m_Lines.push_back(std::make_shared<Line>(Point(x, m_TopY), Point(x, m_BottomY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+		m_Lines.push_back(std::make_shared<Line>(Point(x, m_TopY), Point(x, m_BottomY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}, 2.0f));
 	}
 
 	for (int i = 1; i < (pixelRightX - nearMidPixelX) / m_UnitLengthPixels; ++i) {
 		float x = Util::ConvertToOpenGLCoordinate(nearMidPixelX + i * m_UnitLengthPixels, true);
-		m_Lines.push_back(std::make_shared<Line>(Point(x, m_TopY), Point(x, m_BottomY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+		m_Lines.push_back(std::make_shared<Line>(Point(x, m_TopY), Point(x, m_BottomY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}, 2.0f));
 	}
 
 	for (int i = 0; i < (nearMidPixelY - pixelBottomY) / m_UnitLengthPixels; ++i) {
 		float y = Util::ConvertToOpenGLCoordinate(nearMidPixelY - i * m_UnitLengthPixels, false);
-		m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, y), Point(m_RightX, y), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+		m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, y), Point(m_RightX, y), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}, 2.0f));
 	}
 
 	for (int i = 1; i < (pixelTopY - nearMidPixelY) / m_UnitLengthPixels; ++i) {
 		float y = Util::ConvertToOpenGLCoordinate(nearMidPixelY + i * m_UnitLengthPixels, false);
-		m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, y), Point(m_RightX, y), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+		m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, y), Point(m_RightX, y), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}, 2.0f));
 	}
 }
 
@@ -114,7 +102,8 @@ void GraphUI::UpdateGraphs()
 {
 	GraphRenderer* rendPtr = Application::Get()->GetRenderer()->GetGraphRenderer();
 
-	for (std::shared_ptr<Model> m : m_Models) {
+	std::vector<std::shared_ptr<Model>>& models = Application::Get()->GetModelManager()->GetModels();
+	for (std::shared_ptr<Model> m : models) {
 		// Add new extra equations
 		for (NEElement& el : m->getExtraEquations()) {
 			bool found = false;

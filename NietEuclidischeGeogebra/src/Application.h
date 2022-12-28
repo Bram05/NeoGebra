@@ -4,6 +4,7 @@
 
 #include "Window.h"
 #include "Renderer.h"
+#include "ModelManager.h"
 
 #include "UI/WindowUI.h"
 
@@ -26,6 +27,7 @@ public:
 	Window* GetWindow() { return m_Window; }
 	Renderer* GetRenderer() { return m_Renderer; }
 	WindowUI* GetWindowUI() { return m_WindowUI; }
+	ModelManager* GetModelManager() { return m_ModelManager; }
 
 	friend int main();
 
@@ -34,6 +36,7 @@ private:
 	Window* m_Window;
 	Renderer* m_Renderer;
 	WindowUI* m_WindowUI;
+	ModelManager* m_ModelManager;
 
 	double m_LastFrameTime{ 0.0 };
 	std::stack<double> m_LastFpss;

@@ -13,8 +13,6 @@ public:
 	~MenuUI();
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
-	std::vector<std::shared_ptr<Text>> m_Texts; 
-	//TextC text;
 protected:
 	void RenderPass(Renderer* r) override;
 };

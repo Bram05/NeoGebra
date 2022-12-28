@@ -54,6 +54,7 @@ Application::Application()
 	Application::s_Instance = this;
 	AssetsFolder = "../../../../NietEuclidischeGeogebra/assets";
 	m_Window = new Window(WindowCreationOptions(1080, 720, "Jeroen moet niet zo vervelend doen", MouseClickCallback, TextCallback, MouseMovedCallback, KeyCallback));
+	m_ModelManager = new ModelManager;
 	m_Renderer = new Renderer;
 	m_WindowUI = new WindowUI;
 }
@@ -63,6 +64,7 @@ Application::~Application()
 	delete m_WindowUI;
 	delete m_Renderer;
 	delete m_Window;
+	delete m_ModelManager;
 }
 
 void Application::Run()

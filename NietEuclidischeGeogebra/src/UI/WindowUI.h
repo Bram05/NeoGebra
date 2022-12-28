@@ -23,6 +23,7 @@ public:
 	void TextInput(unsigned int codepoint);
 	void SpecialKeyInput(int key, int scancode, int action, int mods);
 	void ResizeWindow(int width, int height);
+	void UpdateGraphUI();
 
 private:
 	bool m_MouseDown = false;
