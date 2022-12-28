@@ -8,14 +8,19 @@
 #include "TextRenderer.h"
 
 void insertKey(int x, int y) {
-	switch (x) {
-	case 1:
-		break;
-	case 2:
-		break;
+	
+	std::cout << x << " " << y << "\n";
+}
 
-	}
-	std::cout << x << " " << y;
+float c_leftX = -1.0f;
+float c_topY = 0.5f;
+std::vector<void(*)(int, int)> functions = { &insertKey,&insertKey, &insertKey, &insertKey, &insertKey,&insertKey,&insertKey, &insertKey, &insertKey, &insertKey };//wtf is deze syntax
+std::vector<std::string> textList = { "a", "a", "a", "a", "b","b", "b", "b", "c", "c","c", "c" , "d", "d","d", "d" , "e", "e" , "e" , "e" , "f", "f" , "f" , "f" };
+
+
+
+void KeyboardUI::LoadTab(int i) {
+	m_Tab = 1;
 }
 
 KeyboardUI::KeyboardUI(double leftX, double rightX, double topY, double bottomY)
@@ -54,6 +59,20 @@ void KeyboardUI::RenderPass(Renderer* r)
 	{
 		r->AddToRenderQueue(line);
 	}
-	
+
+	float buttonWidth = 0.1f;
+	float indent = 0.01f;
+	float buttonHeight = 0.085f;
+	int element = 0;
+	for (int y = 0; y < 2; y++) {
+		for (int i = 0; i < 4; i++) {
+			m_SubUIElements.push_back({std::make_shared<ButtonUI>(c_leftX + indent + i * buttonWidth, (c_leftX + i * buttonWidth + buttonWidth), c_topY - 2 * indent - buttonHeight * y, (c_topY - indent - buttonHeight - buttonHeight * y), functions[element + m_Tab * 8], textList[element + m_Tab * 8])});
+			element++;
+		}
+
+		
+	}
+
+
 	UIElement::RenderPass(r);
 }

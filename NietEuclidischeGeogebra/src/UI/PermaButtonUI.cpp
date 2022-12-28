@@ -5,7 +5,7 @@
 
 PermaButtonUI::PermaButtonUI(float leftX, float rightX, float topY, float bottomY, int value, TabUI* parent)
 	: UIElement(leftX, rightX, topY, bottomY, "PermaButton"),
-	m_Background(std::make_shared<Square>(leftX, rightX, topY, bottomY, std::array<float, 4>{0.0f, 1.0f, 1.0f, 1.0f})),
+	m_Background(std::make_shared<Square>(leftX, rightX, topY, bottomY, std::array<float, 4>{0.0f, 0.0f, 1.0f, 1.0f})),
 	m_Value(value),
 	m_Parent(parent)
 {
