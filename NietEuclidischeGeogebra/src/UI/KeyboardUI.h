@@ -18,7 +18,7 @@ private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
 	std::vector<std::shared_ptr<Text>> m_Texts; 
 
-	int m_Tab = 0;
+	int m_Tab = 2;//Controls what page will be displayed
 
 	
 	//TextC text;
