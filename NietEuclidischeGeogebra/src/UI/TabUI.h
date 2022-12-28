@@ -9,7 +9,6 @@ public:
 	TabUI(float leftX, float rightX, float topY, float bottomY, void(*callback)(void*,int), void* obj);
 	~TabUI();
 
-	virtual void RenderPass(Renderer* r) override;
 	void ButtonClicked(int value);
 
 private:

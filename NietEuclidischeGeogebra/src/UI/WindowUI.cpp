@@ -20,7 +20,7 @@ WindowUI::WindowUI()
 	m_UIElements.push_back(std::make_shared<PostulateVerifierResultUI>(0.5f, 1.0f, 0.9f, -1.0f));
 	m_UIElements.push_back(std::make_shared<GraphUI>(-0.5f, 0.5f, 0.9f, -1.0f));
 	m_UIElements.push_back(std::make_shared<MenuUI>(-1.0f, 1.0f, 1.0f, 0.9f));
-	m_UIElements.push_back(std::make_shared<TabUI>(-1.0f, -0.5f, 0.9f, 0.7f, &tabTest, this));
+	//m_UIElements.push_back(std::make_shared<TabUI>(-1.0f, -0.5f, 0.9f, 0.7f, &tabTest, this));
 }
 
 WindowUI::~WindowUI()

@@ -59,20 +59,5 @@ void KeyboardUI::RenderPass(Renderer* r)
 	{
 		r->AddToRenderQueue(line);
 	}
-
-	float buttonWidth = 0.1f;
-	float indent = 0.01f;
-	float buttonHeight = 0.085f;
-	int element = 0;
-	for (int y = 0; y < 2; y++) {
-		for (int i = 0; i < 4; i++) {
-			m_SubUIElements.push_back({std::make_shared<ButtonUI>(c_leftX + indent + i * buttonWidth, (c_leftX + i * buttonWidth + buttonWidth), c_topY - 2 * indent - buttonHeight * y, (c_topY - indent - buttonHeight - buttonHeight * y), functions[element + m_Tab * 8], textList[element + m_Tab * 8])});
-			element++;
-		}
-
-		
-	}
-
-
 	UIElement::RenderPass(r);
 }
