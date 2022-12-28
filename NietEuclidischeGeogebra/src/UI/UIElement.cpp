@@ -30,3 +30,5 @@ void UIElement::ResizeWindow(int width, int height)
 		el->ResizeWindow(width, height);
 	}
 }
+
+void UIElement::UpdateGraphUI() {}

@@ -135,6 +135,14 @@ void WindowUI::ResizeWindow(int width, int height)
 	}
 }
 
+void WindowUI::UpdateGraphUI()
+{
+	for (std::shared_ptr<UIElement>& el : m_UIElements)
+	{
+		el->UpdateGraphUI();
+	}
+}
+
 std::shared_ptr<UIElement> WindowUI::Hit(const std::shared_ptr<UIElement>& element, float x, float y)
 {
 	if (x > element->m_LeftX && x < element->m_RightX && y > element->m_BottomY && y < element->m_TopY)

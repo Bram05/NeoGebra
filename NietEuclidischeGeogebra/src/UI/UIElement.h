@@ -23,6 +23,7 @@ public:
 
 	// Queue all the necessary things for rendering
 	virtual void RenderPass(Renderer* r);
+	virtual void UpdateGraphUI();
 
 protected:
 	virtual void WasClicked(float x, float y) { /*std::cout << "Hit element " << m_Name << '\n'; */ }
