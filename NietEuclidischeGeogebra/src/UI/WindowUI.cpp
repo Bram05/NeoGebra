@@ -10,8 +10,8 @@
 #include "TabUI.h"
 
 
-void tabTest(int x, int y) {
-		std::cout << x << " " << y << "\n";
+void tabTest(int x) {
+		std::cout << x <<  "\n";
 }
 
 WindowUI::WindowUI()

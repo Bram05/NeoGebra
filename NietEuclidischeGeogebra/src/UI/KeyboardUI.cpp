@@ -8,18 +8,19 @@
 #include "TextRenderer.h"
 
 void insertKey(int x, int y) {
-	/*switch (x) {
-	case 1:
-		break;
-	case 2:
-		break;
-
-	}*/
-	std::cout << x << " " << y;
+	
+	std::cout << x << " " << y << "\n";
 }
 
+float c_leftX = -1.0f;
+float c_topY = 0.5f;
+std::vector<void(*)(int, int)> functions = { &insertKey,&insertKey, &insertKey, &insertKey, &insertKey,&insertKey,&insertKey, &insertKey, &insertKey, &insertKey };//wtf is deze syntax
+std::vector<std::string> textList = { "a", "a", "a", "a", "b","b", "b", "b", "c", "c","c", "c" , "d", "d","d", "d" , "e", "e" , "e" , "e" , "f", "f" , "f" , "f" };
+
+
+
 void KeyboardUI::LoadTab(int i) {
-	m_Tab = i;
+	m_Tab = 1;
 }
 
 KeyboardUI::KeyboardUI(double leftX, double rightX, double topY, double bottomY)
@@ -30,21 +31,7 @@ KeyboardUI::KeyboardUI(double leftX, double rightX, double topY, double bottomY)
 	m_Lines.push_back(std::make_shared<Line>(Point(rightX, bottomY), Point(rightX, topY))); // right
 	m_Lines.push_back(std::make_shared<Line>(Point(rightX, bottomY), Point(leftX, bottomY))); // bottom
 	 
-	//width = 0.125
-	// distance = 0.025
-	float buttonWidth = 0.1f;
-	float indent = 0.0175f;
-	 
-	std::vector<void(*)(int, int)> functions = {&insertKey,&insertKey, &insertKey, &insertKey, &insertKey,&insertKey,&insertKey, &insertKey, &insertKey, &insertKey };//wtf is deze syntax
-	std::vector<std::string> textList = {"a", "b", "c", "f", "x","(", ")", "d", "e", "g","h", "i" };
-	int x = 0;
-	for (int i=0; i < 10; i++) {
-		if (i <= 4) {
-			m_SubUIElements.push_back(std::make_shared<ButtonUI>(leftX + indent + i * buttonWidth, (leftX + i * buttonWidth + buttonWidth), topY - 0.01, (topY - 0.09f), functions[i], textList[i]));
-		}																																	
-		m_SubUIElements.push_back(std::make_shared<ButtonUI>(leftX + indent + x * buttonWidth, (leftX + x * buttonWidth + buttonWidth), topY - 0.01-0.1f, (topY - 0.09f-0.1f), functions[i], textList[i]));
-		x++;		
-	}
+	
 }    
 
 KeyboardUI::~KeyboardUI()
@@ -57,12 +44,21 @@ void KeyboardUI::RenderPass(Renderer* r)
 	{
 		r->AddToRenderQueue(line);
 	}
-	if (m_Tab == 0) {
-		//render dit
+
+	float buttonWidth = 0.1f;
+	float indent = 0.01f;
+	float buttonHeight = 0.085f;
+	int element = 0;
+	for (int y = 0; y < 2; y++) {
+		for (int i = 0; i < 4; i++) {
+			m_SubUIElements.push_back(std::make_shared<ButtonUI>(c_leftX + indent + i * buttonWidth, (c_leftX + i * buttonWidth + buttonWidth), c_topY - 2 * indent - buttonHeight * y, (c_topY - indent - buttonHeight - buttonHeight * y), functions[element + m_Tab * 8], textList[element + m_Tab * 8]));
+			element++;
+		}
+
+		
 	}
-	else if (m_Tab == 1) {
-		//render dit
-	}
+	std::cout << "Element " << element << "\n";
+
 
 	UIElement::RenderPass(r);
 }
