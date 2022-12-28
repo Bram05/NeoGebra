@@ -14,7 +14,7 @@ class LineRenderer;
 class Line
 {
 public:
-	Line(Point begin, Point end, const std::array<float, 4>& colour = {1.0f, 0.0f, 0.0f, 1.0f}, float thickness = 3.0f);
+	Line(Point begin, Point end, const std::array<float, 4>& colour = {1.0f, 0.0f, 0.0f, 1.0f}, float thickness = 0.002f);
 	~Line();
 
 	// Getters and setters

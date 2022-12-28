@@ -7,6 +7,14 @@
 class Renderer;
 class WindowUI;
 
+class UIElement;
+
+struct SubUIElement
+{
+	std::shared_ptr<UIElement> element;
+	bool shouldRender{true};
+};
+
 // Base class for a subpart of the UI
 class UIElement
 {
@@ -23,6 +31,7 @@ public:
 
 	// Queue all the necessary things for rendering
 	virtual void RenderPass(Renderer* r);
+	virtual void UpdateGraphUI();
 
 protected:
 	virtual void WasClicked(float x, float y) { /*std::cout << "Hit element " << m_Name << '\n'; */ }
@@ -39,7 +48,7 @@ protected:
 	// The bounds of this element
 	double m_LeftX, m_RightX, m_TopY, m_BottomY;
 	std::string m_Name;
-	std::vector<std::shared_ptr<UIElement>> m_SubUIElements;
+	std::vector<SubUIElement> m_SubUIElements;
 	bool m_MouseIsHovering{ false };
 	bool m_IsSelected{ false };
 	bool m_IsBeingDragged{ false };

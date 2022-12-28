@@ -23,11 +23,12 @@ public:
 	void TextInput(unsigned int codepoint);
 	void SpecialKeyInput(int key, int scancode, int action, int mods);
 	void ResizeWindow(int width, int height);
+	void UpdateGraphUI();
 
 private:
 	bool m_MouseDown = false;
 	std::vector<std::shared_ptr<UIElement>> m_UIElements;
-	std::shared_ptr<UIElement> Hit(const std::shared_ptr<UIElement>& element, float x, float y);
+	std::shared_ptr<UIElement> Hit(const std::shared_ptr<UIElement>& elementPair, float x, float y);
 	std::shared_ptr<UIElement> m_CurrentlyHoveredElement{ nullptr };
 	std::shared_ptr<UIElement> m_SelectedElement{ nullptr };
 };

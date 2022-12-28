@@ -17,16 +17,19 @@ UIElement::~UIElement()
 
 void UIElement::RenderPass(Renderer* r)
 {
-	for (const std::shared_ptr<UIElement>& el : m_SubUIElements)
+	for (const SubUIElement& el : m_SubUIElements)
 	{
-		el->RenderPass(r);
+		if (el.shouldRender)
+			el.element->RenderPass(r);
 	}
 }
 
 void UIElement::ResizeWindow(int width, int height)
 {
-	for (std::shared_ptr<UIElement>& el : m_SubUIElements)
+	for (const SubUIElement& el : m_SubUIElements)
 	{
-		el->ResizeWindow(width, height);
+		el.element->ResizeWindow(width, height);
 	}
 }
+
+void UIElement::UpdateGraphUI() {}

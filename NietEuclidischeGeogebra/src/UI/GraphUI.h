@@ -15,6 +15,7 @@ public:
 protected:
 	void RenderPass(Renderer* r) override;
 	void ResizeWindow(int width, int height) override;
+	void UpdateGraphUI() override;
 
 	virtual void WasClicked(float x, float y) override;
 	virtual void DraggedUpdate(float x, float y) override;
@@ -22,7 +23,6 @@ protected:
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
 	std::vector<std::shared_ptr<Graph>> m_Graphs;
-	std::vector<std::shared_ptr<Model>> m_Models;
 
 	float m_MidCoordX, m_MidCoordY, m_UnitLengthPixels;
 	float m_MidCoordXBeforeDrag, m_MidCoordYBeforeDrag;

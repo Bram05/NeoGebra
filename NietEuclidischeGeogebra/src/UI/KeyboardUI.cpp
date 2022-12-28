@@ -31,7 +31,22 @@ KeyboardUI::KeyboardUI(double leftX, double rightX, double topY, double bottomY)
 	m_Lines.push_back(std::make_shared<Line>(Point(rightX, bottomY), Point(rightX, topY))); // right
 	m_Lines.push_back(std::make_shared<Line>(Point(rightX, bottomY), Point(leftX, bottomY))); // bottom
 	 
-	
+	//width = 0.125
+	// distance = 0.025
+	float buttonWidth = 0.1f;
+	float indent = 0.0175f;
+	 
+	std::vector<void(*)(int, int)> functions = {&insertKey,&insertKey, &insertKey, &insertKey, &insertKey,&insertKey,&insertKey, &insertKey, &insertKey, &insertKey };//wtf is deze syntax
+	std::vector<std::string> textList = {"a", "b", "c", "f", "x","(", ")", "d", "e", "g","h", "i" };
+	int x = 0;
+	for (int i=0; i < 10; i++) {
+		if (i <= 4) {
+			m_SubUIElements.push_back({std::make_shared<ButtonUI>(leftX + indent + i * buttonWidth, (leftX + i * buttonWidth + buttonWidth), topY - 0.01, (topY - 0.09f), functions[i], textList[i])});
+			continue;
+		}																																	
+		m_SubUIElements.push_back({std::make_shared<ButtonUI>(leftX + indent + x * buttonWidth, (leftX + x * buttonWidth + buttonWidth), topY - 0.01-0.1f, (topY - 0.09f-0.1f), functions[i], textList[i])});
+		x++;		
+	}
 }    
 
 KeyboardUI::~KeyboardUI()
@@ -44,25 +59,5 @@ void KeyboardUI::RenderPass(Renderer* r)
 	{
 		r->AddToRenderQueue(line);
 	}
-	
-	float buttonWidth = 0.1f;
-	float indent = 0.01f;
-	float buttonHeight = 0.085f;
-	int element = 0;
-	for (int y = 0; y < 2; y++) {
-		for (int i = 0; i < 4; i++) {
-			try{
-				m_SubUIElements.push_back(std::make_shared<ButtonUI>(c_leftX + indent + i * buttonWidth, (c_leftX + i * buttonWidth + buttonWidth), c_topY - 2 * indent - buttonHeight * y, (c_topY - indent - buttonHeight - buttonHeight * y), functions[element + m_Tab * 8], textList[element + m_Tab * 8]));
-				element++;
-			}
-			catch (const std::exception& e) {
-				std::cout << "error";
-			}
-			
-		}
-	}
-	
-
-
 	UIElement::RenderPass(r);
 }

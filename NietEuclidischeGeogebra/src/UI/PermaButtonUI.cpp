@@ -20,22 +20,25 @@ void PermaButtonUI::SetActivation(bool value)
 	m_IsActivated = value;
 	if (m_IsActivated)
 	{
-		m_Background->m_Colour = { 0.5f, 0.5f, 0.5f, 1.0f };
+		m_Background->m_Colour = std::array<float, 4>{ 0.5f, 0.5f, 0.5f, 1.0f };
 	}
 	else
 	{
-		m_Background->m_Colour = { 0.0f, 1.0f, 1.0f, 1.0f };
+		m_Background->m_Colour = std::array<float, 4>{ 0.0f, 1.0f, 1.0f, 1.0f };
 	}
 }
 
 void PermaButtonUI::RenderPass(Renderer* r)
 {
 	r->AddToRenderQueue(m_Background);
+	//std::cout << "Rendered: " << this << '\n';
 	UIElement::RenderPass(r);
 }
 
 void PermaButtonUI::WasClicked(float x, float y)
 {
+	if (m_IsActivated)
+		return;
 	SetActivation(true);
 	m_Parent->ButtonClicked(m_Value);
 }
