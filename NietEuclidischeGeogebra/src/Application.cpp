@@ -97,7 +97,7 @@ void Application::UpdateFrameTimes()
 			sum += m_LastFpss.top();
 			m_LastFpss.pop();
 		}
-		std::cout << "\rAverage FPS (over " << g_NumSecondsForFpsAverage << " seconds): " << sum / size;
+		std::cout << "\rAverage FPS (over " << g_NumSecondsForFpsAverage << " seconds): " << sum / size << std::flush;
 		m_TimeSinceLastFpsUpdate = 0.0;
 	}
 	m_LastFrameTime = endTime;
