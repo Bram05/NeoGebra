@@ -18,7 +18,6 @@ ModelManager::ModelManager()
 	std::shared_ptr<NEPoint> p1(new NEPoint({ 0.625,  0.4145780988 }, P2mPointer, {255, 0, 0, 255}));
 	std::shared_ptr<NEPoint> p2(new NEPoint({ 0.5, 0 }, P2mPointer, { 255, 0, 0, 255 }));
 	std::shared_ptr<NEPoint> p3(new NEPoint({ 0.625, -0.4145780988 }, P2mPointer, { 255, 0, 0, 255 }));
-
 }
 
 ModelManager::~ModelManager()

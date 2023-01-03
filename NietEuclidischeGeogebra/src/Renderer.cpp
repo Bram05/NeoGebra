@@ -86,6 +86,7 @@ Renderer::Renderer()
 #endif
 
 	glEnable(GL_BLEND);
+	//glDisable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	m_LineRenderer = new LineRenderer;
@@ -105,9 +106,10 @@ Renderer::~Renderer()
 
 void Renderer::RenderQueues()
 {
+	#ifdef DEBUG
 	if (glIsEnabled(GL_BLEND) == GL_FALSE)
 		throw std::runtime_error("Waarschijnlijk heeft Jeroen blending weer uitgezet ofzo");
-
+	#endif
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 

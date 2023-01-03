@@ -16,13 +16,15 @@ public:
 	EquationUI(double leftX, double rightX, double topY, double bottomY);
 	~EquationUI();
 
+	void UpdateGraphsFromInput();
+
 protected:
 	void RenderPass(Renderer* r) override;
 	std::vector<std::shared_ptr<Text>> m_Texts;
 
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
-	int m_TextInputFieldIndex;
+	int m_TextInputField1Index, m_TextInputField2Index;
 
 	void ButtonClicked(int value);
 	friend void ButtonClickedCallback(void*,int);

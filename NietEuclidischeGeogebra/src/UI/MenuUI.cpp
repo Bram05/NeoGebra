@@ -6,11 +6,11 @@
 #include "TextInputField.h"
 #include "TextRenderer.h"
 
-void AddPoint(int x, int y) {
+void AddPoint(void*) {
 	new NEPoint({ 0,  0 }, Application::Get()->GetModelManager()->GetModel(), {255,0,0,255});
 	Application::Get()->GetWindowUI()->UpdateGraphUI();
 }
-void AddLine(int x, int y) {
+void AddLine(void*) {
 	new NELine({ -1.25,  0 }, Application::Get()->GetModelManager()->GetModel());
 	Application::Get()->GetWindowUI()->UpdateGraphUI();
 }
@@ -26,10 +26,10 @@ MenuUI::MenuUI(double leftX, double rightX, double topY, double bottomY)
 	float buttonWidth = 0.125f;
 	float indent = 0.025f;
 	 
-	std::vector<void(*)(int, int)> functions = {&AddPoint,&AddLine ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint };//wtf is deze syntax
+	std::vector<void(*)(void*)> functions = {&AddPoint,&AddLine ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint };//wtf is deze syntax
 	std::vector<std::string> textList = {"Point", "Line", "Add", "Add", "Add", "Add","Add","Add", "Add", "Add", "Add","Add","Add"};
 	for (int i=0; i < 12; i++) {
-	 	m_SubUIElements.push_back({std::make_shared<ButtonUI>(leftX+ indent +i* buttonWidth, (leftX + i * buttonWidth + buttonWidth), topY-0.01, (topY - 0.09f), functions[i], textList[i])});
+	 	m_SubUIElements.push_back({std::make_shared<ButtonUI>(leftX+ indent +i* buttonWidth, (leftX + i * buttonWidth + buttonWidth), topY-0.01, (topY - 0.09f), functions[i], this, textList[i])});
 	}
 
 }    
