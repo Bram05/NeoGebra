@@ -14,13 +14,13 @@ void insertKey(void*) {
 
 float c_leftX = -1.0f;
 float c_topY = 0.5f;
-std::vector<void(*)(void*)> functions = { &insertKey,&insertKey, &insertKey, &insertKey, &insertKey,&insertKey,&insertKey, &insertKey, &insertKey, &insertKey };//wtf is deze syntax
+std::vector<void(*)(void*)> functions = { &insertKey,&insertKey, &insertKey, &insertKey, &insertKey,&insertKey,&insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey, &insertKey };//wtf is deze syntax
 std::vector<std::string> textList = { "a", "a", "a", "a", "b","b", "b", "b", "c", "c","c", "c" , "d", "d","d", "d" , "e", "e" , "e" , "e" , "f", "f" , "f" , "f" };
 
 
 
 void KeyboardUI::LoadTab(int i) {
-	m_Tab = 1;
+	m_Tab = i;
 }
 
 KeyboardUI::KeyboardUI(double leftX, double rightX, double topY, double bottomY)
