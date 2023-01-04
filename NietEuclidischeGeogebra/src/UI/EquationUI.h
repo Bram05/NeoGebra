@@ -16,7 +16,7 @@ public:
 	EquationUI(double leftX, double rightX, double topY, double bottomY);
 	~EquationUI();
 
-	void UpdateGraphsFromInput();
+	void UpdateGraphs();
 
 protected:
 	void RenderPass(Renderer* r) override;
@@ -24,7 +24,7 @@ protected:
 
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
-	int m_TextInputField1Index, m_TextInputField2Index;
+	int m_TextInputField1Index, m_TextInputField2Index, m_LineDefInputField;
 
 	void ButtonClicked(int value);
 	friend void ButtonClickedCallback(void*,int);

@@ -4,6 +4,7 @@
 
 #include "UIElement.h"
 #include "Renderer.h"
+#include "GraphUI.h"
 
 // Represents all the UI
 // Owns all subparts and updates them
@@ -24,6 +25,7 @@ public:
 	void SpecialKeyInput(int key, int scancode, int action, int mods);
 	void ResizeWindow(int width, int height);
 	void UpdateGraphUI();
+	GraphUI* GetGraphUI();
 
 private:
 	bool m_MouseDown = false;
@@ -31,4 +33,5 @@ private:
 	std::shared_ptr<UIElement> Hit(const std::shared_ptr<UIElement>& elementPair, float x, float y);
 	std::shared_ptr<UIElement> m_CurrentlyHoveredElement{ nullptr };
 	std::shared_ptr<UIElement> m_SelectedElement{ nullptr };
+	int m_GraphUIIndex;
 };

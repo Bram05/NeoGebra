@@ -17,6 +17,11 @@ GraphUI::~GraphUI()
 {
 }
 
+void GraphUI::DeleteGraphs()
+{
+	m_Graphs.clear();
+}
+
 void GraphUI::RenderPass(Renderer* r)
 {
 	for (std::shared_ptr<Line>& line : m_Lines)
@@ -102,55 +107,53 @@ void GraphUI::UpdateGraphs()
 {
 	GraphRenderer* rendPtr = Application::Get()->GetRenderer()->GetGraphRenderer();
 
-	std::vector<std::shared_ptr<Model>>& models = Application::Get()->GetModelManager()->GetModels();
-	for (std::shared_ptr<Model> m : models) {
-		// Add new extra equations
-		for (NEElement& el : m->getExtraEquations()) {
-			bool found = false;
-			for (std::shared_ptr<Graph> graph : m_Graphs) {
-				if (el == graph) { found = true; break; }
-			}
-			if (!found) {
-				m_Graphs.push_back(std::make_shared<Graph>(el, m_LeftX, m_RightX, m_TopY, m_BottomY, m_MidCoordX, m_MidCoordY, m_UnitLengthPixels, el.getColour()));
-			}
+	std::shared_ptr<Model> m = Application::Get()->GetModelManager()->GetModel();
+	// Add new extra equations
+	for (NEElement& el : m->getExtraEquations()) {
+		bool found = false;
+		for (std::shared_ptr<Graph> graph : m_Graphs) {
+			if (el == graph) { found = true; break; }
 		}
-		// Add new graphs
-		for (NEElement& el : m->getElements()) {
-			bool found = false;
-			for (std::shared_ptr<Graph> graph : m_Graphs) {
-				if (el == graph) { found = true; break; }
-			}
-			if (!found) {
-				m_Graphs.push_back(std::make_shared<Graph>(el, m_LeftX, m_RightX, m_TopY, m_BottomY, m_MidCoordX, m_MidCoordY, m_UnitLengthPixels, el.getColour()));
-			}
+		if (!found) {
+			m_Graphs.push_back(std::make_shared<Graph>(el, m_LeftX, m_RightX, m_TopY, m_BottomY, m_MidCoordX, m_MidCoordY, m_UnitLengthPixels, el.getColour()));
 		}
+	}
+	// Add new graphs
+	for (NEElement& el : m->getElements()) {
+		bool found = false;
+		for (std::shared_ptr<Graph> graph : m_Graphs) {
+			if (el == graph) { found = true; break; }
+		}
+		if (!found) {
+			m_Graphs.push_back(std::make_shared<Graph>(el, m_LeftX, m_RightX, m_TopY, m_BottomY, m_MidCoordX, m_MidCoordY, m_UnitLengthPixels, el.getColour()));
+		}
+	}
 
-		// Remove old graphs that no longer exist
-		// Go backwards through vector to avoid index shifting when removing element
-		for (int i = m_Graphs.size() - 1; i >= 0; --i) {
-			std::shared_ptr<Graph> graph = m_Graphs[i];
-			bool found = false;
-			for (NEElement& el : m->getElements()) {
+	// Remove old graphs that no longer exist
+	// Go backwards through vector to avoid index shifting when removing element
+	for (int i = m_Graphs.size() - 1; i >= 0; --i) {
+		std::shared_ptr<Graph> graph = m_Graphs[i];
+		bool found = false;
+		for (NEElement& el : m->getElements()) {
+			if (el == graph) {
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			for (NEElement& el : m->getExtraEquations()) {
 				if (el == graph) {
 					found = true;
 					break;
 				}
 			}
-			if (!found) {
-				for (NEElement& el : m->getExtraEquations()) {
-					if (el == graph) {
-						found = true;
-						break;
-					}
-				}
-			}
-			if (!found) {
-				m_Graphs.erase(m_Graphs.begin() + i);
-			}
-			else {
-				//Need to regenerate texture because graph moved
-				graph->GenTexture(m_LeftX, m_RightX, m_TopY, m_BottomY, m_MidCoordX, m_MidCoordY, m_UnitLengthPixels, rendPtr);
-			}
+		}
+		if (!found) {
+			m_Graphs.erase(m_Graphs.begin() + i);
+		}
+		else {
+			//Need to regenerate texture because graph moved
+			graph->GenTexture(m_LeftX, m_RightX, m_TopY, m_BottomY, m_MidCoordX, m_MidCoordY, m_UnitLengthPixels, rendPtr);
 		}
 	}
 }

@@ -60,7 +60,7 @@ void TextRenderer::RenderQueue()
 		float currentY = t->m_Baseline;
 		for (int i{ t->m_RenderBegin }; i < t->m_RenderEnd; ++i)
 		{
-			int c = t->m_Text[i].first;
+			int c = t->m_Text[i];
 			const CharacterInfo& info{ font->GetCharacterInfo(c) };
 
 			float charLeftX = currentX + (float)info.xOffset / width * scale;
@@ -218,7 +218,7 @@ Text::Text(const std::string& text, float leftX, float rightX, float baseLine, f
 }
 
 Text::Text(const std::vector<int>& letters, float leftX, float rightX, float baseLine, float size)
-	: m_Text{ letters.size() }, m_LeftX{ leftX }, m_RightX{ rightX }, m_Baseline{ baseLine }, m_Size{ size }, m_RenderBegin{ 0 }, m_RenderEnd{ (int)letters.size() }
+	: m_Text(letters.size()), m_LeftX{ leftX }, m_RightX{ rightX }, m_Baseline{ baseLine }, m_Size{ size }, m_RenderBegin{ 0 }, m_RenderEnd{ (int)letters.size() }
 {
 	std::shared_ptr<Font> font = Application::Get()->GetRenderer()->GetFont();
 	auto [width, height] = Application::Get()->GetWindow()->GetSize();
@@ -227,9 +227,7 @@ Text::Text(const std::vector<int>& letters, float leftX, float rightX, float bas
 	m_Scale = scale;
 	for (int i{ 0 }; i < m_Text.size(); ++i)
 	{
-		int c = letters[i];
-		const CharacterInfo& info{ font->GetCharacterInfo(c) };
-		m_Text[i] = { c, (float)info.xAdvance * scale };
+		m_Text[i] = letters[i];
 	}
 }
 
@@ -239,11 +237,13 @@ Text::~Text()
 
 void Text::AddText(const std::vector<int>& letters, int position)
 {
-	std::vector<std::pair<int, float>> text;
+	m_Text.insert(m_Text.begin()+position, letters.begin(), letters.end());
+	/*
+	std::vector<int> text;
 	text.resize(letters.size());
 	for (int i{ 0 }; i < letters.size(); ++i)
 	{
-		text[i].first = letters[i];
+		text[i] = letters[i];
 	}
 
 	std::shared_ptr<Font> font = Application::Get()->GetRenderer()->GetFont();
@@ -254,7 +254,7 @@ void Text::AddText(const std::vector<int>& letters, int position)
 		const CharacterInfo& info{ font->GetCharacterInfo(c) };
 		text[i].second = (float)info.xAdvance * m_Scale;
 	}
-	m_Text.insert(m_Text.begin() + position, text.begin(), text.end());
+	m_Text.insert(m_Text.begin() + position, text.begin(), text.end());*/
 }
 
 void Text::AddText(const std::string& letters, int position)

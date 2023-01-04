@@ -27,7 +27,7 @@ class NEElement {
 protected:
 	NEType m_Type;
 	int m_ID;
-	std::vector<float> m_Identifiers; 
+	std::vector<float> m_Identifiers;
 	Equation m_Def;
 	RGBColour m_Colour;
 	std::shared_ptr<Model> m_Model;
@@ -102,10 +102,16 @@ public:
 	/// Copy an existing Model object. 
 	Model(const Model& g);
 
-	void addExtraEquation(Equation& eq, const RGBColour& colour = RGBColour(125,125,125,255));
+	void addExtraEquation(Equation& eq, const RGBColour& colour = RGBColour(125, 125, 125, 255));
 	std::vector<NEElement>& getExtraEquations() { return m_ExtraEquations; }
 
 	std::vector<NEElement>& getElements() { return m_Elements; }
+	unsigned int GetNumPointIdentifiers() const { return m_PointIdentifiers; }
+	const Equation& GetPointDef() const { return m_PointDef; }
+	unsigned int GetNumLineIdentifiers() const { return m_LineIdentifiers; }
+	const Equation& GetLineDef() const { return m_LineDef; }
+	const Equation& GetIncidenceConstr() const { return m_IncidenceConstr; }
+	const Equation& GetBetweennessConstr() const { return m_BetweennessConstr; }
 
 	NELine newLine(NEPoint p1, NEPoint p2);
 

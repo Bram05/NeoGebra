@@ -10,10 +10,10 @@ class TextInputField : public UIElement
 {
 public:
 	TextInputField(double leftX, double rightX, double topY, double bottomY);
-	~TextInputField();
+	virtual ~TextInputField();
 
 	// Get the text as a vector of the unicode character and the width of this character
-	const std::vector<std::pair<int, float>>& GetText() const { return m_Text->GetText(); }
+	const std::vector<int>& GetText() const { return m_Text->GetText(); }
 	virtual void RenderPass(Renderer* r) override;
 
 protected:

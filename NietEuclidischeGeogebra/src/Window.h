@@ -36,6 +36,7 @@ public:
 	void Close();
 	std::pair<int, int> GetSize() const;
 	std::pair<int, int> GetMouseLocation() const;
+	const char* GetClipboardContent() const;
 
 	// Update the window (swap buffers and poll GLFW events
 	void Update();

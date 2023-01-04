@@ -63,7 +63,7 @@ Window::Window(const WindowCreationOptions& options)
 
 	glfwSetKeyCallback(m_Window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
 		// Only call this callback if it's a special key. Others are handled through the char callback
-		if (key < 255 && std::isprint(key))
+		if ((mods & GLFW_MOD_CONTROL) == 0 && (mods & GLFW_MOD_ALT) == 0 && key < 255 && std::isprint(key))
 		return;
 	Window* handledWindow = (Window*)glfwGetWindowUserPointer(window);
 	if (handledWindow->m_SpecialKeyCallback)
@@ -110,4 +110,9 @@ std::pair<int, int> Window::GetMouseLocation() const
 	double x, y;
 	glfwGetCursorPos(m_Window, &x, &y);
 	return { x, y };
+}
+
+const char* Window::GetClipboardContent() const
+{
+	return glfwGetClipboardString(NULL);
 }

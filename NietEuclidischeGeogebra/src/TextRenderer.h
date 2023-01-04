@@ -57,14 +57,14 @@ public:
 	void AddText(const std::string& letters, int position);
 	void RemoveText(int begin, int num);
 
-	const std::vector<std::pair<int, float>>& GetText() const { return m_Text; }
+	const std::vector<int>& GetText() const { return m_Text; }
 	float GetScale() const { return m_Scale; }
 
 	int m_RenderBegin, m_RenderEnd;
 
 private:
 	float m_Size;
-	std::vector<std::pair<int, float>> m_Text;
+	std::vector<int> m_Text;
 	float m_LeftX, m_RightX, m_Baseline;
 	float m_Scale;
 	friend TextRenderer;

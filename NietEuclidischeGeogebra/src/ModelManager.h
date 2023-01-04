@@ -3,23 +3,21 @@
 
 class ModelManager {
 private:
-	std::vector<std::shared_ptr<Model>> m_Models;
-	int m_SelectedModel;
+	std::shared_ptr<Model> m_Model;
 
 public:
 	ModelManager();
 	~ModelManager();
 
-	void AddModel(unsigned int pointIdentifiers,
+	void SetModel(unsigned int pointIdentifiers,
 		const Equation& pointDef,
 		unsigned int lineIdentifiers,
 		const Equation& lineDef,
 		const Equation& incidenceConstr,
 		const Equation& betweennessConstr = { {}, "" }) 
 	{ 
-		m_Models.push_back(std::make_shared<Model>(pointIdentifiers, pointDef, lineIdentifiers, lineDef, incidenceConstr, betweennessConstr));
+		m_Model = std::make_shared<Model>(pointIdentifiers, pointDef, lineIdentifiers, lineDef, incidenceConstr, betweennessConstr);
 	}
 
-	std::vector<std::shared_ptr<Model>>& GetModels() { return m_Models; }
-	std::shared_ptr<Model> GetModel() { return m_Models[m_SelectedModel]; }
+	std::shared_ptr<Model> GetModel() { return m_Model; }
 };

@@ -12,6 +12,8 @@ public:
 	GraphUI(float leftX, float rightX, float topY, float bottomY);
 	~GraphUI();
 
+	void DeleteGraphs();
+
 protected:
 	void RenderPass(Renderer* r) override;
 	void ResizeWindow(int width, int height) override;

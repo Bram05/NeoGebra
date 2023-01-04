@@ -19,6 +19,7 @@ WindowUI::WindowUI()
 	m_UIElements.push_back(std::make_shared<EquationUI>(-1.0f, -0.5f, 0.9f, -1.0f));
 	m_UIElements.push_back(std::make_shared<PostulateVerifierResultUI>(0.5f, 1.0f, 0.9f, -1.0f));
 	m_UIElements.push_back(std::make_shared<GraphUI>(-0.5f, 0.5f, 0.9f, -1.0f));
+	m_GraphUIIndex = m_UIElements.size() - 1;
 	m_UIElements.push_back(std::make_shared<MenuUI>(-1.0f, 1.0f, 1.0f, 0.9f));
 }
 
@@ -139,6 +140,11 @@ void WindowUI::UpdateGraphUI()
 	{
 		el->UpdateGraphUI();
 	}
+}
+
+GraphUI* WindowUI::GetGraphUI()
+{
+	return (GraphUI*)m_UIElements[m_GraphUIIndex].get();
 }
 
 std::shared_ptr<UIElement> WindowUI::Hit(const std::shared_ptr<UIElement>& element, float x, float y)
