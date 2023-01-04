@@ -26,6 +26,7 @@ public:
 	void ResizeWindow(int width, int height);
 	void UpdateGraphUI();
 	GraphUI* GetGraphUI();
+	void InsertKey(int codepoint);
 
 private:
 	bool m_MouseDown = false;

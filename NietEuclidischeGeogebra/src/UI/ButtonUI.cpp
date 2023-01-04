@@ -3,13 +3,15 @@
 #include "Application.h"
 
 ButtonUI::ButtonUI(double leftX, double rightX, double topY, double bottomY, void(*func)(void*), void* obj, const std::string& text)
+	: ButtonUI(leftX, rightX, topY, bottomY, func, obj, std::vector<int>(text.begin(), text.end())) {}
+
+ButtonUI::ButtonUI(double leftX, double rightX, double topY, double bottomY, void(*func)(void*), void* obj, const std::vector<int>& text)
 	: UIElement(leftX, rightX, topY, bottomY, "ButtonUI"),
 	m_Background(std::make_shared<Square>(leftX, rightX, topY, bottomY, std::array{ 0.0f, 0.6f, 1.0f, 1.0f })),
 	m_Obj(obj)
 {
 	m_Action = func;
-	m_Text = text;
-	m_Texts.push_back(std::make_shared<Text>(m_Text, leftX + 0.005f, rightX, bottomY + 0.04f, 36));
+	m_Texts.push_back(std::make_shared<Text>(text, leftX + 0.005f, rightX, bottomY + 0.04f, 36));
 }
 
 ButtonUI::~ButtonUI()

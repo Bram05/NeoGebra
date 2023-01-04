@@ -9,7 +9,8 @@
 class ButtonUI : public UIElement
 {
 public:
-	ButtonUI(double leftX, double rightX, double topY, double bottomY, void(*func)(void*), void* obj, const std::string& text = "Null");
+	ButtonUI(double leftX, double rightX, double topY, double bottomY, void(*func)(void*), void* obj, const std::string& text);
+	ButtonUI(double leftX, double rightX, double topY, double bottomY, void(*func)(void*), void* obj, const std::vector<int>& text);
 	~ButtonUI();
 
 	virtual void RenderPass(Renderer* r) override;
@@ -21,7 +22,6 @@ protected:
 private:
 	std::shared_ptr<Square> m_Background;
 	std::vector<std::shared_ptr<Text>> m_Texts;
-	std::string m_Text;
 	void(*m_Action)(void*);
 	void* m_Obj;
 };

@@ -44,7 +44,7 @@ std::shared_ptr<UIElement> WindowUI::MouseClicked(float x, float y)
 		if (el)
 		{
 			el->WasClicked(x, y);
-			if (!el->m_IsSelected)
+			if (!el->m_IsSelected && el->GetName() != "ButtonUI")
 			{
 				if (m_SelectedElement)
 				{
@@ -147,9 +147,14 @@ GraphUI* WindowUI::GetGraphUI()
 	return (GraphUI*)m_UIElements[m_GraphUIIndex].get();
 }
 
+void WindowUI::InsertKey(int codepoint)
+{
+	if (m_SelectedElement)
+		m_SelectedElement->TextInput(codepoint);
+}
+
 std::shared_ptr<UIElement> WindowUI::Hit(const std::shared_ptr<UIElement>& element, float x, float y)
 {
-
 	if (x > element->m_LeftX && x < element->m_RightX && y > element->m_BottomY && y < element->m_TopY)
 	{
 		for (const SubUIElement& nextElement : element->m_SubUIElements)
