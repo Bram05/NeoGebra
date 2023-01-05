@@ -35,8 +35,8 @@ KeyboardUI::KeyboardUI(double leftX, double rightX, double topY, double bottomY)
 
 	float x = leftX + indent;
 	float y = topY - 0.01f;
-	for (int i = 0; i < textList.size(); i++) {
-		m_SubUIElements.push_back({ std::make_shared<ButtonUI>(x, x + buttonWidth, y, y - buttonWidth, insertKey, &textList[i], std::vector<int>{textList[i]}) });
+	for (int i = 1; i < textList.size(); i++) {
+		m_SubUIElements.push_back({ std::make_shared<ButtonUI>(x, x + buttonWidth, y, y - buttonWidth, insertKey, &textList[i], std::vector<int>{textList[i-1]}) });
 		if (i % 4 == 0) {
 			x = leftX + indent;
 			y -= buttonWidth;
