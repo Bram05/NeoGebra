@@ -17,6 +17,8 @@ public:
 
 protected:
 	virtual void WasClicked(float x, float y) override;
+	virtual void IsHovered(float x, float y) override;
+	virtual void NotHoveredAnymore() override;
 
 private:
 	std::shared_ptr<Square> m_Background;

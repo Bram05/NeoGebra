@@ -9,7 +9,7 @@
 class TextInputField : public UIElement
 {
 public:
-	TextInputField(double leftX, double rightX, double topY, double bottomY);
+	TextInputField(double leftX, double rightX, double topY, double bottomY, void(*enterCallback)(void*) = nullptr, void* obj = nullptr);
 	virtual ~TextInputField();
 
 	// Get the text as a vector of the unicode character and the width of this character
@@ -27,6 +27,8 @@ private:
 	std::shared_ptr<Line> m_EditingLine;
 	std::shared_ptr<Text> m_Text;
 	int m_Editingindex{ 0 };
+	void(*m_EnterCallback)(void*);
+	void* m_Obj;
 
 	void SetEditingLine();
 	void UpdateEditingIndex(int offset, bool isRemoved);

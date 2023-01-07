@@ -7,9 +7,11 @@ TabUI::TabUI(float leftX, float rightX, float topY, float bottomY, int startingB
 	: UIElement(leftX, rightX, topY, bottomY, "TabUI"), m_Callback{callback}, m_Obj{obj}
 {
 	const float padding{ 0.02f };
-	float width{ rightX - 2 * 0.06f - leftX };
-	m_Buttons.push_back(std::make_shared<PermaButtonUI>(leftX + 0.06f, (rightX + leftX) / 2 - 0.5 * padding, topY - 0.05f, std::max(topY - 0.3f, bottomY + 0.05f), 0, this, "Equations"));
-	m_Buttons.push_back(std::make_shared<PermaButtonUI>((rightX + leftX) / 2 + 0.5 * padding, rightX - 0.06f, topY - 0.05f, std::max(topY - 0.3f, bottomY + 0.05f), 1, this, "Model"));
+	float width{ rightX - leftX - 2 * (2 * padding) - 2 * padding };
+	width /= 3;
+	m_Buttons.push_back(std::make_shared<PermaButtonUI>(leftX + 2 * padding, leftX + 2 * padding + width, topY - 0.05f, std::max(topY - 0.3f, bottomY + 0.05f), 0, this, "Points"));
+	m_Buttons.push_back(std::make_shared<PermaButtonUI>(leftX + 3 * padding + width, leftX + 3 * padding + 2 * width, topY - 0.05f, std::max(topY - 0.3f, bottomY + 0.05f), 1, this, "Lines"));
+	m_Buttons.push_back(std::make_shared<PermaButtonUI>(leftX + 4 * padding + 2 * width, leftX + 4 * padding + 3 * width, topY - 0.05f, std::max(topY - 0.3f, bottomY + 0.05f), 2, this, "Model"));
 
 	for (const std::shared_ptr<PermaButtonUI>& button : m_Buttons)
 		m_SubUIElements.emplace_back(button);

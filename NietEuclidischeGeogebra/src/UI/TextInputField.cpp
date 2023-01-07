@@ -5,8 +5,8 @@
 
 #include "Application.h"
 
-TextInputField::TextInputField(double leftX, double rightX, double topY, double bottomY)
-	: UIElement(leftX, rightX, topY, bottomY, "TextInputField"), m_Text()
+TextInputField::TextInputField(double leftX, double rightX, double topY, double bottomY, void(*enterCallback)(void*), void* obj)
+	: UIElement(leftX, rightX, topY, bottomY, "TextInputField"), m_Text(), m_EnterCallback{enterCallback}, m_Obj{obj}
 {
 	m_Lines.push_back(std::make_shared<Line>(Point(leftX, topY), Point(leftX, bottomY)));
 	m_Lines.push_back(std::make_shared<Line>(Point(leftX, bottomY), Point(rightX, bottomY)));
@@ -40,6 +40,11 @@ void TextInputField::SpecialKeyInput(int key, int scancode, int action, int mods
 {
 	if (action == GLFW_RELEASE)
 		return;
+	if (key == GLFW_KEY_ENTER)
+	{
+		if (m_EnterCallback)
+			m_EnterCallback(m_Obj);
+	}
 
 	switch (key)
 	{

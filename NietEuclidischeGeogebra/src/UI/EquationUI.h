@@ -17,6 +17,7 @@ public:
 	~EquationUI();
 
 	void UpdateGraphs();
+	void UpdateModel();
 
 protected:
 	void RenderPass(Renderer* r) override;
@@ -24,9 +25,11 @@ protected:
 
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
-	int m_TextInputField1Index, m_TextInputField2Index, m_LineDefInputField;
+	int m_LinesIndexBegin, m_PointsIndexBegin, m_LineDefInputField, m_PointDefInputField;
+	int m_UpdateGraphsButton, m_UpdateModelButton;
 
-	void ButtonClicked(int value);
-	friend void ButtonClickedCallback(void*,int);
+	void TabButtonClicked(int value);
+	friend void TabButtonClickedStatic(void*,int);
 
+	std::vector<float> ParseInput(const std::vector<int>& input);
 };

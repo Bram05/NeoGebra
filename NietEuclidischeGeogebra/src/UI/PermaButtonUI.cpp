@@ -43,3 +43,15 @@ void PermaButtonUI::WasClicked(float x, float y)
 	SetActivation(true);
 	m_Parent->ButtonClicked(m_Value);
 }
+
+void PermaButtonUI::IsHovered(float x, float y)
+{
+	if (!m_IsActivated)
+		m_Background->m_Colour = { 0.0f, 0.8f, 0.8f, 1.0f };
+}
+
+void PermaButtonUI::NotHoveredAnymore()
+{
+	if (!m_IsActivated)
+		m_Background->m_Colour = { 0.0f, 1.0f, 1.0f, 1.0f };
+}

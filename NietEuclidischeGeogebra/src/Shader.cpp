@@ -60,6 +60,12 @@ void Shader::SetUniform(const std::string& name, const std::array<float, 4>& arr
 	glUniform4f(loc, arr[0], arr[1], arr[2], arr[3]);
 }
 
+void Shader::SetUniform(const std::string& name, const std::array<float, 2>& arr) const
+{
+	int loc = GetUniformLocation(name);
+	glUniform2f(loc, arr[0], arr[1]);
+}
+
 void Shader::SetUniform(const std::string& name, int i) const
 {
 	int loc = GetUniformLocation(name);
@@ -103,6 +109,7 @@ static int CompileShader(ShaderType type, const std::string& path)
 
 		char* log = new char[length];
 		glGetShaderInfoLog(shader, length, &length, log);
+		std::cout << log << std::endl;
 		throw std::runtime_error(std::string("Failed to compile ") + (type == VERTEX_SHADER ? "vertex" : "fragment") + " shader (" + path + "): " + log);
 	}
 	return shader;
@@ -115,7 +122,7 @@ int Shader::GetUniformLocation(const std::string& name) const
 	{
 		int loc = glGetUniformLocation(m_Shader, name.c_str());
 		if (loc == -1)
-			throw std::runtime_error("Uniform " + name + " for shader " + m_Name + " was not found or is not used");
+			std::cout << "Uniform " + name + " for shader " + m_Name + " was not found or is not used\n";
 		m_UniformLocations.insert({ name, loc });
 		return loc;
 	}

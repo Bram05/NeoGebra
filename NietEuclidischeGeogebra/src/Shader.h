@@ -19,6 +19,7 @@ public:
 
 	// Set the uniform for the shader
 	void SetUniform(const std::string& name, const std::array<float, 4>& arr) const;
+	void SetUniform(const std::string& name, const std::array<float, 2>& arr) const;
 	void SetUniform(const std::string& name, int i) const;
 
 private:
