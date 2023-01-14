@@ -272,7 +272,7 @@ std::string Equation::recToShader(const std::string& s, const std::map<std::stri
 			if (vars.count(s)) { return std::to_string(vars.at(s)); }
 			if (s[0] == '(' and s.back() == ')') { return "(" + recToShader(s.substr(1, s.length() - 2), vars) + ")"; }
 			if (s[0] == '[' and s.back() == ']') { return ("abs(" + recToShader(s.substr(1, s.length() - 2), vars) + ')'); }
-			if (s[0] == '!') { return ("((" + recToShader(s.substr(1, s.length() - 1), vars) + " == 0.0) ? 1<<100 : 0.0)"); } //Have to look into potential problems
+			if (s[0] == '!') { return ("((" + recToShader(s.substr(1, s.length() - 1), vars) + " == 0.0) ? 1/0.0 : 0.0)"); } //Have to look into potential problems
 		}
 		else {
 			if (vars.count(s.substr(1, s.length() - 1))) { return std::to_string(-vars.at(s.substr(1, s.length() - 1))); }
@@ -291,20 +291,20 @@ std::string Equation::recToShader(const std::string& s, const std::map<std::stri
 	switch (s[operIndex]) {
 	case '|': return "min(" + recToShader(s1, vars) + ", " + recToShader(s2, vars) + ")";
 	case '&': return "abs(" + recToShader(s1, vars) + ") + abs(" + recToShader(s2, vars) + ")";
-	case '!': return "((" + recToShader(s1, vars) + " - " + recToShader(s2, vars) + " == 0.0) ? 1<<100 : 0.0)"; //Have to look into potential problems
+	case '!': return "((" + recToShader(s1, vars) + " - " + recToShader(s2, vars) + " == 0.0) ? 1/0.0 : 0.0)"; //Have to look into potential problems
 	case '>':
-		if (!orEquals) { return "((" + recToShader(s1, vars) + " > " + recToShader(s2, vars) + ") ? 0.0 : 1<<100)"; }
-		else { return "((" + recToShader(s1, vars) + " >= " + recToShader(s2, vars) + ") ? 0.0 : 1<<100)"; }
+		if (!orEquals) { return "((" + recToShader(s1, vars) + " > " + recToShader(s2, vars) + ") ? 0.0 : 1/0.0)"; }
+		else { return "((" + recToShader(s1, vars) + " >= " + recToShader(s2, vars) + ") ? 0.0 : 1/0.0)"; }
 	case '<':
-		if (!orEquals) { return "((" + recToShader(s1, vars) + " < " + recToShader(s2, vars) + ") ? 0.0 : 1<<100)"; }
-		else { return "((" + recToShader(s1, vars) + " <= " + recToShader(s2, vars) + ") ? 0.0 : 1<<100)"; }
+		if (!orEquals) { return "((" + recToShader(s1, vars) + " < " + recToShader(s2, vars) + ") ? 0.0 : 1/0.0)"; }
+		else { return "((" + recToShader(s1, vars) + " <= " + recToShader(s2, vars) + ") ? 0.0 : 1/0.0)"; }
 	case '=': return recToShader(s1, vars) + " - " + recToShader(s2, vars);
 	case '+': return recToShader(s1, vars) + " + " + recToShader(s2, vars);
 	case '-': return recToShader(s1, vars) + " - " + recToShader(s2, vars);
 	case '*': return recToShader(s1, vars) + " * " + recToShader(s2, vars);
 	case '/': return recToShader(s1, vars) + " / " + recToShader(s2, vars);
-	case '^': return "pow( " + recToShader(s1, vars) + ", " + recToShader(s2, vars) + ")"; 
-	case '~': return "pow( " + recToShader(s2, vars) + ", (1.0 / " + recToShader(s1, vars) + "))";
+	case '^': return "customPow( " + recToShader(s1, vars) + ", " + recToShader(s2, vars) + ")"; 
+	case '~': return "customPow( " + recToShader(s2, vars) + ", (1.0 / " + recToShader(s1, vars) + "))";
 	default:  throw std::invalid_argument("Invalid operator");
 	}
 }

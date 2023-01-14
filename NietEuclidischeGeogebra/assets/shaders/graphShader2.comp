@@ -4,6 +4,7 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 layout(r32f, binding = 0) uniform image2D in_texture;
 layout(r32f, binding = 1) uniform image2D out_texture;
+uniform float u_BiggestErr;
 
 bool feq(float f1, float f2) {
 	float epsilon = 0.01;
@@ -33,17 +34,54 @@ bool fgteFromOffset(int offset, float val, ivec2 pos)
     return true;
 }
 
+float getVal(int x, int y)
+{
+    // should check if x and y are withing bounds
+    if (x <0)
+        return 1/0.0;
+    return imageLoad(in_texture, ivec2(x, y)).r / u_BiggestErr;
+}
+
+float getSobelX(int x, int y)
+{
+    return -getVal(x+1,y+1) - 2 * getVal(x+1,y) - getVal(x+1, y-1) + getVal(x-1, y+1) + 2 * getVal(x-1, y) + getVal(x-1,y-1);
+}
+
+float getSobelXX(int x, int y)
+{
+    return -getSobelX(x+1,y+1) - 2 * getSobelX(x+1,y) - getSobelX(x+1, y-1) + getSobelX(x-1, y+1) + 2 * getSobelX(x-1, y) + getSobelX(x-1,y-1);
+}
+
+float getSobelY(int x, int y)
+{
+    return -getVal(x+1,y+1) - 2 * getVal(x,y+1) - getVal(x-1, y+1) + getVal(x+1, y-1) + 2 * getVal(x, y-1) + getVal(x-1,y-1);
+}
+
+float getSobelYY(int x, int y)
+{
+    return -getSobelY(x+1,y+1) - 2 * getSobelY(x,y+1) - getSobelY(x-1, y+1) + getSobelY(x+1, y-1) + 2 * getSobelY(x, y-1) + getSobelY(x-1,y-1);
+}
+
+float getSobelXY(int x, int y)
+{
+    return -getSobelX(x+1,y+1) - 2 * getSobelX(x,y+1) - getSobelX(x-1, y+1) + getSobelX(x+1, y-1) + 2 * getSobelX(x, y-1) + getSobelX(x-1,y-1);
+}
+
 void main() {
     ivec2 pos = ivec2( gl_GlobalInvocationID.xy );
 
-    float in_val = imageLoad( in_texture, pos ).r;
-    
+    float in_val = imageLoad( in_texture, pos ).r / u_BiggestErr;
+
+    // imageStore(out_texture, pos, vec4(in_val, 0.0,0.0,0.0));
+    // return;
+    /*
     if (in_val == 0.0) 
     {
         imageStore( out_texture, pos, vec4( 1.0, 0.0, 0.0, 0.0 ) );
     }
-    else if (feq(in_val, 0.0))
+    else if (feq(in_val, 1000.0))
     {
+        /*
         imageStore( out_texture, pos, vec4( 1.0, 0.0, 0.0, 0.0 ) );
         in_val = abs(in_val);
 
@@ -58,5 +96,17 @@ void main() {
     else
     {
         imageStore( out_texture, pos, vec4( 0.0, 0.0, 0.0, 0.0 ) );
-    }
+    }*/
+    float Hxx = getSobelXX(pos.x, pos.y);
+    float Hyy = getSobelYY(pos.x, pos.y);
+    float Hxy = getSobelXY(pos.x, pos.y);
+
+    float major = 0.5 * (Hxx + Hyy + sqrt((Hxx * Hxx) + 4 * (Hxy * Hxy) - 2 * Hxx * Hyy + (Hyy * Hyy)));
+    float minor = 0.5 * (Hxx + Hyy - sqrt((Hxx * Hxx) + 4 * (Hxy * Hxy) - 2 * Hxx * Hyy + (Hyy * Hyy)));
+
+    // if (val < 0)
+    //     val = 0.0;
+    // else if (val>1)
+    //     val = 1.0;
+    imageStore(out_texture, pos, vec4(major, 0.0,0.0,0.0));
 }

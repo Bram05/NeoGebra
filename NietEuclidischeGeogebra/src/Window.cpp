@@ -25,7 +25,7 @@ Window::Window(const WindowCreationOptions& options)
 		Action::pressed = GLFW_PRESS;
 		Action::released = GLFW_RELEASE;
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 #ifdef DEBUG
 		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 #endif

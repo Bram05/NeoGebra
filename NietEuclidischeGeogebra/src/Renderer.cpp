@@ -35,7 +35,7 @@ static void APIENTRY debugMessageCallback(GLenum source, GLenum type, GLuint id,
 	case GL_DEBUG_TYPE_ERROR: std::cerr << "Type: an error\n"; break;
 	case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR: std::cerr << "Type: deprecated behaviour\n"; break;
 	case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR: std::cerr << "Type: undefined behaviour\n"; break;
-	case GL_DEBUG_TYPE_PORTABILITY: std::cerr << "Type: usage taht is not portable\n"; break;
+	case GL_DEBUG_TYPE_PORTABILITY: std::cerr << "Type: usage that is not portable\n"; break;
 	case GL_DEBUG_TYPE_PERFORMANCE: std::cerr << "Type: perfomence issue\n"; break;
 	case GL_DEBUG_TYPE_MARKER: std::cerr << "Type: command stream annotation\n"; break;
 	case GL_DEBUG_TYPE_PUSH_GROUP: std::cerr << "Type: group push\n"; break;

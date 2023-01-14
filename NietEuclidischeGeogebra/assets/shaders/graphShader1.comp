@@ -5,6 +5,20 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 layout(r32f, binding = 0) uniform image2D texture;
 layout( location=1 ) uniform vec4 u_Window;
 
+float customPow(float base, float exponent)
+{
+    // return pow(base, exponent);
+    /*
+    if (base >= 0)
+        return pow(base, exponent);
+    if (exponent - int(exponent) != 0 && int(1/(exponent-int(exponent))) % 2 == 0)
+        return 1/0.0;
+    if (int(exponent) % 2 == 0)
+        return pow(abs(base), exponent);
+    return -pow(abs(base), exponent);*/
+    return base >= 0 ? pow(base, exponent) : (exponent - int(exponent) != 0 && int(1/(exponent-int(exponent))) % 2 == 0 ? 1/0.0 : (int(exponent) % 2 == 0 ? 1 : -1) * pow(abs(base), exponent));
+}
+
 float f(vec2 coords) {
     return [EQUATION];
 }
@@ -17,5 +31,5 @@ void main() {
 
     float err = f(coords);
 
-    imageStore( texture, pos, vec4( err, 0.0, 0.0, 0.0 ) );
+    imageStore( texture, pos, vec4( abs(err), 0.0, 0.0, 0.0 ) );
 }

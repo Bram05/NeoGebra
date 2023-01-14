@@ -86,8 +86,9 @@ void GraphRenderer::AddToRenderQueue(const std::shared_ptr<Graph>& graph)
 }
 
 void GraphRenderer::setLineThickness(int pixels) {
+	//return;
 	if (pixels > 8 or pixels < 1) { 
-		throw std::invalid_argument("Invalid line thickness"); 
+		throw std::invalid_argument("Invalid line thickness");
 	} 
 	m_LineThickness = pixels; 
 	if (pixels % 2 == 0) { --m_LineThickness;  }

@@ -119,14 +119,15 @@ std::vector<float> EquationUI::ParseInput(const std::vector<int>& input)
 void EquationUI::UpdateGraphs()
 {
 	Application::Get()->GetWindowUI()->GetGraphUI()->DeleteGraphs();
+	Application::Get()->GetModelManager()->GetModel()->getElements().clear();
 	for (int i{ m_PointsIndexBegin }; i < m_PointsIndexBegin + NumInputFields; ++i)
 	{
 		const std::vector<int>& text{ ((TextInputField*)(m_SubUIElements[i].element.get()))->GetText() };
 		if (text.empty())
 			continue;
-		std::vector<float> identifiers{ ParseInput(text) };
 
 		try {
+			std::vector<float> identifiers{ ParseInput(text) };
 			new NEPoint(identifiers, Application::Get()->GetModelManager()->GetModel(), { 255, 0, 0, 255 }, false);
 		}
 		catch (const std::exception&)
@@ -143,9 +144,9 @@ void EquationUI::UpdateGraphs()
 		const std::vector<int>& text{ ((TextInputField*)(m_SubUIElements[i].element.get()))->GetText() };
 		if (text.empty())
 			continue;
-		std::vector<float> identifiers{ ParseInput(text) };
 
 		try {
+			std::vector<float> identifiers{ ParseInput(text) };
 			new NELine(identifiers, Application::Get()->GetModelManager()->GetModel(), { 255, 255, 0, 255 }, false);
 		}
 		catch (const std::exception&)

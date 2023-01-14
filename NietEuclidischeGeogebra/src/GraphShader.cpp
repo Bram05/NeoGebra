@@ -112,7 +112,7 @@ void GraphShader::SetUniform2d(const std::string& name, const std::array<std::ar
 	int loc = GetUniformLocation(name + "[0][0]");
 	for (int i = 0; i < 7; ++i) {
 		std::array<int, 7> subArr = arr[i];
-		glUniform1iv(loc + 7*i, 7, &subArr[0]);
+		glUniform1iv(loc + 7 * i, 7, &subArr[0]);
 	}
 }
 
@@ -154,6 +154,7 @@ static int CompileShader(ShaderType type, const std::string& path, const std::st
 	// If the shader is the first compute shader, the formula should be inserted
 	if (type == COMPUTE_SHADER1) {
 		sourceC.replace(sourceC.find("[EQUATION]"), 10, insertText);
+		std::cout << sourceC << '\n';
 	}
 
 	const char* s = sourceC.c_str();
@@ -175,7 +176,6 @@ static int CompileShader(ShaderType type, const std::string& path, const std::st
 
 int GraphShader::GetUniformLocation(const std::string& name) const
 {
-
 	auto it = m_UniformLocations.find(name);
 	if (it == m_UniformLocations.end())
 	{
@@ -226,22 +226,57 @@ unsigned int GraphShader::RunComp(float normWidth, float normHeight, float midCo
 	glUseProgram(compShader1);
 	// Left Right Top Bottom
 	SetUniform(1, std::array<float, 4>{ midCoordX - 0.5f * width / unitLengthPixels,
-										midCoordX + 0.5f * width / unitLengthPixels,
-										midCoordY + 0.5f * height / unitLengthPixels, 
-										midCoordY - 0.5f * height / unitLengthPixels });
+		midCoordX + 0.5f * width / unitLengthPixels,
+		midCoordY + 0.5f * height / unitLengthPixels,
+		midCoordY - 0.5f * height / unitLengthPixels });
 	glDispatchCompute(width, height, 1);
 
 	//wait until program finishes
 	glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+	float* data = new float[width * height*2];
+	glGetTextureImage(texture1, 0, GL_RED, GL_FLOAT, width*height*sizeof(float), data);
+	float biggest{0.0f};
+	for (int x{ 0 }; x < width; ++x)
+	{
+		for (int y{ 0 }; y < height; ++y)
+		{
+			if (data[x*width+y] > biggest && data[x * width + y] != std::numeric_limits<float>::infinity())
+				biggest = std::max(biggest, data[x * width + y]);
+		}
+	}
+
 
 	//Run 2nd shader
 	glUseProgram(m_CompShader2);
+	glUniform1f(glGetUniformLocation(m_CompShader2, "u_BiggestErr"), biggest);
 	glDispatchCompute(width, height, 1);
 
 	//wait until program finishes
 	glMemoryBarrier(GL_ALL_BARRIER_BITS);
+	//glDeleteTextures(1, &texture1);
+	//return texture2;
 
-	glDeleteTextures(1, &texture1);
+	data = new float[width * height * 2];
+	glGetTextureImage(texture2, 0, GL_RED, GL_FLOAT, width * height * sizeof(float), data);
+	std::cout << "Middle: " << data[width / 2 * width + (height / 2)] << '\n';
+
+	std::ofstream out("powerErr.xls");
+	if (!out)
+	{
+		std::cerr << "err!";
+		return texture2;
+	}
+	out << std::setprecision(2);
+
+	for (int x{ 0 }; x < width; ++x)
+	{
+		for (int y{ 0 }; y < height; ++y)
+		{
+			out << data[x * width + y] << '\t';
+		}
+		out << '\n';
+	}
 
 	return texture2;
 }

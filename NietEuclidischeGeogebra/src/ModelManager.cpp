@@ -12,9 +12,9 @@ ModelManager::ModelManager()
 	
 	std::shared_ptr<NELine> l1(new NELine({ 1.25, 0 }, m_Model));
 
-	std::shared_ptr<NEPoint> p1(new NEPoint({ 0.625,  0.4145780988 }, m_Model, {255, 0, 0, 255}));
+	/*std::shared_ptr<NEPoint> p1(new NEPoint({0.625,  0.4145780988}, m_Model, {255, 0, 0, 255}));
 	std::shared_ptr<NEPoint> p2(new NEPoint({ 0.5, 0 }, m_Model, { 255, 0, 0, 255 }));
-	std::shared_ptr<NEPoint> p3(new NEPoint({ 0.625, -0.4145780988 }, m_Model, { 255, 0, 0, 255 }));
+	std::shared_ptr<NEPoint> p3(new NEPoint({ 0.625, -0.4145780988 }, m_Model, { 255, 0, 0, 255 }));*/
 }
 
 ModelManager::~ModelManager()
