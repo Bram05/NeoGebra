@@ -35,6 +35,7 @@ private:
 	void CreateShader(const std::string name);
 	GLuint m_Shader;
 	GLuint m_CompShader2 = NULL;
+	GLuint m_CompShader3 = NULL;
 	mutable std::map<std::string, int> m_UniformLocations;
 	std::string m_Name;
 	int GetUniformLocation(const std::string& name) const;

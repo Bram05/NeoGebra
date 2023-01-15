@@ -21,10 +21,10 @@ void main()
             colour += texture(tex, coord).r * u_Kernel[x][y];
         }
     }
-
+    
 	colour = min(colour, 1.0);
 	colour *= u_Colour;
 
 	//colour = vec4(texture(tex, TexCoords).r, 0.0,0.0,texture(tex, TexCoords).r);
-    colour = vec4(u_Colour.xyz, texture(tex, TexCoords).r);
+    //colour = vec4(u_Colour.xyz, texture(tex, TexCoords).r);
 }

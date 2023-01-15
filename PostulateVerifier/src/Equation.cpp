@@ -283,9 +283,9 @@ std::string Equation::recToShader(const std::string& s, const std::map<std::stri
 		if (s == "f") { return "false"; }
 		if (s == "x" or s == "y") { return "coords." + s; }
 		throw std::invalid_argument("Invalid statement");
-	}
+	}	
 
-	std::string s1 = s.substr(0, operIndex);
+ 	std::string s1 = s.substr(0, operIndex);
 	std::string s2 = s.substr(operIndex + 1, s.length() - operIndex - 1);
 
 	switch (s[operIndex]) {

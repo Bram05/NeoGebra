@@ -1,0 +1,36 @@
+#version 430 core
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+layout(r32f, binding = 0) uniform image2D in_texture;
+layout(r32f, binding = 1) uniform image2D out_texture;
+
+layout( location=1 ) uniform vec4 u_Window;
+	
+void main()
+{   
+	ivec2 pos = ivec2( gl_GlobalInvocationID.xy );
+
+    if (imageLoad( in_texture, pos).r < 0)
+    {
+        imageStore( out_texture, pos, vec4( 0.0, 0.0, 0.0, 0.0 ) );
+    }
+    else 
+    {
+        float res = 0.0f;
+        for (int x = pos.x - 1; x <= pos.x + 1; x++) {
+            for (int y = pos.y - 1; y <= pos.y + 1; y++) {
+                ivec2 newPos = ivec2(x, y);
+                res += (newPos == pos ? 8 : -1) * imageLoad( in_texture, newPos).r;
+            }
+        }
+        if (isnan(res))
+        {
+            imageStore( out_texture, pos, vec4( 0.0, 0.0, 0.0, 0.0 ) );
+        }
+        else
+        {
+            imageStore( out_texture, pos, vec4( res, 0.0, 0.0, 0.0 ) );
+        }
+    }
+}

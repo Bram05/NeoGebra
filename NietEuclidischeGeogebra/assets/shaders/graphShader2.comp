@@ -4,7 +4,8 @@ layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
 
 layout(r32f, binding = 0) uniform image2D in_texture;
 layout(r32f, binding = 1) uniform image2D out_texture;
-uniform float u_BiggestErr;
+
+uvec2 windowSizePixels = gl_NumWorkGroups.xy;
 
 bool feq(float f1, float f2) {
 	float epsilon = 0.01;
@@ -37,9 +38,9 @@ bool fgteFromOffset(int offset, float val, ivec2 pos)
 float getVal(int x, int y)
 {
     // should check if x and y are withing bounds
-    if (x <0)
+    if (x < 0 || y < 0 || x >= windowSizePixels.x || y >= windowSizePixels.y)
         return 1/0.0;
-    return imageLoad(in_texture, ivec2(x, y)).r / u_BiggestErr;
+    return imageLoad(in_texture, ivec2(x, y)).r;
 }
 
 float getSobelX(int x, int y)
@@ -70,7 +71,7 @@ float getSobelXY(int x, int y)
 void main() {
     ivec2 pos = ivec2( gl_GlobalInvocationID.xy );
 
-    float in_val = imageLoad( in_texture, pos ).r / u_BiggestErr;
+    float in_val = imageLoad( in_texture, pos ).r;
 
     // imageStore(out_texture, pos, vec4(in_val, 0.0,0.0,0.0));
     // return;
@@ -101,12 +102,12 @@ void main() {
     float Hyy = getSobelYY(pos.x, pos.y);
     float Hxy = getSobelXY(pos.x, pos.y);
 
-    float major = 0.5 * (Hxx + Hyy + sqrt((Hxx * Hxx) + 4 * (Hxy * Hxy) - 2 * Hxx * Hyy + (Hyy * Hyy)));
-    float minor = 0.5 * (Hxx + Hyy - sqrt((Hxx * Hxx) + 4 * (Hxy * Hxy) - 2 * Hxx * Hyy + (Hyy * Hyy)));
+    float major = 0.5 * (Hxx + Hyy + sqrt(abs((Hxx * Hxx) + 4 * (Hxy * Hxy) - 2 * Hxx * Hyy + (Hyy * Hyy))));
+    float minor = 0.5 * (Hxx + Hyy - sqrt(abs((Hxx * Hxx) + 4 * (Hxy * Hxy) - 2 * Hxx * Hyy + (Hyy * Hyy))));
 
-    // if (val < 0)
-    //     val = 0.0;
-    // else if (val>1)
-    //     val = 1.0;
+    //if (major < 0)
+    //    major = 0.0;
+    //else if (major>1)
+    //    major = 1.0;
     imageStore(out_texture, pos, vec4(major, 0.0,0.0,0.0));
 }

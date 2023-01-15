@@ -73,7 +73,7 @@ void Graph::GenTexture(float leftX, float rightX, float topY, float bottomY, flo
 GraphRenderer::GraphRenderer()
 	: m_Shader("graphShader")
 {
-	setLineThickness(3);
+	setLineThickness(5);
 }
 
 GraphRenderer::~GraphRenderer()
