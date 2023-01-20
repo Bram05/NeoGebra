@@ -243,5 +243,6 @@ unsigned int GraphShader::RunComp(float normWidth, float normHeight, float midCo
 	glDispatchCompute(width, height, 1);
 
 	glMemoryBarrier(GL_ALL_BARRIER_BITS);
+	glDeleteTextures(1, &texture1);
 	return texture2;
 }
