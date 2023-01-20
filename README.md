@@ -6,7 +6,7 @@ NeoGebra is a program that can be used for creating and verifying Non-Euclidean 
 <br>
 <br>
 ## Creators
-This program is build for a school project and made by:
+This program is built for a school project and made by:
 * [JoenPoenMan](https://github.com/JoenPoenMan)
 * [RiadZX](https://github.com/RiadZX)
 * [Bram05](https://github.com/Bram05)
