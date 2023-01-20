@@ -1,0 +1,65 @@
+#version 430 core
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+layout(r32f, binding = 0) uniform image2D in_texture;
+layout(r32f, binding = 1) uniform image2D out_texture;
+
+uvec2 windowSizePixels = gl_NumWorkGroups.xy;
+
+float getVal(int x, int y)
+{
+    if (x < 0 || y < 0 || x >= windowSizePixels.x || y >= windowSizePixels.y)
+        return 1/0.0;
+    return imageLoad(in_texture, ivec2(x, y)).r;
+}
+
+float getSobelX(int x, int y)
+{
+    return -getVal(x+1,y+1) - 2 * getVal(x+1,y) - getVal(x+1, y-1) + getVal(x-1, y+1) + 2 * getVal(x-1, y) + getVal(x-1,y-1);
+}
+
+float getSobelXX(int x, int y)
+{
+    return -getSobelX(x+1,y+1) - 2 * getSobelX(x+1,y) - getSobelX(x+1, y-1) + getSobelX(x-1, y+1) + 2 * getSobelX(x-1, y) + getSobelX(x-1,y-1);
+}
+
+float getSobelY(int x, int y)
+{
+    return -getVal(x+1,y+1) - 2 * getVal(x,y+1) - getVal(x-1, y+1) + getVal(x+1, y-1) + 2 * getVal(x, y-1) + getVal(x-1,y-1);
+}
+
+float getSobelYY(int x, int y)
+{
+    return -getSobelY(x+1,y+1) - 2 * getSobelY(x,y+1) - getSobelY(x-1, y+1) + getSobelY(x+1, y-1) + 2 * getSobelY(x, y-1) + getSobelY(x-1,y-1);
+}
+
+float getSobelXY(int x, int y)
+{
+    return -getSobelX(x+1,y+1) - 2 * getSobelX(x,y+1) - getSobelX(x-1, y+1) + getSobelX(x+1, y-1) + 2 * getSobelX(x, y-1) + getSobelX(x-1,y-1);
+}
+
+void main() {
+    ivec2 pos = ivec2( gl_GlobalInvocationID.xy );
+
+    float Hx  = getSobelX(pos.x, pos.y);
+    float Hy  = getSobelY(pos.x, pos.y);
+    float Hxx = getSobelXX(pos.x, pos.y);
+    float Hyy = getSobelYY(pos.x, pos.y);
+    float Hxy = getSobelXY(pos.x, pos.y);
+
+    float major = 0.5 * (Hxx + Hyy + sqrt(abs((Hxx * Hxx) + 4 * (Hxy * Hxy) - 2 * Hxx * Hyy + (Hyy * Hyy))));
+    float minor = 0.5 * (Hxx + Hyy - sqrt(abs((Hxx * Hxx) + 4 * (Hxy * Hxy) - 2 * Hxx * Hyy + (Hyy * Hyy))));
+
+    if (minor > 0.5 * major)
+        imageStore(out_texture, pos, vec4(major, 0.0,0.0,0.0)); // A point
+    else if (minor < -0.5 * abs(major))
+        imageStore(out_texture, pos, vec4(0.0, 0.0,0.0,0.0));
+    else
+    {
+        if (abs(Hx) > 0.1 * major || abs(Hy) > 0.1 * major)
+            imageStore(out_texture, pos, vec4(0.0, 0.0,0.0,0.0));
+        else
+            imageStore(out_texture, pos, vec4(major, 0.0,0.0,0.0));
+    }
+}
