@@ -77,32 +77,84 @@ void GraphUI::UpdateLines()
 	float pixelLeftX = Util::ConvertToPixelCoordinate(m_LeftX, true);
 	float pixelRightX = Util::ConvertToPixelCoordinate(m_RightX, true);
 
+	/*std::cout << "pixel left X: " << pixelLeftX << "\n";
+	std::cout << "pixel right X: " << pixelRightX << "\n";*/
+
 	float midPixelX = (pixelLeftX + pixelRightX) / 2;
 	float midPixelY = (pixelTopY + pixelBottomY) / 2;
 
 	//Pixel nearest to midpixel with  from floored whole coordinate in pixels (+1 for small correction, maybe better fix later)
 	float nearMidPixelX = midPixelX - (m_MidCoordX - (int)(m_MidCoordX)) * m_UnitLengthPixels + 1;
 	float nearMidPixelY = midPixelY - (m_MidCoordY - (int)(m_MidCoordY)) * m_UnitLengthPixels + 1;
-	
+
+	//Calculate mid to origin
+
+	//Distance from mid to origin , nog de ui elements bij toevoegen
+	float distanceX = (m_MidCoordX * m_UnitLengthPixels);//pixels
+	float distanceY = (m_MidCoordY * m_UnitLengthPixels);//pixels
+
+	float originX = midPixelX - distanceX;//pixels
+	float originY = midPixelY - distanceY;//pixels
+
+	int indexAxisX = 0;
+	int indexAxisY = 0;
+
+	indexAxisY = (int)(-1 * m_MidCoordX);// index of the y-axis
+	indexAxisX = (int)(-1 * m_MidCoordY);// index of the x-axis	
+
+	// left vertical
 	for (int i = 0; i < (nearMidPixelX - pixelLeftX) / m_UnitLengthPixels; ++i) {
 		float x = Util::ConvertToOpenGLCoordinate(nearMidPixelX - i * m_UnitLengthPixels, true);
-		m_Lines.push_back(std::make_shared<Line>(Point(x, m_TopY), Point(x, m_BottomY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+
+		if (i == -1 * indexAxisY) {
+			m_Lines.push_back(std::make_shared<Line>(Point(x, m_TopY), Point(x, m_BottomY), std::array<float, 4>{0.0f, 0.0f, 1.0f, 1.0f}));
+		}
+		else {
+			m_Lines.push_back(std::make_shared<Line>(Point(x, m_TopY), Point(x, m_BottomY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+		}
 	}
 
+	//right vertical
 	for (int i = 1; i < (pixelRightX - nearMidPixelX) / m_UnitLengthPixels; ++i) {
 		float x = Util::ConvertToOpenGLCoordinate(nearMidPixelX + i * m_UnitLengthPixels, true);
-		m_Lines.push_back(std::make_shared<Line>(Point(x, m_TopY), Point(x, m_BottomY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+		if (i == indexAxisY) {
+			m_Lines.push_back(std::make_shared<Line>(Point(x, m_TopY), Point(x, m_BottomY), std::array<float, 4>{0.0f, 0.0f, 1.0f, 1.0f}));
+		}
+		else {
+			m_Lines.push_back(std::make_shared<Line>(Point(x, m_TopY), Point(x, m_BottomY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+		}
+
 	}
 
+	//bottom horizontal
 	for (int i = 0; i < (nearMidPixelY - pixelBottomY) / m_UnitLengthPixels; ++i) {
 		float y = Util::ConvertToOpenGLCoordinate(nearMidPixelY - i * m_UnitLengthPixels, false);
-		m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, y), Point(m_RightX, y), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+
+		if (i == indexAxisX * -1) {
+			m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, y), Point(m_RightX, y), std::array<float, 4>{0.0f, 1.0f, 0.0f, 1.0f}));
+
+		}
+		else {
+			m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, y), Point(m_RightX, y), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+
+		}
+
+
 	}
 
+	//toppom horizontal
 	for (int i = 1; i < (pixelTopY - nearMidPixelY) / m_UnitLengthPixels; ++i) {
 		float y = Util::ConvertToOpenGLCoordinate(nearMidPixelY + i * m_UnitLengthPixels, false);
-		m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, y), Point(m_RightX, y), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+		if (i == indexAxisX) {
+			m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, y), Point(m_RightX, y), std::array<float, 4>{0.0f, 1.0f, 0.0f, 1.0f}));
+
+		}
+		else {
+			m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, y), Point(m_RightX, y), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+
+		}
 	}
+
 }
 
 void GraphUI::UpdateGraphs()
