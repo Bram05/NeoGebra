@@ -97,7 +97,7 @@ public:
 		unsigned int lineIdentifiers,
 		const Equation& lineDef,
 		const Equation& incidenceConstr,
-		const Equation& betweennessConstr = { {}, "" });
+		const Equation& betweennessConstr = Equation( {}, {} ));
 
 	/// Copy an existing Model object. 
 	Model(const Model& g);
