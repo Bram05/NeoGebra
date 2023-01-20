@@ -2,7 +2,7 @@
 // https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
 #include "UIElement.h"
 
-#include "Renderer.h"
+#include "Rendering/Renderer.h"
 
 UIElement::UIElement(double leftX, double rightX, double topY, double bottomY, const std::string& name)
 	: m_LeftX{ leftX },

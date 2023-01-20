@@ -333,7 +333,7 @@ std::string Equation::recToShader(const AdvancedString& s, const std::map<Advanc
 	case '<':
 		if (!orEquals) { return "((" + recToShader(s1, vars) + " < " + recToShader(s2, vars) + ") ? 0.0 : 1/0.0)"; }
 		else { return "((" + recToShader(s1, vars) + " <= " + recToShader(s2, vars) + ") ? 0.0 : 1/0.0)"; }
-	case '=': return recToShader(s1, vars) + " - " + recToShader(s2, vars);
+	case '=': return recToShader(s1, vars) + " - (" + recToShader(s2, vars) + ")";
 	case '+': return recToShader(s1, vars) + " + " + recToShader(s2, vars);
 	case '-': return recToShader(s1, vars) + " - " + recToShader(s2, vars);
 	case '*': return recToShader(s1, vars) + " * " + recToShader(s2, vars);

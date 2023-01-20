@@ -4,7 +4,7 @@
 
 #include <glad/glad.h>
 
-#include "Model.h"
+#include "Maths/Model.h"
 
 
 // Handles an OpenGL shader object

@@ -1,7 +1,7 @@
 // Standard library files and some others are automatically included from the precompiled header
 // https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
 #include "ButtonUI.h"
-#include "Renderer.h"
+#include "Rendering/Renderer.h"
 #include "Application.h"
 
 ButtonUI::ButtonUI(double leftX, double rightX, double topY, double bottomY, void(*func)(void*), void* obj, const std::string& text)

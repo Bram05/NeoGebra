@@ -2,7 +2,7 @@
 // https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
 #pragma once
 
-#include "LineRenderer.h"
+#include "Rendering/LineRenderer.h"
 
 class Renderer;
 class WindowUI;

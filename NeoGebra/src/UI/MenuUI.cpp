@@ -4,14 +4,14 @@
 #include "Application.h"
 #include "ButtonUI.h"
 #include "TextInputField.h"
-#include "TextRenderer.h"
+#include "Rendering/TextRenderer.h"
 
 void AddPoint(void*) {
-	new NEPoint({ 0,  0 }, Application::Get()->GetModelManager()->GetModel(), {255,0,0,255});
+	new NEPoint({ 0,  0 }, Application::Get()->GetModel(), {255,0,0,255});
 	Application::Get()->GetWindowUI()->UpdateGraphUI();
 }
 void AddLine(void*) {
-	new NELine({ -1.25,  0 }, Application::Get()->GetModelManager()->GetModel());
+	new NELine({ -1.25,  0 }, Application::Get()->GetModel());
 	Application::Get()->GetWindowUI()->UpdateGraphUI();
 }
 

@@ -4,7 +4,7 @@
 
 #include "UIElement.h"
 #include "TextInputField.h"
-#include "TextRenderer.h"
+#include "Rendering/TextRenderer.h"
 
 class TextInputFieldWithDesc : public UIElement
 {

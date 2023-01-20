@@ -2,7 +2,7 @@
 // https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
 #include "GraphUI.h"
 
-#include "Renderer.h"
+#include "Rendering/Renderer.h"
 #include "Application.h"
 #include "Util.h"
 
@@ -109,7 +109,7 @@ void GraphUI::UpdateGraphs()
 {
 	GraphRenderer* rendPtr = Application::Get()->GetRenderer()->GetGraphRenderer();
 
-	std::shared_ptr<Model> m = Application::Get()->GetModelManager()->GetModel();
+	std::shared_ptr<Model> m = Application::Get()->GetModel();
 	// Add new extra equations
 	for (NEElement& el : m->getExtraEquations()) {
 		bool found = false;

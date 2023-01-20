@@ -5,7 +5,7 @@
 #include "Application.h"
 #include "ButtonUI.h"
 #include "TextInputField.h"
-#include "TextRenderer.h"
+#include "Rendering/TextRenderer.h"
 
 void insertKey(void* c)
 {

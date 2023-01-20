@@ -3,8 +3,8 @@
 #pragma once
 
 #include "UIElement.h"
-#include "LineRenderer.h"
-#include "TextRenderer.h"
+#include "Rendering/LineRenderer.h"
+#include "Rendering/TextRenderer.h"
 // Represents what will eventually be the part where equations can be written
 class MenuUI : public UIElement
 {

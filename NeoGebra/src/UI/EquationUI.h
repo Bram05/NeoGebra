@@ -3,8 +3,8 @@
 #pragma once
 
 #include "UIElement.h"
-#include "LineRenderer.h"
-#include "TextRenderer.h"
+#include "Rendering/LineRenderer.h"
+#include "Rendering/TextRenderer.h"
 #include "TextInputField.h"
 
 static void ButtonClickedCallback(void*,int);

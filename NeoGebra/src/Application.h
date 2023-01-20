@@ -3,8 +3,7 @@
 #pragma once
 
 #include "Window.h"
-#include "Renderer.h"
-#include "ModelManager.h"
+#include "Rendering/Renderer.h"
 
 #include "UI/WindowUI.h"
 
@@ -27,7 +26,16 @@ public:
 	Window* GetWindow() { return m_Window; }
 	Renderer* GetRenderer() { return m_Renderer; }
 	WindowUI* GetWindowUI() { return m_WindowUI; }
-	ModelManager* GetModelManager() { return m_ModelManager; }
+	std::shared_ptr<Model> GetModel() { return m_Model; }
+	void SetModel(unsigned int pointIdentifiers,
+		const Equation& pointDef,
+		unsigned int lineIdentifiers,
+		const Equation& lineDef,
+		const Equation& incidenceConstr,
+		const Equation& betweennessConstr = { {}, {} })
+	{
+		m_Model = std::make_shared<Model>(pointIdentifiers, pointDef, lineIdentifiers, lineDef, incidenceConstr, betweennessConstr);
+	}
 
 	friend int main();
 
@@ -36,7 +44,7 @@ private:
 	Window* m_Window;
 	Renderer* m_Renderer;
 	WindowUI* m_WindowUI;
-	ModelManager* m_ModelManager;
+	std::shared_ptr<Model> m_Model;
 
 	double m_LastFrameTime{ 0.0 };
 	std::stack<double> m_LastFpss;

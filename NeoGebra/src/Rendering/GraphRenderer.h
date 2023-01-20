@@ -6,7 +6,7 @@
 
 #include "GraphShader.h"
 #include "Objects.h"
-#include "Model.h"
+#include "Maths/Model.h"
 
 class GraphRenderer;
 

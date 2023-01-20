@@ -3,8 +3,8 @@
 #pragma once
 
 #include "UIElement.h"
-#include "SquareRenderer.h"
-#include "TextRenderer.h"
+#include "Rendering/SquareRenderer.h"
+#include "Rendering/TextRenderer.h"
 
 class TabUI;
 

@@ -2,7 +2,7 @@
 // https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
 #include "PermaButtonUI.h"
 
-#include "Renderer.h"
+#include "Rendering/Renderer.h"
 #include "TabUI.h"
 
 PermaButtonUI::PermaButtonUI(float leftX, float rightX, float topY, float bottomY, int value, TabUI* parent, const std::string& text)

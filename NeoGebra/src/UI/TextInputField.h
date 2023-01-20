@@ -3,9 +3,9 @@
 #pragma once
 
 #include "UIElement.h"
-#include "LineRenderer.h"
-#include "TextRenderer.h"
-#include "Renderer.h"
+#include "Rendering/LineRenderer.h"
+#include "Rendering/TextRenderer.h"
+#include "Rendering/Renderer.h"
 
 // A text input field that takes input and renders it
 class TextInputField : public UIElement

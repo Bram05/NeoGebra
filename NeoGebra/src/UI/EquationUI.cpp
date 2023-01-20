@@ -1,8 +1,6 @@
 // Standard library files and some others are automatically included from the precompiled header
 // https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
 
-#include "PostulateVerifier/PostulateVerifier.h"
-
 #include "EquationUI.h"
 #include "Application.h"
 #include "ButtonUI.h"
@@ -119,7 +117,7 @@ std::vector<float> EquationUI::ParseInput(const AdvancedString& input)
 void EquationUI::UpdateGraphs()
 {
 	Application::Get()->GetWindowUI()->GetGraphUI()->DeleteGraphs();
-	Application::Get()->GetModelManager()->GetModel()->getElements().clear();
+	Application::Get()->GetModel()->getElements().clear();
 	for (int i{ m_PointsIndexBegin }; i < m_PointsIndexBegin + NumInputFields; ++i)
 	{
 		const AdvancedString& text{ ((TextInputField*)(m_SubUIElements[i].element.get()))->GetText() };
@@ -128,15 +126,15 @@ void EquationUI::UpdateGraphs()
 
 		try {
 			std::vector<float> identifiers{ ParseInput(text) };
-			if (identifiers.size() != Application::Get()->GetModelManager()->GetModel()->GetNumPointIdentifiers())
+			if (identifiers.size() != Application::Get()->GetModel()->GetNumPointIdentifiers())
 			{
 				std::string input;
 				for (int i : text)
 					input.push_back(i);
-				std::cerr << "Failed to create the point: " << input << " because it has " << identifiers.size() << " identifiers while the model needs " << Application::Get()->GetModelManager()->GetModel()->GetNumPointIdentifiers() << '\n';
+				std::cerr << "Failed to create the point: " << input << " because it has " << identifiers.size() << " identifiers while the model needs " << Application::Get()->GetModel()->GetNumPointIdentifiers() << '\n';
 				continue;
 			}
-			new NEPoint(identifiers, Application::Get()->GetModelManager()->GetModel(), { 255, 0, 0, 255 }, false);
+			new NEPoint(identifiers, Application::Get()->GetModel(), { 255, 0, 0, 255 }, false);
 		}
 		catch (const std::exception&)
 		{
@@ -155,15 +153,15 @@ void EquationUI::UpdateGraphs()
 
 		try {
 			std::vector<float> identifiers{ ParseInput(text) };
-			if (identifiers.size() != Application::Get()->GetModelManager()->GetModel()->GetNumLineIdentifiers())
+			if (identifiers.size() != Application::Get()->GetModel()->GetNumLineIdentifiers())
 			{
 				std::string input;
 				for (int i : text)
 					input.push_back(i);
-				std::cerr << "Failed to create the line: " << input << " because it has " << identifiers.size() << " identifiers while the model needs " << Application::Get()->GetModelManager()->GetModel()->GetNumLineIdentifiers() << '\n';
+				std::cerr << "Failed to create the line: " << input << " because it has " << identifiers.size() << " identifiers while the model needs " << Application::Get()->GetModel()->GetNumLineIdentifiers() << '\n';
 				continue;
 			}
-			new NELine(identifiers, Application::Get()->GetModelManager()->GetModel(), { 255, 255, 0, 255 }, false);
+			new NELine(identifiers, Application::Get()->GetModel(), { 255, 255, 0, 255 }, false);
 		}
 		catch (const std::exception&)
 		{
@@ -182,8 +180,8 @@ void EquationUI::UpdateModel()
 	const AdvancedString& lineDef{ ((TextInputFieldWithDesc*)(m_SubUIElements[m_LineDefInputField].element.get()))->GetText() };
 	Equation pointDefEq({ AdvancedString("p") }, pointDef);
 	Equation lineDefEq({ {'l'}}, lineDef);
-	std::shared_ptr<Model> model{ Application::Get()->GetModelManager()->GetModel() };
-	Application::Get()->GetModelManager()->SetModel(model->GetNumPointIdentifiers(), pointDefEq, model->GetNumLineIdentifiers(), lineDefEq, model->GetIncidenceConstr(), model->GetBetweennessConstr());
+	std::shared_ptr<Model> model{ Application::Get()->GetModel() };
+	Application::Get()->SetModel(model->GetNumPointIdentifiers(), pointDefEq, model->GetNumLineIdentifiers(), lineDefEq, model->GetIncidenceConstr(), model->GetBetweennessConstr());
 	Application::Get()->GetWindowUI()->GetGraphUI()->DeleteGraphs();
 	UpdateGraphs();
 }

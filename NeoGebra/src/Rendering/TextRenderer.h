@@ -4,7 +4,7 @@
 
 #include <glad/glad.h>
 #include "Shader.h"
-#include "Equation.h"
+#include "Maths/Equation.h"
 
 // Simple struct with the general information for a character
 struct CharacterInfo

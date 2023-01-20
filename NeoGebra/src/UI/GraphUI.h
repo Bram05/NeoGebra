@@ -3,8 +3,8 @@
 #pragma once
 
 #include "UIElement.h"
-#include "GraphRenderer.h"
-#include "Model.h"
+#include "Rendering/GraphRenderer.h"
+#include "Maths/Model.h"
 
 class GraphUI : public UIElement
 {

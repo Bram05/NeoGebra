@@ -22,8 +22,6 @@ set (GLFW_INSTALL Off)
 set (BUILD_SHARED_LIBS Off)
 add_subdirectory ("Lib/glfw")
 add_subdirectory ("Lib/stb")
-add_subdirectory ("PostulateVerifier")
-add_subdirectory ("Tests")
 
 # Include sub-projects.
 project ("NeoGebra")
