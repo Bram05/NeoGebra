@@ -5,6 +5,10 @@ cmake_minimum_required (VERSION 3.8)
 
 set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
 
+function(SetPCH)
+target_precompile_headers (${PROJECT_NAME} PRIVATE "<cstdlib>" "<cmath>" "<functional>" "<stack>" "<queue>" "<map>" "<iostream>" "<array>" "<sstream>" "<algorithm>" "<vector>" "<string>" "<tuple>" "<stdexcept>" "<memory>" "<fstream>" "<filesystem>")
+endfunction()
+
 # Libraries
 add_subdirectory ("Lib/glad")
 set (Z3_BUILD_LIBZ3_SHARED Off)
@@ -22,5 +26,5 @@ add_subdirectory ("PostulateVerifier")
 add_subdirectory ("Tests")
 
 # Include sub-projects.
-project ("NietEuclidischeGeogebra")
-add_subdirectory ("NietEuclidischeGeogebra")
+project ("NeoGebra")
+add_subdirectory ("NeoGebra")

@@ -1,0 +1,29 @@
+#version 430 core
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+layout(r32f, binding = 0) uniform image2D texture;
+layout( location=1 ) uniform vec4 u_Window;
+
+// GLSL pow is only defined for base > 0, but this is needed for certain functions such as x^4+y^4=1, so this function is needed to fill in this gap.
+// This is done by calculating if the outcome should be positive or negative and than multiplying that with the GLSL pow of abs(base)
+float customPow(float base, float exponent)
+{
+    return base >= 0 ? pow(base, exponent) : (exponent - int(exponent) != 0 && int(1/(exponent-int(exponent))) % 2 == 0 ? 1/0.0 : (int(exponent) % 2 == 0 ? 1 : -1) * pow(abs(base), exponent));
+}
+
+float f(vec2 coords) {
+    return [EQUATION];
+}
+
+void main() {
+    ivec2 pos = ivec2( gl_GlobalInvocationID.xy );
+    //u_Window = {x=leftX, y=rightX, z=topY, w=bottomY}
+    vec2 coords = vec2(u_Window.xw) + vec2(pos) / vec2(gl_NumWorkGroups.xy) * vec2(u_Window.y - u_Window.x, u_Window.z - u_Window.w);
+
+    float err = f(coords);
+
+    if (!isinf(err) && abs(err) > 5.0)
+        err = 5.0;
+    imageStore( texture, pos, vec4( abs(err), 0.0, 0.0, 0.0 ) );
+}
