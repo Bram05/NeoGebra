@@ -9,15 +9,19 @@ enum ShaderType
 	VERTEX_SHADER, FRAGMENT_SHADER
 };
 
-static int CompileShader(ShaderType type, const std::string& path);
+static int CompileShader(ShaderType type, const std::filesystem::path& path);
 
 Shader::Shader(const std::string name)
 	: m_Name{ name }
 {
 	m_Shader = glCreateProgram();
-	std::string path = AssetsFolder + "/shaders/" + name;
-	int vs = CompileShader(VERTEX_SHADER, path + ".vert");
-	int fs = CompileShader(FRAGMENT_SHADER, path + ".frag");
+	std::filesystem::path vertexPath = AssetsFolder / "shaders" / name;
+	vertexPath += ".vert";
+	std::filesystem::path fragmentPath = AssetsFolder / "shaders" / name;
+	fragmentPath += ".frag";
+
+	int vs = CompileShader(VERTEX_SHADER, vertexPath);
+	int fs = CompileShader(FRAGMENT_SHADER, fragmentPath);
 	glAttachShader(m_Shader, vs);
 	glAttachShader(m_Shader, fs);
 	glLinkProgram(m_Shader);
@@ -30,7 +34,7 @@ Shader::Shader(const std::string name)
 
 		char* log = new char[length];
 		glGetProgramInfoLog(m_Shader, length, &length, log);
-		throw std::runtime_error(std::string("Failed to link shader ") + path + "(.vert/.frag)" + ": " + log);
+		throw std::runtime_error(std::string("Failed to link shader ") + name + ": " + log);
 	}
 	glDetachShader(m_Shader, vs);
 	glDetachShader(m_Shader, fs);
@@ -72,7 +76,7 @@ void Shader::SetUniform(const std::string& name, int i) const
 	glUniform1i(loc, i);
 }
 
-static int CompileShader(ShaderType type, const std::string& path)
+static int CompileShader(ShaderType type, const std::filesystem::path& path)
 {
 	GLuint glType;
 	switch (type)
@@ -87,7 +91,7 @@ static int CompileShader(ShaderType type, const std::string& path)
 	std::ifstream file(path);
 	if (!file.is_open())
 	{
-		throw std::runtime_error("File " + path + " could not be opened");
+		throw std::runtime_error("File " + path.string() + " could not be opened");
 	}
 	std::stringstream source;
 	std::string line;
@@ -110,7 +114,7 @@ static int CompileShader(ShaderType type, const std::string& path)
 		char* log = new char[length];
 		glGetShaderInfoLog(shader, length, &length, log);
 		std::cout << log << std::endl;
-		throw std::runtime_error(std::string("Failed to compile ") + (type == VERTEX_SHADER ? "vertex" : "fragment") + " shader (" + path + "): " + log);
+		throw std::runtime_error(std::string("Failed to compile ") + (type == VERTEX_SHADER ? "vertex" : "fragment") + " shader (" + path.string() + "): " + log);
 	}
 	return shader;
 }

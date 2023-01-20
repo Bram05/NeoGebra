@@ -10,8 +10,8 @@ enum ShaderType
 	VERTEX_SHADER, FRAGMENT_SHADER, COMPUTE_SHADER1, COMPUTE_SHADER2, COMPUTE_SHADER3
 };
 
-static int CompileShader(ShaderType type, const std::string& path, const std::string& insertText);
-static int CompileShader(ShaderType type, const std::string& path) { return CompileShader(type, path, ""); }
+static int CompileShader(ShaderType type, const std::filesystem::path& path, const std::string& insertText);
+static int CompileShader(ShaderType type, const std::filesystem::path& path) { return CompileShader(type, path, ""); }
 
 GraphShader::GraphShader(const std::string name)
 	: m_Name{ name }
@@ -23,9 +23,13 @@ GraphShader::GraphShader(const std::string name)
 void GraphShader::CreateShader(const std::string name)
 {
 	m_Shader = glCreateProgram();
-	std::string path = AssetsFolder + "/shaders/" + name;
-	int vs = CompileShader(VERTEX_SHADER, path + ".vert");
-	int fs = CompileShader(FRAGMENT_SHADER, path + ".frag");
+	std::filesystem::path vertexPath = AssetsFolder / "shaders" / name;
+	vertexPath += ".vert";
+	std::filesystem::path fragmentPath = AssetsFolder / "shaders" / name;
+	fragmentPath += ".frag";
+
+	int vs = CompileShader(VERTEX_SHADER, vertexPath);
+	int fs = CompileShader(FRAGMENT_SHADER, fragmentPath);
 	glAttachShader(m_Shader, vs);
 	glAttachShader(m_Shader, fs);
 	glLinkProgram(m_Shader);
@@ -38,7 +42,7 @@ void GraphShader::CreateShader(const std::string name)
 
 		char* log = new char[length];
 		glGetProgramInfoLog(m_Shader, length, &length, log);
-		throw std::runtime_error(std::string("Failed to link shader ") + path + "(.vert/.frag)" + ": " + log);
+		throw std::runtime_error(std::string("Failed to link shader ") + name + ": " + log);
 	}
 	glDetachShader(m_Shader, vs);
 	glDetachShader(m_Shader, fs);
@@ -56,8 +60,8 @@ void GraphShader::CreateCompShader(const std::string name, const std::string& in
 
 	shaderProgram = glCreateProgram();
 
-	std::string path = AssetsFolder + "/shaders/" + name;
-	int cs = CompileShader((name.back() == '1' ? COMPUTE_SHADER1 : (name.back() == '2' ? COMPUTE_SHADER2 : COMPUTE_SHADER3)), path + ".comp", insertText);
+	std::filesystem::path path = AssetsFolder / "shaders" / name;
+	int cs = CompileShader((name.back() == '1' ? COMPUTE_SHADER1 : (name.back() == '2' ? COMPUTE_SHADER2 : COMPUTE_SHADER3)), path.string() + ".comp", insertText);
 	glAttachShader(shaderProgram, cs);
 	glLinkProgram(shaderProgram);
 	int result;
@@ -69,7 +73,7 @@ void GraphShader::CreateCompShader(const std::string name, const std::string& in
 
 		char* log = new char[length];
 		glGetProgramInfoLog(shaderProgram, length, &length, log);
-		throw std::runtime_error(std::string("Failed to link shader ") + path + ".comp" + ": " + log);
+		throw std::runtime_error(std::string("Failed to link shader ") + path.string() + ".comp" + ": " + log);
 	}
 	glDetachShader(shaderProgram, cs);
 	glDeleteShader(cs);
@@ -127,7 +131,7 @@ void GraphShader::SetUniform(const int loc, const std::array<float, 4>& arr) con
 	glUniform4f(loc, arr[0], arr[1], arr[2], arr[3]);
 }
 
-static int CompileShader(ShaderType type, const std::string& path, const std::string& insertText)
+static int CompileShader(ShaderType type, const std::filesystem::path& path, const std::string& insertText)
 {
 	GLuint glType;
 	switch (type)
@@ -145,7 +149,7 @@ static int CompileShader(ShaderType type, const std::string& path, const std::st
 	std::ifstream file(path);
 	if (!file.is_open())
 	{
-		throw std::runtime_error("File " + path + " could not be opened");
+		throw std::runtime_error("File " + path.string() + " could not be opened");
 	}
 	std::stringstream source;
 	std::string line;
@@ -173,7 +177,7 @@ static int CompileShader(ShaderType type, const std::string& path, const std::st
 
 		char* log = new char[length];
 		glGetShaderInfoLog(shader, length, &length, log);
-		throw std::runtime_error(std::string("Failed to compile ") + (type == VERTEX_SHADER ? "vertex" : (type == FRAGMENT_SHADER ? "fragment" : "compute")) + " shader (" + path + "): " + log);
+		throw std::runtime_error(std::string("Failed to compile ") + (type == VERTEX_SHADER ? "vertex" : (type == FRAGMENT_SHADER ? "fragment" : "compute")) + " shader (" + path.string() + "): " + log);
 	}
 	return shader;
 }

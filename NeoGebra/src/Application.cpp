@@ -64,7 +64,6 @@ Application::Application()
 
 
 	Application::s_Instance = this;
-	AssetsFolder = "../../../../NeoGebra/assets";
 	m_Window = new Window(WindowCreationOptions(1080, 720, "NeoGeobra", MouseClickCallback, TextCallback, MouseMovedCallback, KeyCallback));
 	m_Renderer = new Renderer;
 	m_WindowUI = new WindowUI;

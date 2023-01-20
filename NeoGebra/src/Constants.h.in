@@ -13,4 +13,4 @@ namespace Action
 	inline int pressed, released;
 }
 
-inline std::string AssetsFolder;
+#cmakedefine AssetsFolder std::filesystem::path(R"(${AssetsFolder})")

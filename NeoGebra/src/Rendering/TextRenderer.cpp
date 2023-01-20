@@ -99,7 +99,7 @@ void TextRenderer::RenderQueue()
 Font::Font(const std::string& fontName)
 	: m_LineHeight{ -1 }, m_Size{ -1 }, m_Base{ -1 }
 {
-	std::ifstream file(AssetsFolder + "/fonts/" + fontName + "/info.txt");
+	std::ifstream file(AssetsFolder / "fonts" / fontName / "info.txt");
 	if (!file)
 		throw std::runtime_error("Failed to load info for font" + fontName);
 
@@ -160,7 +160,7 @@ Font::Font(const std::string& fontName)
 
 	int width, height, numChannels;
 	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data{ stbi_load((AssetsFolder + "/fonts/" + fontName + "/bitmap.png").c_str(), &width, &height, &numChannels, 0) };
+	unsigned char* data{ stbi_load((AssetsFolder / "fonts" / fontName / "bitmap.png").string().c_str(), &width, &height, &numChannels, 0)};
 	if (!data)
 		throw std::runtime_error("Failed to load bitmap for font: " + fontName);
 	m_TotalHeight = height;

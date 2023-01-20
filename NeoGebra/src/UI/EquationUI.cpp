@@ -33,7 +33,6 @@ EquationUI::EquationUI(double leftX, double rightX, double topY, double bottomY)
 	m_Lines.push_back(std::make_shared<Line>(Point(rightX, bottomY), Point(rightX, topY))); // right
 	m_Lines.push_back(std::make_shared<Line>(Point(rightX, bottomY), Point(leftX, bottomY))); // bottom
 
-	//m_SubUIElements.push_back({std::make_shared<ButtonUI>(leftX + 0.2f, (leftX + 0.4f), topY - 0.5f, (topY - 1.0f))});
 	m_PointsIndexBegin = m_SubUIElements.size();
 	for (int i{ 0 }; i < NumInputFields; ++i)
 	{
@@ -55,11 +54,6 @@ EquationUI::EquationUI(double leftX, double rightX, double topY, double bottomY)
 	m_UpdateGraphsButton = m_SubUIElements.size() - 1;
 	m_SubUIElements.emplace_back(std::make_shared<ButtonUI>(leftX + 0.02f, rightX - 0.02f, bottomY + 0.85f, bottomY + 0.72f, UpdateModelStatic, this, "Update model"), false);
 	m_UpdateModelButton = m_SubUIElements.size() - 1;
-
-	//m_Texts.push_back(std::make_shared<Text>("ABCDEFGHIJKLMNOPQRSTUVWXYZ", -1.0f, 0.0f, 0.5f, 72));
-	//m_Texts.push_back(std::make_shared<Text>("abcdefghijklmnopqrstuvwxyz123456789", -1.0f, 0.0f, -0.5f, 100));
-	//m_Texts.push_back(std::make_shared<Text>(std::vector<int>{8704, 8707}, -1.0f, 0.0f, 0.0f, 72));
-	//m_Lines.push_back(std::make_shared<Line>(Point(-1.0f, 0.5f), Point(0.0f, 0.5f)));
 }
 
 EquationUI::~EquationUI()
