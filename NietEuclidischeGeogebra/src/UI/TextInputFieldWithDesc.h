@@ -10,7 +10,7 @@ public:
 	TextInputFieldWithDesc(float leftX, float rightX, float topY, float bottomY, const std::string& text, float width, void(*enterCallback)(void*) = nullptr, void* obj = nullptr);
 	~TextInputFieldWithDesc();
 
-	const std::vector<int>& GetText() const { return ((TextInputField*)m_SubUIElements[0].element.get())->GetText(); }
+	const AdvancedString& GetText() const { return ((TextInputField*)m_SubUIElements[0].element.get())->GetText(); }
 protected:
 	virtual void RenderPass(Renderer* r);
 

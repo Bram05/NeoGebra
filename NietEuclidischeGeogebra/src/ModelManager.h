@@ -14,7 +14,7 @@ public:
 		unsigned int lineIdentifiers,
 		const Equation& lineDef,
 		const Equation& incidenceConstr,
-		const Equation& betweennessConstr = { {}, "" }) 
+		const Equation& betweennessConstr = { {}, {} })
 	{ 
 		m_Model = std::make_shared<Model>(pointIdentifiers, pointDef, lineIdentifiers, lineDef, incidenceConstr, betweennessConstr);
 	}

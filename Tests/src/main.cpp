@@ -4,7 +4,7 @@
 
 int main()
 {
-	//Simpel 3 punts model
+	/*//Simpel 3 punts model
 	Equation SpointDef{ {"p"}, "(p0 = 1 & x = -0.5 & y = -0.5) | (p0 = 2 & x = 0.5 & y = -0.5) | (p0 = 3 & x = 0 & y = 0.5)"};
 	Equation SlineDef{ {"l"}, "((((l0 = 1 & l1 = 3) | (l1 = 1 & l0 = 3)) & y = 2*x + 0.5) | (((l0 = 2 & l1 = 3) | (l1 = 2 & l0 = 3)) & y = -2*x + 0.5) | (((l0 = 1 & l1 = 2) | (l1 = 1 & l0 = 2)) & y = -0.5))&(x >= -0.5 & x <= 0.5)&(y>=-0.5 & y <= 0.5)"};
 	Equation Sincidence{ {"p", "l"}, "p0 = l0 | p0 = l1" };
@@ -34,7 +34,11 @@ int main()
 	//NELine test = P2m.newLine(p1, p3);
 
 
-	//std::cout << test.getIdentifiers()[0] << ' ' << test.getIdentifiers()[1] << std::endl;
+	//std::cout << test.getIdentifiers()[0] << ' ' << test.getIdentifiers()[1] << std::endl;*/
+
+	
+
+	return 0;
 }	
 
 /*

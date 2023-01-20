@@ -5,6 +5,7 @@
 #include "UIElement.h"
 #include "LineRenderer.h"
 #include "TextRenderer.h"
+#include "Equation.h"
 
 // Represents what will eventually be the part where equations can be written
 class KeyboardUI : public UIElement

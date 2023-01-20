@@ -4,6 +4,7 @@
 
 #include <glad/glad.h>
 #include "Shader.h"
+#include "Equation.h"
 
 // Simple struct with the general information for a character
 struct CharacterInfo
@@ -49,22 +50,22 @@ class Text
 {
 public:
 	// Letters is a vector of unicode numbers for the characters
-	Text(const std::vector<int>& letters, float leftX, float rightX, float baseLine, float size);
+	Text(const AdvancedString& letters, float leftX, float rightX, float baseLine, float size);
 	Text(const std::string& text, float leftX, float rightX, float baseLine, float size);
 	~Text();
 
-	void AddText(const std::vector<int>& letters, int position);
+	void AddText(const AdvancedString& letters, int position);
 	void AddText(const std::string& letters, int position);
 	void RemoveText(int begin, int num);
 
-	const std::vector<int>& GetText() const { return m_Text; }
+	const AdvancedString& GetText() const { return m_Text; }
 	float GetScale() const { return m_Scale; }
 
 	int m_RenderBegin, m_RenderEnd;
 
 private:
 	float m_Size;
-	std::vector<int> m_Text;
+	AdvancedString m_Text;
 	float m_LeftX, m_RightX, m_Baseline;
 	float m_Scale;
 	friend TextRenderer;

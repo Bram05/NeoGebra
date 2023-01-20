@@ -31,5 +31,5 @@ private:
 	void TabButtonClicked(int value);
 	friend void TabButtonClickedStatic(void*,int);
 
-	std::vector<float> ParseInput(const std::vector<int>& input);
+	std::vector<float> ParseInput(const AdvancedString& input);
 };

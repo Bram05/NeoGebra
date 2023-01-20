@@ -213,29 +213,25 @@ CharacterInfo Font::GetCharacterInfo(int character)
 }
 
 Text::Text(const std::string& text, float leftX, float rightX, float baseLine, float size)
-	: Text(std::vector<int>(text.begin(), text.end()), leftX, rightX, baseLine, size)
+	: Text(AdvancedString(text), leftX, rightX, baseLine, size)
 {
 }
 
-Text::Text(const std::vector<int>& letters, float leftX, float rightX, float baseLine, float size)
-	: m_Text(letters.size()), m_LeftX{ leftX }, m_RightX{ rightX }, m_Baseline{ baseLine }, m_Size{ size }, m_RenderBegin{ 0 }, m_RenderEnd{ (int)letters.size() }
+Text::Text(const AdvancedString& letters, float leftX, float rightX, float baseLine, float size)
+	: m_Text{ letters }, m_LeftX{ leftX }, m_RightX{ rightX }, m_Baseline{ baseLine }, m_Size{ size }, m_RenderBegin{ 0 }, m_RenderEnd{ (int)letters.size() }
 {
 	std::shared_ptr<Font> font = Application::Get()->GetRenderer()->GetFont();
 	auto [width, height] = Application::Get()->GetWindow()->GetSize();
 
 	float scale = (float)m_Size / font->GetSize();
 	m_Scale = scale;
-	for (int i{ 0 }; i < m_Text.size(); ++i)
-	{
-		m_Text[i] = letters[i];
-	}
 }
 
 Text::~Text()
 {
 }
 
-void Text::AddText(const std::vector<int>& letters, int position)
+void Text::AddText(const AdvancedString& letters, int position)
 {
 	m_Text.insert(m_Text.begin()+position, letters.begin(), letters.end());
 	/*
@@ -259,7 +255,7 @@ void Text::AddText(const std::vector<int>& letters, int position)
 
 void Text::AddText(const std::string& letters, int position)
 {
-	AddText(std::vector<int>{letters.begin(), letters.end()}, position);
+	AddText(AdvancedString{letters}, position);
 }
 
 void Text::RemoveText(int begin, int num)

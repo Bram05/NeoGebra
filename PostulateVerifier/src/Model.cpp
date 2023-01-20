@@ -58,7 +58,7 @@ Model::Model(const Model& m) :
 	m_BetweennessConstr{ m.m_BetweennessConstr } {}
 
 void Model::addExtraEquation(Equation& eq, const RGBColour& colour) {
-	eq.m_VarNames = {"noVarName"};
+	eq.m_VarNames = {AdvancedString("noVarName")};
 	m_Elements.push_back(NEElement({}, eq, 0, notype, shared_from_this(), colour, false));
 }
 
@@ -66,9 +66,9 @@ NELine Model::newLine(NEPoint p1, NEPoint p2) {
 	Equation halfEq = m_IncidenceConstr;
 	halfEq.m_VarNames.erase(std::next(halfEq.m_VarNames.begin()));
 	Equation eq = halfEq + halfEq;
-	Equation tmp = { {}, "l1 = 0" };
+	Equation tmp = { {}, AdvancedString("l1 = 0") };
 	eq = eq + tmp;
-	eq.m_EquationString = "((pa0-l0)^2+(pa1-l1)^2=(1/(-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1))+0.5*(2~(l0^2+l1^2))+0.5*2~((2~(l0^2+l1^2))^2-1))^2)&(l1=0)";
+	eq.m_EquationString = AdvancedString("((pa0-l0)^2+(pa1-l1)^2=(1/(-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1))+0.5*(2~(l0^2+l1^2))+0.5*2~((2~(l0^2+l1^2))^2-1))^2)&(l1=0)");
 	equationResult res = eq.getSolution({ p1.getIdentifiers(), p2.getIdentifiers() });
 	if (!res.sat) {
 		throw std::invalid_argument("I-1 failed");

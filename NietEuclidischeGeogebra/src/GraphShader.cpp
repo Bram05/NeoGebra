@@ -258,19 +258,19 @@ unsigned int GraphShader::RunComp(float normWidth, float normHeight, float midCo
 	glBindImageTexture(1, texture1, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
 	glBindImageTexture(0, texture2, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
 
-	glUseProgram(m_CompShader3);
-	glDispatchCompute(width, height, 1);
+	//glUseProgram(m_CompShader3);
+	//glDispatchCompute(width, height, 1);
 
 	glMemoryBarrier(GL_ALL_BARRIER_BITS);
 	//glDeleteTextures(1, &texture2);
 	//return texture2;
-	return texture1;
+	//return texture1;
 
 	float* data = new float[width * height * 2];
 	glGetTextureImage(texture2, 0, GL_RED, GL_FLOAT, width * height * sizeof(float), data);
 	std::cout << "Middle: " << data[width / 2 * width + (height / 2)] << '\n';
 
-	std::ofstream out("powerErr.xls");
+	std::ofstream out("power1000.xls");
 	if (!out)
 	{
 		std::cerr << "err!";

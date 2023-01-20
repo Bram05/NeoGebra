@@ -14,7 +14,7 @@ TextInputField::TextInputField(double leftX, double rightX, double topY, double 
 	m_Lines.push_back(std::make_shared<Line>(Point(rightX, topY), Point(leftX, topY)));
 	auto [width, height] = Application::Get()->GetWindow()->GetSize();
 	m_EditingLine = std::make_shared<Line>(Point(m_LeftX + 0.01f, m_BottomY + 0.045f), Point(m_LeftX + 0.01f, m_BottomY + 0.05f + (float)60 / height));
-	m_Text = std::make_shared<Text>(std::vector<int>{}, leftX + 0.01f, rightX - 0.01f, bottomY + 0.05f, 55);
+	m_Text = std::make_shared<Text>(AdvancedString(""), leftX + 0.01f, rightX - 0.01f, bottomY + 0.05f, 55);
 }
 
 TextInputField::~TextInputField()
@@ -31,7 +31,7 @@ void TextInputField::IsSelected()
 
 void TextInputField::TextInput(unsigned int codepoint)
 {
-	m_Text->AddText(std::vector<int>{(int)codepoint}, m_Editingindex);
+	m_Text->AddText(AdvancedString(codepoint), m_Editingindex);
 	UpdateEditingIndex(m_Editingindex + 1, true);
 	SetEditingLine();
 }
@@ -143,7 +143,7 @@ void TextInputField::SetEditingLine()
 {
 	auto [width, height] = Application::Get()->GetWindow()->GetSize();
 	auto font{ Application::Get()->GetRenderer()->GetFont() };
-	const std::vector<int>& text = m_Text->GetText();
+	const AdvancedString& text = m_Text->GetText();
 
 	float x = m_LeftX + 0.01f;
 	for (int i{ m_Text->m_RenderBegin }; i < m_Editingindex; ++i)

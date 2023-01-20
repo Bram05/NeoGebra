@@ -98,7 +98,7 @@ void EquationUI::RenderPass(Renderer* r)
 	UIElement::RenderPass(r);
 }
 
-std::vector<float> EquationUI::ParseInput(const std::vector<int>& input)
+std::vector<float> EquationUI::ParseInput(const AdvancedString& input)
 {
 	std::vector<float> identifiers;
 	int beginOfNumber{ 0 };
@@ -122,7 +122,7 @@ void EquationUI::UpdateGraphs()
 	Application::Get()->GetModelManager()->GetModel()->getElements().clear();
 	for (int i{ m_PointsIndexBegin }; i < m_PointsIndexBegin + NumInputFields; ++i)
 	{
-		const std::vector<int>& text{ ((TextInputField*)(m_SubUIElements[i].element.get()))->GetText() };
+		const AdvancedString& text{ ((TextInputField*)(m_SubUIElements[i].element.get()))->GetText() };
 		if (text.empty())
 			continue;
 
@@ -141,7 +141,7 @@ void EquationUI::UpdateGraphs()
 
 	for (int i{ m_LinesIndexBegin }; i < m_LinesIndexBegin + NumInputFields; ++i)
 	{
-		const std::vector<int>& text{ ((TextInputField*)(m_SubUIElements[i].element.get()))->GetText() };
+		const AdvancedString& text{ ((TextInputField*)(m_SubUIElements[i].element.get()))->GetText() };
 		if (text.empty())
 			continue;
 
@@ -162,16 +162,10 @@ void EquationUI::UpdateGraphs()
 
 void EquationUI::UpdateModel()
 {
-	const std::vector<int>& pointDef{ ((TextInputFieldWithDesc*)(m_SubUIElements[m_PointDefInputField].element.get()))->GetText() };
-	const std::vector<int>& lineDef{ ((TextInputFieldWithDesc*)(m_SubUIElements[m_LineDefInputField].element.get()))->GetText() };
-	std::string pointDefStr; // This shouldn't be needed after Jeroen changes the equations to be stored as vector<int>
-	for (int a : pointDef)
-		pointDefStr.push_back(a);
-	Equation pointDefEq({ "p" }, pointDefStr);
-	std::string lineDefStr; // This shouldn't be needed after Jeroen changes the equations to be stored as vector<int>
-	for (int a : lineDef)
-		lineDefStr.push_back(a);
-	Equation lineDefEq({ "l" }, lineDefStr);
+	const AdvancedString& pointDef{ ((TextInputFieldWithDesc*)(m_SubUIElements[m_PointDefInputField].element.get()))->GetText() };
+	const AdvancedString& lineDef{ ((TextInputFieldWithDesc*)(m_SubUIElements[m_LineDefInputField].element.get()))->GetText() };
+	Equation pointDefEq({ AdvancedString("p") }, pointDef);
+	Equation lineDefEq({ {'l'}}, lineDef);
 	std::shared_ptr<Model> model{ Application::Get()->GetModelManager()->GetModel() };
 	Application::Get()->GetModelManager()->SetModel(model->GetNumPointIdentifiers(), pointDefEq, model->GetNumLineIdentifiers(), lineDefEq, model->GetIncidenceConstr(), model->GetBetweennessConstr());
 	Application::Get()->GetWindowUI()->GetGraphUI()->DeleteGraphs();

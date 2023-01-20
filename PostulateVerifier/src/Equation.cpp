@@ -1,12 +1,18 @@
 #include "Equation.h"
 
 #define OPERNUM 12
-const char calcOrder[OPERNUM] = { '|', '&', '!', '>', '<', '=', '+', '-', '*', '/', '^', '~' };
+const unsigned int calcOrder[OPERNUM] = { '|', '&', '!', '>', '<', '=', '+', '-', '*', '/', '^', '~' };
+const unsigned int specialCharacters[] = { '|', '&', '!', '>', '<', '=', '+', '-', '*', '/', '^', '~', '(', ')', 0x221A};
 
 /// Checks if a string contains a signed float. 
-bool isNumber(const std::string& str)
+bool isNumber(const AdvancedString& str)
 {
-	return str.find_first_not_of("0123456789.-") == std::string::npos;
+	for (unsigned int c : str.content) {
+		if (!((c >= '0' && c <= '9') || c == '.' || c == '-')) {
+			return false;
+		}
+	}
+	return true;
 }
 
 /**
@@ -15,13 +21,20 @@ bool isNumber(const std::string& str)
 	* @param from[in] Substring that should be replaced.
 	* @param to[in] Substring to replace 'from' with.
 */
-bool replaceAll(std::string& str, const std::string& from, const std::string& to) {
-	size_t start_pos = str.find(from);
-	if (start_pos == std::string::npos)
-		return false;
-	str.replace(start_pos, from.length(), to);
-	replaceAll(str, from, to);
-	return true;
+void replaceAll(AdvancedString& str, const AdvancedString& from, const AdvancedString& to) {
+	for (int i = 0; i < str.size(); i++) {
+		bool match = true;
+		for (int j = 0; j < from.size(); j++) {
+			if (str[i + j] != from[j]) {
+				match = false;
+				break;
+			}
+		}
+		if (match) {
+			str.erase(str.begin()+i, str.begin()+i+from.size());
+			str.insert(str.begin() + i, to.begin(), to.end());
+		}
+	}
 }
 
 /// Compares two float numbers using a variable epsilon value. 
@@ -32,14 +45,14 @@ bool floatCompare(float f1, float f2) {
 	return std::abs(f1 - f2) <= epsilon * std::max(std::abs(f1), std::abs(f2));
 }
 
-std::map<std::string, float> Equation::linkVars(const std::vector<std::vector<float>>& identifiers) const {
+std::map<AdvancedString, float> Equation::linkVars(const std::vector<std::vector<float>>& identifiers) const {
 	if (m_VarNames.size() != identifiers.size()) {
 		throw std::invalid_argument("Invalid identifiers");
 	}
 	
-	std::map<std::string, float> m;
+	std::map<AdvancedString, float> m;
 	for (int i = 0; i < m_VarNames.size(); ++i) {
-		std::string varName = m_VarNames[i];
+		AdvancedString varName = m_VarNames[i];
 		for (int j = 0; j < identifiers[i].size(); ++j) {
 			m[varName + std::to_string(j)] = identifiers[i][j];
 		}
@@ -47,49 +60,68 @@ std::map<std::string, float> Equation::linkVars(const std::vector<std::vector<fl
 	return m;
 }
 
-Equation::Equation(const std::vector<std::string>& varNames, const std::string& equationString) : m_VarNames{ varNames }, m_EquationString{ equationString }
+Equation::Equation(const std::vector<AdvancedString>& varNames, const AdvancedString& equationString) : m_VarNames{ varNames }, m_EquationString{ equationString }
 {
-	replaceAll(m_EquationString, " ", "");
+	replaceAll(m_EquationString, AdvancedString(" "), AdvancedString(""));
 }
 
 Equation::Equation(const Equation& e1, const Equation& e2) {
-	std::string s1 = e1.m_EquationString;
-	std::string s2 = e2.m_EquationString;
+	AdvancedString s1 = e1.m_EquationString;
+	AdvancedString s2 = e2.m_EquationString;
 
-	for (std::string var1 : e1.m_VarNames) {
+	for (AdvancedString var1 : e1.m_VarNames) {
 		bool varNameAdded = false;
-		for (std::string var2 : e2.m_VarNames) {
+		for (AdvancedString var2 : e2.m_VarNames) {
 			if (var1 == var2) {
 				varNameAdded = true;
-				m_VarNames.push_back(var1 + 'a');
-				replaceVarName(s1, var1, var1 + 'a');
+				AdvancedString newVarName = var1;
+				newVarName.push_back('a');
+				m_VarNames.push_back(newVarName);
+				replaceVarName(s1, var1, newVarName);
 			}
 		}
 		if (!varNameAdded) {
 			m_VarNames.push_back(var1);
 		}
 	}
-	for (std::string var2 : e2.m_VarNames) {
+	for (AdvancedString var2 : e2.m_VarNames) {
 		bool varNameAdded = false;
-		for (std::string var1 : e1.m_VarNames) {
+		for (AdvancedString var1 : e1.m_VarNames) {
 			if (var1 == var2) {
 				varNameAdded = true;
-				m_VarNames.push_back(var2 + 'b');
-				replaceVarName(s2, var2, var2 + 'b');
+				AdvancedString newVarName = var2;
+				newVarName.push_back('b');
+				m_VarNames.push_back(newVarName);
+				replaceVarName(s2, var2, newVarName);
 			}
 		}
 		if (!varNameAdded) {
 			m_VarNames.push_back(var2);
 		}
 	}
-	m_EquationString = "(" + s1 + ")&(" + s2 + ")";
+
+	m_EquationString = "(" + s1 + ") & (" + s2 + ")";
 }
 
-void Equation::replaceVarName(std::string& s, const std::string& from, const std::string& to) {
-	std::regex reg("(^|[\\(\\)\\[\\]|&!><=+\\-*\\^~])(" + from + ")([0-9]*)([\\(\\)\\[\\]|&!><=+\\-*\\^~]|$)");
-	// Needs to be run twice in case matches overlap
-	for (int i = 0; i < 2; ++i) {
-		s = std::regex_replace(s, reg, "$1" + to + "$3$4");
+void Equation::replaceVarName(AdvancedString& s, const AdvancedString& from, const AdvancedString& to) {
+	for (int i = 0; i < s.size(); i++) {
+		bool match = true;
+		for (int j = 0; j < from.size(); j++) {
+			if (s[i + j] != from[j]) {
+				match = false;
+				break;
+			}
+		}
+		if (match) {
+			int k = 0;
+			while (s[i + from.size() + k] >= '0' && s[i + from.size() + k] <= '9') { k++; }
+			if (k > 0 && (i == 0 || std::find(std::begin(specialCharacters), std::end(specialCharacters), s[i - 1]) != std::end(specialCharacters)) &&
+				(i + from.size() + k == s.size() || std::find(std::begin(specialCharacters), std::end(specialCharacters), s[i + from.size() + k]) != std::end(specialCharacters)))
+			{
+				s.erase(s.begin() + i, s.begin() + i + from.size());
+				s.insert(s.begin() + i, to.begin(), to.end());
+			}
+		}
 	}
 }
 
@@ -98,7 +130,10 @@ Equation operator+(const Equation& e1, const Equation& e2) {
 }
 
 Equation operator!(const Equation& e) {
-	return Equation{ e.m_VarNames, "!(" + e.m_EquationString + ")" };
+	AdvancedString newEquationStr = e.m_EquationString;
+	newEquationStr.insert(newEquationStr.begin(), "!(");
+	newEquationStr.insert(newEquationStr.end(), ')');
+	return Equation{ e.m_VarNames, newEquationStr };
 }
 
 equationResult Equation::getSolution(const std::vector<std::vector<float>>& identifiers) const {
@@ -124,14 +159,14 @@ equationResult Equation::getSolution(const std::vector<std::vector<float>>& iden
 }
 
 bool Equation::isTrue(const std::vector<std::vector<float>>& identifiers) const {
-	std::map<std::string, float> vars = linkVars(identifiers);
+	std::map<AdvancedString, float> vars = linkVars(identifiers);
 	return recIsTrue(m_EquationString, vars);
 }
 
 std::string Equation::toSmtLib(const std::vector<std::vector<float>>& identifiers) const {
 	std::set<std::string> toDefine;
 	std::vector<std::pair<std::string, std::string>> sqrts;
-	std::map<std::string, float> vars = linkVars(identifiers);
+	std::map<AdvancedString, float> vars = linkVars(identifiers);
 	std::string out = "(assert " + recToSmtLib(m_EquationString, vars, toDefine, sqrts, true) + ")(check-sat)";
 
 	for (int i = sqrts.size() - 1; i >= 0; --i) {
@@ -147,17 +182,17 @@ std::string Equation::toSmtLib(const std::vector<std::vector<float>>& identifier
 }
 
 std::string Equation::toShader(const std::vector<std::vector<float>>& identifiers) const {
-	std::map<std::string, float> vars = linkVars(identifiers);
+	std::map<AdvancedString, float> vars = linkVars(identifiers);
 	return recToShader(m_EquationString, vars);
 }
 
-float Equation::recIsTrue(const std::string& s, const std::map<std::string, float>& vars) const {
+float Equation::recIsTrue(const AdvancedString& s, const std::map<AdvancedString, float>& vars) const {
 	bool orEquals = false; // True if the > or < is a >= or <=
 	int operIndex = getNextOperator(s, orEquals);
 
 	// No operator found, can be: number, negative, brackets, abs, sqrt, not, t, f
 	if (operIndex == -1) {
-		if (isNumber(s)) { return std::stof(s); }
+		if (isNumber(s)) { return s.toFloat(); }
 		if (s[0] != '-') {
 			if (vars.count(s)) { return vars.at(s); }
 			if (s[0] == '(' and s.back() == ')') { return recIsTrue(s.substr(1, s.length() - 2), vars); }
@@ -174,8 +209,8 @@ float Equation::recIsTrue(const std::string& s, const std::map<std::string, floa
 		throw std::invalid_argument("Invalid operator");
 	}
 
-	std::string s1 = s.substr(0, operIndex);
-	std::string s2 = s.substr(operIndex + 1, s.length() - operIndex - 1);
+	AdvancedString s1 = s.substr(0, operIndex);
+	AdvancedString s2 = s.substr(operIndex + 1, s.length() - operIndex - 1);
 
 	switch (s[operIndex]) {
 	case '|': return recIsTrue(s1, vars) or recIsTrue(s2, vars);
@@ -198,13 +233,13 @@ float Equation::recIsTrue(const std::string& s, const std::map<std::string, floa
 	}
 }
 
-std::string Equation::recToSmtLib(const std::string& s, const std::map<std::string, float>& vars, std::set<std::string>& toDefine, std::vector<std::pair<std::string, std::string>>& sqrts, bool isFirstLayer) const {
+std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<AdvancedString, float>& vars, std::set<std::string>& toDefine, std::vector<std::pair<std::string, std::string>>& sqrts, bool isFirstLayer) const {
 	bool orEquals = false; // True if the > or < is a >= or <=
 	int operIndex = getNextOperator(s, orEquals);
 
 	// No operator found, can be: number, negative, brackets, abs, sqrt, not, t, f
 	if (operIndex == -1) {
-		if (isNumber(s)) { return s; }
+		if (isNumber(s)) { return s.toString(); }
 		if (s[0] != '-') {
 			if (vars.count(s)) { return std::to_string(vars.at(s)); }
 			if (s[0] == '(' and s.back() == ')') { return recToSmtLib(s.substr(1, s.length() - 2), vars, toDefine, sqrts); }
@@ -218,12 +253,12 @@ std::string Equation::recToSmtLib(const std::string& s, const std::map<std::stri
 		}
 		if (s == "t") { return "true"; }
 		if (s == "f") { return "false"; }
-		toDefine.insert(s);
-		return s;
+		toDefine.insert(s.toString());
+		return s.toString();
 	}
 
-	std::string s1 = s.substr(0, operIndex);
-	std::string s2 = s.substr(operIndex + 1, s.length() - operIndex - 1);
+	AdvancedString s1 = s.substr(0, operIndex);
+	AdvancedString s2 = s.substr(operIndex + 1, s.length() - operIndex - 1);
 
 	switch (s[operIndex]) {
 	case '|': return "(or " + recToSmtLib(s1, vars, toDefine, sqrts) + " " + recToSmtLib(s2, vars, toDefine, sqrts) + ")";
@@ -261,13 +296,13 @@ std::string Equation::recToSmtLib(const std::string& s, const std::map<std::stri
 	}
 }
 
-std::string Equation::recToShader(const std::string& s, const std::map<std::string, float>& vars) const {
+std::string Equation::recToShader(const AdvancedString& s, const std::map<AdvancedString, float>& vars) const {
 	bool orEquals = false; // True if the > or < is a >= or <=
 	int operIndex = getNextOperator(s, orEquals);
 
 	// No operator found, can be: number, negative, brackets, abs, sqrt, not, t, f
 	if (operIndex == -1) {
-		if (isNumber(s)) { return std::to_string(std::stof(s)); }
+		if (isNumber(s)) { return std::to_string(s.toFloat()); }
 		if (s[0] != '-') {
 			if (vars.count(s)) { return std::to_string(vars.at(s)); }
 			if (s[0] == '(' and s.back() == ')') { return "(" + recToShader(s.substr(1, s.length() - 2), vars) + ")"; }
@@ -281,12 +316,12 @@ std::string Equation::recToShader(const std::string& s, const std::map<std::stri
 		}
 		if (s == "t") { return "true"; }
 		if (s == "f") { return "false"; }
-		if (s == "x" or s == "y") { return "coords." + s; }
+		if (s == "x" or s == "y") { return "coords." + s.toString(); }
 		throw std::invalid_argument("Invalid statement");
 	}	
 
- 	std::string s1 = s.substr(0, operIndex);
-	std::string s2 = s.substr(operIndex + 1, s.length() - operIndex - 1);
+ 	AdvancedString s1 = s.substr(0, operIndex);
+	AdvancedString s2 = s.substr(operIndex + 1, s.length() - operIndex - 1);
 
 	switch (s[operIndex]) {
 	case '|': return "min(" + recToShader(s1, vars) + ", " + recToShader(s2, vars) + ")";
@@ -309,17 +344,17 @@ std::string Equation::recToShader(const std::string& s, const std::map<std::stri
 	}
 }
 
-int Equation::getNextOperator(const std::string& s, bool& orEquals) const {
+int Equation::getNextOperator(const AdvancedString& s, bool& orEquals) const {
 	int depth = 0;
 	int best = OPERNUM;
 	int operIndex = -1;
 	for (int i{}; i < s.length(); ++i) {
-		char c = s[i];
+		unsigned int c = s[i];
 		if (c == '(' or c == '[') { depth += 1; }
 		if (c == ')' or c == ']') { depth -= 1; }
 
 		if (depth == 0) {
-			const char* res = std::find(std::begin(calcOrder), std::begin(calcOrder) + best, c);
+			const unsigned int* res = std::find(std::begin(calcOrder), std::begin(calcOrder) + best, c);
 			if (res != std::begin(calcOrder) + best) {
 				// If operator is '-', the program needs to check if there is another operator in front of it, such as 5*-3=-15
 				// If operator is '!', the program needs to check if the operator is "!="
@@ -339,4 +374,48 @@ int Equation::getNextOperator(const std::string& s, bool& orEquals) const {
 	if (depth != 0) { throw std::invalid_argument("Invalid brackets"); }
 
 	return operIndex;
+}
+
+AdvancedString operator+(const AdvancedString& s1, const AdvancedString& s2) {
+	AdvancedString res = s1;
+	res.content.insert(s1.content.end(), s2.content.begin(), s2.content.end());
+	return res;
+}
+
+AdvancedString operator+(const AdvancedString& s1, const std::string& s2)	{
+	AdvancedString res = s1;
+	res.content.insert(res.content.end(), s2.begin(), s2.end());
+	return res;
+}
+
+AdvancedString operator+(const std::string& s1, const AdvancedString& s2) {
+	AdvancedString res = s2;
+	res.content.insert(res.content.begin(), s1.begin(), s1.end());
+	return res;
+}
+
+bool operator==(const AdvancedString& s1, const AdvancedString& s2) {
+	return s1.content == s2.content;
+}
+
+bool operator==(const AdvancedString& s1, const std::string& s2) {
+	for (int i = 0; i < s1.size(); i++) {
+		if (s1[i] != s2[i]) {
+			return false;
+		}
+	}
+	return true;
+}
+
+bool operator==(const std::string& s1, const AdvancedString& s2) {
+	for (int i = 0; i < s1.size(); i++) {
+		if (s1[i] != s2[i]) {
+			return false;
+		}
+	}
+	return true;
+}
+
+bool operator<(const AdvancedString& s1, const AdvancedString& s2) {
+	return s1.content < s2.content;
 }

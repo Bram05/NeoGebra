@@ -13,7 +13,7 @@ public:
 	virtual ~TextInputField();
 
 	// Get the text as a vector of the unicode character and the width of this character
-	const std::vector<int>& GetText() const { return m_Text->GetText(); }
+	const AdvancedString& GetText() const { return m_Text->GetText(); }
 	virtual void RenderPass(Renderer* r) override;
 
 protected:

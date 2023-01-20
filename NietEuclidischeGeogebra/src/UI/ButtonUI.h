@@ -10,7 +10,7 @@ class ButtonUI : public UIElement
 {
 public:
 	ButtonUI(double leftX, double rightX, double topY, double bottomY, void(*func)(void*), void* obj, const std::string& text);
-	ButtonUI(double leftX, double rightX, double topY, double bottomY, void(*func)(void*), void* obj, const std::vector<int>& text);
+	ButtonUI(double leftX, double rightX, double topY, double bottomY, void(*func)(void*), void* obj, const AdvancedString& text);
 	~ButtonUI();
 
 	virtual void RenderPass(Renderer* r) override;
