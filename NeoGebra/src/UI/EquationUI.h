@@ -7,7 +7,7 @@
 #include "Rendering/TextRenderer.h"
 #include "TextInputField.h"
 
-static void ButtonClickedCallback(void*,int);
+static void TabButtonClickedStatic(void*,int);
 
 // Represents what will eventually be the part where equations can be written
 class EquationUI : public UIElement
