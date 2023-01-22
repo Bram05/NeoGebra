@@ -15,7 +15,7 @@ ErrorBox::ErrorBox(float leftX, float rightX, float topY, float bottomY)
 	m_Lines.push_back(std::make_shared<Line>(Point(rightX, bottomY), Point(rightX, topY))); // right
 	m_Lines.push_back(std::make_shared<Line>(Point(rightX, bottomY), Point(leftX, bottomY))); // bottom
 	
-	m_ErrorText = std::make_shared<Text>("", m_LeftX+0.01f, m_RightX-0.01f, m_BottomY + 0.43f, 35.0f);// Init empty object
+	m_ErrorText = std::make_shared<Text>("Error Box : any errors will be displayed in here.", m_LeftX+0.01f, m_RightX-0.01f, m_BottomY + 0.43f, 35.0f);// Init empty object
 
 }
 
