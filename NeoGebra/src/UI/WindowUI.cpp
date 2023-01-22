@@ -8,7 +8,8 @@
 #include "GraphUI.h"
 #include "MenuUI.h"
 #include "TabUI.h"
-
+#include "FPSCounterUI.h"
+#include "Constants.h"
 
 void tabTest(void* obj, int x) {
 		std::cout << x <<  "\n";
@@ -21,6 +22,10 @@ WindowUI::WindowUI()
 	m_UIElements.push_back(std::make_shared<GraphUI>(-0.5f, 0.5f, 0.9f, -1.0f));
 	m_GraphUIIndex = m_UIElements.size() - 1;
 	m_UIElements.push_back(std::make_shared<MenuUI>(-1.0f, 1.0f, 1.0f, 0.9f));
+	#ifdef TIMING
+	m_UIElements.push_back(std::make_shared<FPSCounterUI>(0.7f, 1.0f, 1.0f, 0.8f));
+	m_FPSCounterIndex = m_UIElements.size() - 1;
+	#endif
 }
 
 WindowUI::~WindowUI()
@@ -140,6 +145,13 @@ void WindowUI::UpdateGraphUI()
 	{
 		el->UpdateGraphUI();
 	}
+}
+
+void WindowUI::SetFPSCounter(float fps)
+{
+	#ifdef TIMING
+	(*(std::shared_ptr<FPSCounterUI>*)&m_UIElements[m_FPSCounterIndex])->SetCounter(fps);
+	#endif
 }
 
 GraphUI* WindowUI::GetGraphUI()

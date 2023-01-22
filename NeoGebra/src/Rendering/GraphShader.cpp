@@ -8,7 +8,7 @@
 
 enum ShaderType
 {
-	VERTEX_SHADER, FRAGMENT_SHADER, COMPUTE_SHADER1, COMPUTE_SHADER2, COMPUTE_SHADER3
+	VERTEX_SHADER, FRAGMENT_SHADER
 };
 
 static int CompileShader(ShaderType type, const std::filesystem::path& path, const std::string& insertText);
@@ -18,7 +18,6 @@ GraphShader::GraphShader(const std::string name)
 	: m_Name{ name }
 {
 	CreateShader(name);
-	CreateCompShader(m_Name + "2", "", m_CompShader2);
 }
 
 void GraphShader::CreateShader(const std::string name)
@@ -52,39 +51,9 @@ void GraphShader::CreateShader(const std::string name)
 	glUseProgram(m_Shader);
 }
 
-void GraphShader::CreateCompShader(const std::string name, const std::string& insertText, unsigned int& shaderProgram)
-{
-	// If it exists, delete old shader
-	if (shaderProgram != NULL) {
-		glDeleteProgram(shaderProgram);
-	}
-
-	shaderProgram = glCreateProgram();
-
-	std::filesystem::path path = AssetsFolder / "shaders" / name;
-	int cs = CompileShader((name.back() == '1' ? COMPUTE_SHADER1 : (name.back() == '2' ? COMPUTE_SHADER2 : COMPUTE_SHADER3)), path.string() + ".comp", insertText);
-	glAttachShader(shaderProgram, cs);
-	glLinkProgram(shaderProgram);
-	int result;
-	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &result);
-	if (result == GL_FALSE)
-	{
-		int length;
-		glGetProgramiv(shaderProgram, GL_INFO_LOG_LENGTH, &length);
-
-		char* log = new char[length];
-		glGetProgramInfoLog(shaderProgram, length, &length, log);
-		throw std::runtime_error(std::string("Failed to link shader ") + path.string() + ".comp" + ": " + log);
-	}
-	glDetachShader(shaderProgram, cs);
-	glDeleteShader(cs);
-	glUseProgram(shaderProgram);
-}
-
 GraphShader::~GraphShader()
 {
 	glDeleteProgram(m_Shader);
-	glDeleteProgram(m_CompShader2);
 }
 
 void GraphShader::Bind()
@@ -141,9 +110,6 @@ static int CompileShader(ShaderType type, const std::filesystem::path& path, con
 		glType = GL_VERTEX_SHADER; break;
 	case FRAGMENT_SHADER:
 		glType = GL_FRAGMENT_SHADER; break;
-	case COMPUTE_SHADER1:
-	case COMPUTE_SHADER2:
-		glType = GL_COMPUTE_SHADER; break;
 	default:
 		throw std::runtime_error(std::string("Unknown shader type ") + std::to_string(type));
 	}
@@ -160,11 +126,6 @@ static int CompileShader(ShaderType type, const std::filesystem::path& path, con
 	}
 	GLuint shader = glCreateShader(glType);
 	std::string sourceC = source.str();
-
-	// If the shader is the first compute shader, the formula should be inserted
-	if (type == COMPUTE_SHADER1) {
-		sourceC.replace(sourceC.find("[EQUATION]"), 10, insertText);
-	}
 
 	const char* s = sourceC.c_str();
 	glShaderSource(shader, 1, &s, nullptr);
@@ -195,60 +156,4 @@ int GraphShader::GetUniformLocation(const std::string& name) const
 		return loc;
 	}
 	return it->second;
-}
-
-unsigned int GraphShader::RunComp(float normWidth, float normHeight, float midCoordX, float midCoordY, float unitLengthPixels, unsigned int compShader1)
-{
-	Util::Timer t("Running compute shader " + m_Name);
-	auto [windowWidth, windowHeight] = Application::Get()->GetWindow()->GetSize();
-
-	int width = static_cast<int>(windowWidth * normWidth / 2);
-	int height = static_cast<int>(windowHeight * normHeight / 2);
-
-	//Create first texture
-	unsigned int texture1;
-	glGenTextures(1, &texture1);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture1);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, NULL);
-	glBindImageTexture(0, texture1, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
-
-	//Create second texture
-	unsigned int texture2;
-	glGenTextures(1, &texture2);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture2);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, width, height, 0, GL_RED, GL_FLOAT, NULL);
-	glBindImageTexture(1, texture2, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
-
-
-	//Run 1st shader
-	glUseProgram(compShader1);
-	// Left Right Top Bottom
-	SetUniform(1, std::array<float, 4>{ midCoordX - 0.5f * width / unitLengthPixels,
-		midCoordX + 0.5f * width / unitLengthPixels,
-		midCoordY + 0.5f * height / unitLengthPixels,
-		midCoordY - 0.5f * height / unitLengthPixels });
-	glDispatchCompute(width, height, 1);
-
-	//wait until program finishes
-	glMemoryBarrier(GL_ALL_BARRIER_BITS);
-
-	//Run 2nd shader
-	glUseProgram(m_CompShader2);
-	glDispatchCompute(width, height, 1);
-
-	glMemoryBarrier(GL_ALL_BARRIER_BITS);
-	glDeleteTextures(1, &texture1);
-	return texture2;
 }

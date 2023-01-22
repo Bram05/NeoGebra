@@ -8,12 +8,9 @@
 #include <GLFW/glfw3.h> // I don't like this
 
 Application* Application::s_Instance = nullptr;
-constexpr int numFpsAverage = 60;
 
 static void MouseClickCallback(int mouseButton, int action, int mods)
 {
-	//std::cout << (mouseButton == MouseButton::left ? "Left" : mouseButton == MouseButton::right ? "Right" : "Middle")
-		//<< "mouse button was " << (action == Action::pressed ? "pressed" : "released") << '\n';
 	if (mouseButton == MouseButton::left && action == Action::pressed)
 	{
 		auto [x, y] = Application::Get()->GetWindow()->GetMouseLocation();
@@ -82,14 +79,18 @@ Application::~Application()
 
 void Application::Run()
 {
+	#ifdef TIMING
 	double m_LastFrameTime{ glfwGetTime() };
+	#endif
 	while (!m_Window->ShouldClose())
 	{
 		m_WindowUI->RenderPass(m_Renderer);
 		m_Renderer->RenderQueues();
 		m_Window->Update();
 
+		#ifdef TIMING
 		UpdateFrameTimes();
+		#endif
 	}
 }
 
@@ -110,7 +111,7 @@ void Application::UpdateFrameTimes()
 			sum += m_LastFpss.top();
 			m_LastFpss.pop();
 		}
-		//std::cout << "\rAverage FPS (over " << g_NumSecondsForFpsAverage << " seconds): " << sum / size << std::flush;
+		m_WindowUI->SetFPSCounter(sum / size);
 		m_TimeSinceLastFpsUpdate = 0.0;
 	}
 	m_LastFrameTime = endTime;

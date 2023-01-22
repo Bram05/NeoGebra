@@ -7,6 +7,7 @@
 #include "GraphShader.h"
 #include "Objects.h"
 #include "Maths/Model.h"
+#include "GraphComputeShaderManager.h"
 
 class GraphRenderer;
 
@@ -16,7 +17,7 @@ class Graph
 {
 public:
 	//ToDo: change to line/point
-	Graph(NEElement& el, float leftX, float rightX, float topY, float bottomY, float midCoordX, float midCoordY, float unitLengthPixels, const RGBColour& colour);
+	Graph(NEElement& el, const GraphComputeShaderManager& manager, float leftX, float rightX, float topY, float bottomY, float midCoordX, float midCoordY, float unitLengthPixels, const RGBColour& colour);
 	~Graph();
 
 	// Getters and setters
@@ -24,8 +25,12 @@ public:
 	double GetTopY() const { return m_TopY; }
 	double GetRightX() const { return m_RightX; }
 	double GetBottomY() const { return m_BottomY; }
+	unsigned int GetCompShader1() const { return m_CompShader1; }
+	std::pair<float, float> GetMidCoord() const { return { m_MidCoordX, m_MidCoordY }; }
+	float GetUnitLengthPixels() const { return m_UnitLengthPixels; }
+	unsigned int GetTexture() const { return m_Texture; }
 
-	void GenTexture(float leftX, float rightX, float topY, float bottomY, float midCoordX, float midCoordY, float unitLengthPixels, GraphRenderer* rendPtr);
+	void ReGenTexture(const GraphComputeShaderManager& manager);
 
 	RGBColour getColour() const { return m_Colour; };
 	void setColour(const RGBColour& colour) { m_Colour = colour; }
@@ -39,7 +44,7 @@ private:
 	GLuint m_Vb;
 	GLuint m_Ib;
 	unsigned int m_CompShader1 = NULL;
-	unsigned int m_Texture = NULL;
+	unsigned int m_Texture;
 	friend GraphRenderer;
 };
 

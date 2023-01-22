@@ -57,6 +57,8 @@ public:
 
 	void AddText(const AdvancedString& letters, int position);
 	void AddText(const std::string& letters, int position);
+	void SetText(const AdvancedString& text);
+	void SetText(const std::string& text);
 	void RemoveText(int begin, int num);
 
 	const AdvancedString& GetText() const { return m_Text; }

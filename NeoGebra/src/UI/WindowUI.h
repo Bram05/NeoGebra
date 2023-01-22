@@ -25,6 +25,7 @@ public:
 	void SpecialKeyInput(int key, int scancode, int action, int mods);
 	void ResizeWindow(int width, int height);
 	void UpdateGraphUI();
+	void SetFPSCounter(float fps);
 	void InsertKey(int codepoint);
 
 	GraphUI* GetGraphUI();
@@ -34,7 +35,7 @@ private:
 	std::vector<std::shared_ptr<UIElement>> m_UIElements;
 	std::shared_ptr<UIElement> m_CurrentlyHoveredElement{ nullptr };
 	std::shared_ptr<UIElement> m_SelectedElement{ nullptr };
-	int m_GraphUIIndex;
+	int m_GraphUIIndex, m_FPSCounterIndex;
 
 	// Recursive function to find the element that is at this position.
 	// This function will the element that is furtherst in the tree that is under this position

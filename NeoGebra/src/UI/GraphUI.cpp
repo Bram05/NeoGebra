@@ -7,7 +7,7 @@
 #include "Util.h"
 
 GraphUI::GraphUI(float leftX, float rightX, float topY, float bottomY)
-	: UIElement(leftX, rightX, topY, bottomY, "GraphUI")
+	: UIElement(leftX, rightX, topY, bottomY, "GraphUI"), m_ComputeShaderManager("graphShader", rightX-leftX, topY-bottomY)
 {
 	m_MidCoordX = 0.0f, m_MidCoordY = 0.0f, m_UnitLengthPixels = 135.0f;
 
@@ -40,8 +40,8 @@ void GraphUI::RenderPass(Renderer* r)
 
 void GraphUI::ResizeWindow(int width, int height)
 {
-	UpdateLines();
-	UpdateGraphs();
+	//UpdateLines();
+	//UpdateGraphs();
 	UIElement::ResizeWindow(width, height);
 }
 
@@ -58,6 +58,7 @@ void GraphUI::WasClicked(float x, float y) {
 }
 
 void GraphUI::DraggedUpdate(float x, float y) {
+	Util::Timer t("DraggedUpdate");
 	m_MidCoordX = m_MidCoordXBeforeDrag - (Util::ConvertToPixelCoordinate(x, true) - Util::ConvertToPixelCoordinate(m_XBeforeDrag, true)) / m_UnitLengthPixels;
 	m_MidCoordY = m_MidCoordYBeforeDrag - (Util::ConvertToPixelCoordinate(y, false) - Util::ConvertToPixelCoordinate(m_YBeforeDrag, false)) / m_UnitLengthPixels;
 	UpdateLines();
@@ -66,19 +67,18 @@ void GraphUI::DraggedUpdate(float x, float y) {
 
 void GraphUI::UpdateLines()
 {
+	//Util::Timer t("UpdateLines");
 	m_Lines.clear();
-	m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, m_TopY), Point(m_LeftX, m_BottomY))); // Left size
+	
+	/*m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, m_TopY), Point(m_LeftX, m_BottomY))); // Left size
 	m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, m_TopY), Point(m_RightX, m_TopY))); // top
 	m_Lines.push_back(std::make_shared<Line>(Point(m_RightX, m_BottomY), Point(m_RightX, m_TopY))); // right
-	m_Lines.push_back(std::make_shared<Line>(Point(m_RightX, m_BottomY), Point(m_LeftX, m_BottomY))); // bottom
+	m_Lines.push_back(std::make_shared<Line>(Point(m_RightX, m_BottomY), Point(m_LeftX, m_BottomY))); // bottom*/
 
 	float pixelTopY = Util::ConvertToPixelCoordinate(m_TopY, false);
 	float pixelBottomY = Util::ConvertToPixelCoordinate(m_BottomY, false);
 	float pixelLeftX = Util::ConvertToPixelCoordinate(m_LeftX, true);
 	float pixelRightX = Util::ConvertToPixelCoordinate(m_RightX, true);
-
-	/*std::cout << "pixel left X: " << pixelLeftX << "\n";
-	std::cout << "pixel right X: " << pixelRightX << "\n";*/
 
 	float midPixelX = (pixelLeftX + pixelRightX) / 2;
 	float midPixelY = (pixelTopY + pixelBottomY) / 2;
@@ -159,6 +159,7 @@ void GraphUI::UpdateLines()
 
 void GraphUI::UpdateGraphs()
 {
+	//Util::Timer t("UpdateGraphs");
 	GraphRenderer* rendPtr = Application::Get()->GetRenderer()->GetGraphRenderer();
 
 	std::shared_ptr<Model> m = Application::Get()->GetModel();
@@ -169,7 +170,7 @@ void GraphUI::UpdateGraphs()
 			if (el == graph) { found = true; break; }
 		}
 		if (!found) {
-			m_Graphs.push_back(std::make_shared<Graph>(el, m_LeftX, m_RightX, m_TopY, m_BottomY, m_MidCoordX, m_MidCoordY, m_UnitLengthPixels, el.getColour()));
+			m_Graphs.push_back(std::make_shared<Graph>(el, m_ComputeShaderManager, m_LeftX, m_RightX, m_TopY, m_BottomY, m_MidCoordX, m_MidCoordY, m_UnitLengthPixels, el.getColour()));
 		}
 	}
 	// Add new graphs
@@ -179,7 +180,7 @@ void GraphUI::UpdateGraphs()
 			if (el == graph) { found = true; break; }
 		}
 		if (!found) {
-			m_Graphs.push_back(std::make_shared<Graph>(el, m_LeftX, m_RightX, m_TopY, m_BottomY, m_MidCoordX, m_MidCoordY, m_UnitLengthPixels, el.getColour()));
+			m_Graphs.push_back(std::make_shared<Graph>(el, m_ComputeShaderManager, m_LeftX, m_RightX, m_TopY, m_BottomY, m_MidCoordX, m_MidCoordY, m_UnitLengthPixels, el.getColour()));
 		}
 	}
 
@@ -207,7 +208,7 @@ void GraphUI::UpdateGraphs()
 		}
 		else {
 			//Need to regenerate texture because graph moved
-			graph->GenTexture(m_LeftX, m_RightX, m_TopY, m_BottomY, m_MidCoordX, m_MidCoordY, m_UnitLengthPixels, rendPtr);
+			graph->ReGenTexture(m_ComputeShaderManager);
 		}
 	}
 }

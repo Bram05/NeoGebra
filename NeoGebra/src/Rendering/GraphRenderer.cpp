@@ -1,12 +1,27 @@
 #include "GraphRenderer.h"
 
-Graph::Graph(NEElement& el, float leftX, float rightX, float topY, float bottomY, float midCoordX, float midCoordY, float unitLengthPixels, const RGBColour& colour)
+#include "GraphComputeShaderManager.h"
+#include "Util.h"
+
+Graph::Graph(NEElement& el, const GraphComputeShaderManager& manager, float leftX, float rightX, float topY, float bottomY, float midCoordX, float midCoordY, float unitLengthPixels, const RGBColour& colour)
 	: m_El{ el },
 	m_LeftX{ leftX }, m_RightX{ rightX }, m_TopY{ topY }, m_BottomY{ bottomY },
 	m_MidCoordX{ midCoordX }, m_MidCoordY{ midCoordY }, m_UnitLengthPixels{ unitLengthPixels },
 	m_Colour{ colour }
 {
-	GraphShader::CreateCompShader("graphShader1", m_El.getShader(), m_CompShader1);
+	int widthPix{ Util::ConvertToPixelCoordinate(rightX - leftX, true) };
+	int heightPix{ Util::ConvertToPixelCoordinate(topY - bottomY, false) };
+	glGenTextures(1, &m_Texture);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_Texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, widthPix, heightPix, 0, GL_RED, GL_FLOAT, NULL);
+	glBindImageTexture(0, m_Texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+
+	m_CompShader1 = manager.CreateCompShader("graphShader1", m_El.getShader());
 
 	float buffer[16] = {
 		leftX,	topY,	 0.0f, 1.0f,
@@ -41,34 +56,11 @@ Graph::~Graph()
 	glDeleteBuffers(1, &m_Ib);
 	glDeleteVertexArrays(1, &m_Vao);
 	glDeleteProgram(m_CompShader1);
+	glDeleteTextures(1, &m_Texture);
 }
 
-void Graph::GenTexture(float leftX, float rightX, float topY, float bottomY, float midCoordX, float midCoordY, float unitLengthPixels, GraphRenderer* rendPtr) {
-	m_LeftX = leftX;
-	m_RightX = rightX;
-	m_TopY = topY;
-	m_BottomY = bottomY;
-	m_MidCoordX = midCoordX;
-	m_MidCoordY = midCoordY;
-	m_UnitLengthPixels = unitLengthPixels;
-
-	float buffer[16] = {
-		leftX,	topY,	 0.0f, 1.0f,
-		leftX,	bottomY, 0.0f, 0.0f,
-		rightX,	bottomY, 1.0f, 0.0f,
-		rightX,	topY,	 1.0f, 1.0f
-	};
-
-	glBindBuffer(GL_ARRAY_BUFFER, m_Vb);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(buffer), buffer, GL_STATIC_DRAW);
-
-	float normWidth = rightX - leftX;
-	float normHeight = topY - bottomY;
-	if (m_Texture != NULL) {
-		glDeleteTextures(1, &m_Texture);
-	}
-	m_Texture = rendPtr->m_Shader.RunComp(normWidth, normHeight, m_MidCoordX, m_MidCoordY, m_UnitLengthPixels, m_CompShader1);
-	return;
+void Graph::ReGenTexture(const GraphComputeShaderManager& manager) {
+	manager.RunComputeShader(this);
 }
 
 GraphRenderer::GraphRenderer()
@@ -100,7 +92,6 @@ void GraphRenderer::setPointSize(int pixels) {
 	}
 	m_PointSize = pixels;
 }
-
 
 void GraphRenderer::RenderQueue()
 {

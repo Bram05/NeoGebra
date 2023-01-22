@@ -4,6 +4,7 @@
 
 #include "UIElement.h"
 #include "Rendering/GraphRenderer.h"
+#include "Rendering/GraphComputeShaderManager.h"
 #include "Maths/Model.h"
 
 // The middle part of the screen in which graphs are displayed
@@ -26,6 +27,7 @@ protected:
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
 	std::vector<std::shared_ptr<Graph>> m_Graphs;
+	GraphComputeShaderManager m_ComputeShaderManager;
 
 	float m_MidCoordX, m_MidCoordY, m_UnitLengthPixels;
 	float m_MidCoordXBeforeDrag, m_MidCoordYBeforeDrag;

@@ -248,6 +248,16 @@ void Text::AddText(const std::string& letters, int position)
 	AddText(AdvancedString{letters}, position);
 }
 
+void Text::SetText(const AdvancedString& text)
+{
+	m_Text = text;
+}
+
+void Text::SetText(const std::string& text)
+{
+	m_Text = AdvancedString(text);
+}
+
 void Text::RemoveText(int begin, int num)
 {
 	m_Text.erase(m_Text.begin() + begin, m_Text.begin() + begin + num);
