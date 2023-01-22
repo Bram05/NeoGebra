@@ -17,7 +17,7 @@ void AddLine(void*) {
 }
 
 void AddError(void*) {
-	Application::Get()->AddError("Error");
+	Application::Get()->AddError("Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test ");
 }
 
 
