@@ -6,6 +6,7 @@
 #include "TextInputField.h"
 #include "Rendering/TextRenderer.h"
 
+// A text input field with a leading description before it
 class TextInputFieldWithDesc : public UIElement
 {
 public:

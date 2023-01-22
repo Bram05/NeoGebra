@@ -6,10 +6,11 @@
 
 struct equationResult { bool sat; z3::model* m; };
 // String with extra characters, such as square roots and pi
+// Some constructors are marked explicit to prevent objects unwantingly convert to advanced strings
 struct AdvancedString {
 	std::vector<unsigned int> content;
 	AdvancedString() {}
-	AdvancedString(const std::string& str) { for (const char c : str) { content.push_back(c); } }
+	explicit AdvancedString(const std::string& str) { for (const char c : str) { content.push_back(c); } }
 	AdvancedString(const std::vector<unsigned int>& v) : content(v) {}
 	AdvancedString(unsigned int c) : content({c}) {}
 	AdvancedString(const AdvancedString& s) : content(s.content) {}

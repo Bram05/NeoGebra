@@ -52,7 +52,7 @@ std::map<AdvancedString, float> Equation::linkVars(const std::vector<std::vector
 	
 	std::map<AdvancedString, float> m;
 	for (int i = 0; i < m_VarNames.size(); ++i) {
-		AdvancedString varName = m_VarNames[i];
+		AdvancedString varName(m_VarNames[i]);
 		for (int j = 0; j < identifiers[i].size(); ++j) {
 			m[varName + std::to_string(j)] = identifiers[i][j];
 		}

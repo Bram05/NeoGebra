@@ -6,6 +6,7 @@
 #include "Rendering/GraphRenderer.h"
 #include "Maths/Model.h"
 
+// The middle part of the screen in which graphs are displayed
 class GraphUI : public UIElement
 {
 public:

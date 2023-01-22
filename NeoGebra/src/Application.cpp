@@ -43,7 +43,7 @@ static void KeyCallback(int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_ESCAPE)
 	{
-		std::cout << "\nEscape key pressed, closing application\n" << std::flush;
+		PrintInfo(std::cout << "\nEscape key pressed, closing application\n" << std::flush);
 		Application::Get()->GetWindow()->Close();
 	}
 	Application::Get()->GetWindowUI()->SpecialKeyInput(key, scancode, action, mods);
@@ -51,6 +51,8 @@ static void KeyCallback(int key, int scancode, int action, int mods)
 
 Application::Application()
 {
+	Util::Timer::Initialize("times.txt");
+	Util::Timer t("Creating Application");
 	Equation P2pointDef{ {AdvancedString("p")}, AdvancedString("x = p0 & y = p1 & p0^2 + p1^2 < 1") };
 	Equation P2lineDef{ {AdvancedString("l")}, AdvancedString("(x-l0)^2 + (y-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2 & l0^2 + l1^2 > 1 & x^2 + y^2 < 1") };
 	Equation P2incidence{ {AdvancedString("p"), AdvancedString("l")}, AdvancedString("(p0-l0)^2 + (p1-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2") };
@@ -62,18 +64,20 @@ Application::Application()
 	std::shared_ptr<NELine> l1(new NELine({ 1.25, 0 }, m_Model));
 	std::shared_ptr<NEPoint> p1(new NEPoint({ 0.625,  0.4145780988 }, m_Model, { 255, 0, 0, 255 }));
 
-
 	Application::s_Instance = this;
 	m_Window = new Window(WindowCreationOptions(1080, 720, "NeoGeobra", MouseClickCallback, TextCallback, MouseMovedCallback, KeyCallback));
 	m_Renderer = new Renderer;
 	m_WindowUI = new WindowUI;
+	PrintInfo(std::cout << "Created application\n\n");
 }
 
 Application::~Application()
 {
+	Util::Timer t("Destroying application");
 	delete m_WindowUI;
 	delete m_Renderer;
 	delete m_Window;
+	PrintInfo(std::cout << "Destroyed application\n");
 }
 
 void Application::Run()
@@ -106,7 +110,7 @@ void Application::UpdateFrameTimes()
 			sum += m_LastFpss.top();
 			m_LastFpss.pop();
 		}
-		std::cout << "\rAverage FPS (over " << g_NumSecondsForFpsAverage << " seconds): " << sum / size << std::flush;
+		//std::cout << "\rAverage FPS (over " << g_NumSecondsForFpsAverage << " seconds): " << sum / size << std::flush;
 		m_TimeSinceLastFpsUpdate = 0.0;
 	}
 	m_LastFrameTime = endTime;

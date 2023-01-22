@@ -8,6 +8,7 @@
 
 #include "Application.h"
 #include "Constants.h"
+#include "Util.h"
 
 static bool s_PrintedMessageThisFrame = false;
 
@@ -67,7 +68,7 @@ Renderer::Renderer()
 	{
 		throw std::runtime_error("Glad failed to initialize. Make sure your graphics drivers support OpenGL 4.5");
 	}
-	std::cout << "Loaded GL version " << glGetString(GL_VERSION) << '\n';
+	PrintInfo(std::cout << "Loaded GL version " << glGetString(GL_VERSION) << '\n');
 
 #ifdef DEBUG
 	int flags;
@@ -101,6 +102,7 @@ Renderer::~Renderer()
 	delete m_GraphRenderer;
 	delete m_TextRenderer;
 	// I couldn't find cleanup calls for glad
+	PrintInfo(std::cout << "Destroyed all renderers\n");
 }
 
 void Renderer::RenderQueues()
@@ -117,6 +119,7 @@ void Renderer::RenderQueues()
 	m_GraphRenderer->RenderQueue();
 	m_TextRenderer->RenderQueue();
 #ifdef DEBUG
+	// Prevent spamming messages each frame by turning the messages off after a frame in which one was printed
 	if (s_PrintedMessageThisFrame)
 	{
 		glDisable(GL_DEBUG_OUTPUT);

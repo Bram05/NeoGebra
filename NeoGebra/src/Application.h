@@ -23,6 +23,7 @@ public:
 	static Application* Get();
 	void Run();
 
+	// Some getters and setters
 	Window* GetWindow() { return m_Window; }
 	Renderer* GetRenderer() { return m_Renderer; }
 	WindowUI* GetWindowUI() { return m_WindowUI; }
@@ -37,6 +38,7 @@ public:
 		m_Model = std::make_shared<Model>(pointIdentifiers, pointDef, lineIdentifiers, lineDef, incidenceConstr, betweennessConstr);
 	}
 
+	// To prevent multiple application being created the constructor is private and only main is able to create one
 	friend int main();
 
 private:

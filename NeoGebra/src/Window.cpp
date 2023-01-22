@@ -7,18 +7,21 @@
 
 #include "Constants.h"
 #include "Application.h"
+#include "Util.h"
 
 int Window::s_NumWindowsCreated{ 0 };
 
 Window::Window(const WindowCreationOptions& options)
-	: m_MouseButtonCallback{ options.mouseButtonCallback }, m_TextCallback{ options.textCallback }, m_MouseMovedCallback{ options.mouseMovedCallback }, m_SpecialKeyCallback{ options.specialKeyCallback }
+	: m_Title{options.title}, m_MouseButtonCallback{ options.mouseButtonCallback }, m_TextCallback{ options.textCallback }, m_MouseMovedCallback{ options.mouseMovedCallback }, m_SpecialKeyCallback{ options.specialKeyCallback }
 {
+	Util::Timer t("Creating window");
 	if (!s_NumWindowsCreated)
 	{
 		if (!glfwInit())
 		{
 			throw std::runtime_error("GLFW failed to initialize");
 		}
+		PrintInfo(std::cout << "GLFW initialized\n");
 		MouseButton::left = GLFW_MOUSE_BUTTON_LEFT;
 		MouseButton::right = GLFW_MOUSE_BUTTON_RIGHT;
 		MouseButton::middle = GLFW_MOUSE_BUTTON_MIDDLE;
@@ -68,15 +71,19 @@ Window::Window(const WindowCreationOptions& options)
 	if (handledWindow->m_SpecialKeyCallback)
 		handledWindow->m_SpecialKeyCallback(key, scancode, action, mods);
 		});
+
+	PrintInfo(std::cout << "Created window " + options.title << '\n');
 }
 
 Window::~Window()
 {
 	--s_NumWindowsCreated;
+	glfwDestroyWindow(m_Window);
+	PrintInfo(std::cout << "Destroyed window " + m_Title << '\n');
 	if (!s_NumWindowsCreated)
 	{
-		glfwDestroyWindow(m_Window);
 		glfwTerminate();
+		PrintInfo(std::cout << "GLFW terminated\n");
 	}
 }
 

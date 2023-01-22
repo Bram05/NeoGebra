@@ -173,7 +173,7 @@ void EquationUI::UpdateModel()
 	const AdvancedString& pointDef{ ((TextInputFieldWithDesc*)(m_SubUIElements[m_PointDefInputField].element.get()))->GetText() };
 	const AdvancedString& lineDef{ ((TextInputFieldWithDesc*)(m_SubUIElements[m_LineDefInputField].element.get()))->GetText() };
 	Equation pointDefEq({ AdvancedString("p") }, pointDef);
-	Equation lineDefEq({ {'l'}}, lineDef);
+	Equation lineDefEq({ {AdvancedString("l") }}, lineDef);
 	std::shared_ptr<Model> model{ Application::Get()->GetModel() };
 	Application::Get()->SetModel(model->GetNumPointIdentifiers(), pointDefEq, model->GetNumLineIdentifiers(), lineDefEq, model->GetIncidenceConstr(), model->GetBetweennessConstr());
 	Application::Get()->GetWindowUI()->GetGraphUI()->DeleteGraphs();

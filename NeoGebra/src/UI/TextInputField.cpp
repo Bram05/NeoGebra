@@ -35,7 +35,7 @@ void TextInputField::TextInput(unsigned int codepoint)
 {
 	m_Text->AddText(AdvancedString(codepoint), m_Editingindex);
 	UpdateEditingIndex(m_Editingindex + 1, true);
-	SetEditingLine();
+	UpdateEditingLine();
 }
 
 void TextInputField::SpecialKeyInput(int key, int scancode, int action, int mods)
@@ -59,12 +59,12 @@ void TextInputField::SpecialKeyInput(int key, int scancode, int action, int mods
 				--index;
 			++index;
 			UpdateEditingIndex(index, false);
-			SetEditingLine();
+			UpdateEditingLine();
 		}
 		else
 		{
 			UpdateEditingIndex(std::max(m_Editingindex - 1, 0), false);
-			SetEditingLine();
+			UpdateEditingLine();
 		}
 		break;
 	case GLFW_KEY_RIGHT:
@@ -77,12 +77,12 @@ void TextInputField::SpecialKeyInput(int key, int scancode, int action, int mods
 				++index;
 			++index;
 			UpdateEditingIndex(index, false);
-			SetEditingLine();
+			UpdateEditingLine();
 		}
 		else
 		{
 			UpdateEditingIndex(std::min(m_Editingindex + 1, (int)m_Text->GetText().size()), false);
-			SetEditingLine();
+			UpdateEditingLine();
 		}
 		break;
 	case GLFW_KEY_BACKSPACE:
@@ -90,7 +90,7 @@ void TextInputField::SpecialKeyInput(int key, int scancode, int action, int mods
 		{
 			m_Text->RemoveText(m_Editingindex - 1, 1);
 			UpdateEditingIndex(m_Editingindex - 1, true);
-			SetEditingLine();
+			UpdateEditingLine();
 		}
 		break;
 	case GLFW_KEY_DELETE:
@@ -114,6 +114,11 @@ void TextInputField::SpecialKeyInput(int key, int scancode, int action, int mods
 		break;
 	default: return;
 	}
+}
+
+void TextInputField::ResizeWindow(int widht, int height)
+{
+	UpdateEditingLine();
 }
 
 void TextInputField::NotSelectedAnymore()
@@ -141,7 +146,7 @@ void TextInputField::RenderPass(Renderer* r)
 	UIElement::RenderPass(r);
 }
 
-void TextInputField::SetEditingLine()
+void TextInputField::UpdateEditingLine()
 {
 	auto [width, height] = Application::Get()->GetWindow()->GetSize();
 	auto font{ Application::Get()->GetRenderer()->GetFont() };

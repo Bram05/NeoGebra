@@ -14,7 +14,7 @@ typedef void(*SpecialKeyCallback)(int, int, int, int);
 struct WindowCreationOptions
 {
 	int width = 1080, height = 720;
-	std::string title = "Niet Euclidische Geogebra";
+	std::string title = "NeoGebra";
 
 	MouseButtonCallbackType mouseButtonCallback = nullptr;
 	TextCallbackType textCallback = nullptr;
@@ -38,11 +38,12 @@ public:
 	std::pair<int, int> GetMouseLocation() const;
 	const char* GetClipboardContent() const;
 
-	// Update the window (swap buffers and poll GLFW events
+	// Update the window (swap buffers and poll GLFW events)
 	void Update();
 
 private:
 	GLFWwindow* m_Window;
+	std::string m_Title;
 	static int s_NumWindowsCreated;
 
 	MouseButtonCallbackType m_MouseButtonCallback;

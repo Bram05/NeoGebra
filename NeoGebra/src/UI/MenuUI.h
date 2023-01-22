@@ -5,7 +5,8 @@
 #include "UIElement.h"
 #include "Rendering/LineRenderer.h"
 #include "Rendering/TextRenderer.h"
-// Represents what will eventually be the part where equations can be written
+
+// The menu at the top of the screen
 class MenuUI : public UIElement
 {
 public:

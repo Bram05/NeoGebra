@@ -13,4 +13,13 @@ namespace Action
 	inline int pressed, released;
 }
 
+// The absolute path to the assets folder
+// This will be set by cmake when the file is copied
 #cmakedefine AssetsFolder std::filesystem::path(R"(${AssetsFolder})")
+
+#ifdef DEBUG
+// This defines that debug some info is printed
+#define PRINTINFO
+#endif
+// This defines if all the timers should be activated
+#define TIMING

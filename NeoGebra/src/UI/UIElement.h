@@ -9,6 +9,7 @@ class WindowUI;
 
 class UIElement;
 
+// Simple struct for a SubUIElement
 struct SubUIElement
 {
 	std::shared_ptr<UIElement> element;
@@ -34,6 +35,7 @@ public:
 	virtual void UpdateGraphUI();
 
 protected:
+	// Virtual functions for UIElement to do something on certain events
 	virtual void WasClicked(float x, float y) { /*std::cout << "Hit element " << m_Name << '\n'; */ }
 	virtual void DraggedUpdate(float x, float y) { /*std::cout << "Dragged update" << m_Name << '\n'; */ }
 	virtual void IsHovered(float x, float y) { /*std::cout << "Hovered over element " << m_Name << '\n'; */ }

@@ -14,7 +14,6 @@ public:
 	TextInputField(double leftX, double rightX, double topY, double bottomY, void(*enterCallback)(void*) = nullptr, void* obj = nullptr);
 	virtual ~TextInputField();
 
-	// Get the text as a vector of the unicode character and the width of this character
 	const AdvancedString& GetText() const { return m_Text->GetText(); }
 	virtual void RenderPass(Renderer* r) override;
 
@@ -23,6 +22,7 @@ protected:
 	virtual void NotSelectedAnymore() override;
 	virtual void TextInput(unsigned int codepoint) override;
 	virtual void SpecialKeyInput(int key, int scancode, int action, int mods) override;
+	virtual void ResizeWindow(int widht, int height) override;
 
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
@@ -32,6 +32,7 @@ private:
 	void(*m_EnterCallback)(void*);
 	void* m_Obj;
 
-	void SetEditingLine();
+	// Update the blinking line that indicates where the cursor is
+	void UpdateEditingLine();
 	void UpdateEditingIndex(int offset, bool isRemoved);
 };

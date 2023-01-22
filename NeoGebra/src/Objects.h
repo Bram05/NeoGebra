@@ -2,6 +2,7 @@
 // https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
 #pragma once
 
+// A point struct that can be used as a vector
 struct Point
 {
 	double x, y;

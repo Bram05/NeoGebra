@@ -5,6 +5,9 @@
 #include "UIElement.h"
 #include "PermaButtonUI.h"
 
+// A set of three permaButtons
+// This is used for the three buttons: point, line, model
+// A clicked button will stay on, until one of the others is clicked
 class TabUI : public UIElement
 {
 public:

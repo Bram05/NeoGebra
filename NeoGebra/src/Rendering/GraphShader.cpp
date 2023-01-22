@@ -4,6 +4,7 @@
 
 #include "Constants.h"
 #include "Application.h"
+#include "Util.h"
 
 enum ShaderType
 {
@@ -198,6 +199,7 @@ int GraphShader::GetUniformLocation(const std::string& name) const
 
 unsigned int GraphShader::RunComp(float normWidth, float normHeight, float midCoordX, float midCoordY, float unitLengthPixels, unsigned int compShader1)
 {
+	Util::Timer t("Running compute shader " + m_Name);
 	auto [windowWidth, windowHeight] = Application::Get()->GetWindow()->GetSize();
 
 	int width = static_cast<int>(windowWidth * normWidth / 2);

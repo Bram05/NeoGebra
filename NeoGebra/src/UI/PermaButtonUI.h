@@ -8,6 +8,8 @@
 
 class TabUI;
 
+// A button that will stay on permanently after it is clicked, unless it is deactivated from code
+// This is meant for TabUI
 class PermaButtonUI : public UIElement
 {
 public:
