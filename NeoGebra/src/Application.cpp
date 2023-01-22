@@ -120,3 +120,8 @@ Application* Application::Get()
 {
 	return s_Instance;
 }
+
+
+void Application::AddError(std::string error) {
+	m_WindowUI->AddError(error);
+}

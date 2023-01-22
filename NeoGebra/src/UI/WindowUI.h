@@ -26,7 +26,7 @@ public:
 	void ResizeWindow(int width, int height);
 	void UpdateGraphUI();
 	void InsertKey(int codepoint);
-
+	void AddError(std::string error);
 	GraphUI* GetGraphUI();
 
 private:

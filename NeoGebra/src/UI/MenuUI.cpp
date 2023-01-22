@@ -5,6 +5,7 @@
 #include "ButtonUI.h"
 #include "TextInputField.h"
 #include "Rendering/TextRenderer.h"
+#include "ErrorBox.h"
 
 void AddPoint(void*) {
 	new NEPoint({ 0,  0 }, Application::Get()->GetModel(), { 255,0,0,255 });
@@ -14,6 +15,11 @@ void AddLine(void*) {
 	new NELine({ -1.25,  0 }, Application::Get()->GetModel());
 	Application::Get()->GetWindowUI()->UpdateGraphUI();
 }
+
+void AddError(void*) {
+	Application::Get()->AddError("Error");
+}
+
 
 MenuUI::MenuUI(float leftX, float rightX, float topY, float bottomY)
 	: UIElement(leftX, rightX, topY, bottomY, "MenuUI")//, text(500, 500, "red")
@@ -26,8 +32,8 @@ MenuUI::MenuUI(float leftX, float rightX, float topY, float bottomY)
 	float buttonWidth = 0.125f;
 	float indent = 0.025f;
 
-	std::vector<void(*)(void*)> functions = { &AddPoint,&AddLine ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint };//wtf is deze syntax
-	std::vector<std::string> textList = { "Point", "Line", "Add", "Add", "Add", "Add","Add","Add", "Add", "Add", "Add","Add","Add" };
+	std::vector<void(*)(void*)> functions = { &AddPoint,&AddLine ,&AddError ,&AddError ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint ,&AddPoint };//wtf is deze syntax
+	std::vector<std::string> textList = { "Point", "Line", "Error", "Error", "Add", "Add","Add","Add", "Add", "Add", "Add","Add","Add" };
 	for (int i = 0; i < 12; i++) {
 		m_SubUIElements.push_back({ std::make_shared<ButtonUI>(leftX + indent + i * buttonWidth, (leftX + i * buttonWidth + buttonWidth), topY - 0.01f, (topY - 0.09f), functions[i], this, textList[i]) });
 	}
