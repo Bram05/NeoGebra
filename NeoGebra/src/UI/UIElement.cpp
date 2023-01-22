@@ -4,7 +4,7 @@
 
 #include "Rendering/Renderer.h"
 
-UIElement::UIElement(double leftX, double rightX, double topY, double bottomY, const std::string& name)
+UIElement::UIElement(float leftX, float rightX, float topY, float bottomY, const std::string& name)
 	: m_LeftX{ leftX },
 	m_RightX{ rightX },
 	m_TopY{ topY },

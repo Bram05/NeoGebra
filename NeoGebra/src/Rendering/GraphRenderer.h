@@ -10,7 +10,8 @@
 
 class GraphRenderer;
 
-// Represents an OpenGL object for rendering a line
+// Represents an OpenGL object for rendering a graph
+// These graphs are the graphs that are seen in the middle of the screen
 class Graph
 {
 public:
@@ -42,14 +43,14 @@ private:
 	friend GraphRenderer;
 };
 
-// Underlying renderer for all lines
+// Underlying renderer for all graph
 class GraphRenderer
 {
 public:
 	GraphRenderer();
 	~GraphRenderer();
 
-	//Add the line to the queue to be rendered this frame
+	//Add the graph to the queue to be rendered this frame
 	void AddToRenderQueue(const std::shared_ptr<Graph>& graph);
 
 	void setLineThickness(int pixels);

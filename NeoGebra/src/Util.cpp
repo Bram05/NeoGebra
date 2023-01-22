@@ -56,13 +56,14 @@ namespace Util
 		s_OutputStream.open(pathToOutputFile);
 		if (!s_OutputStream)
 			throw std::runtime_error("Unable to initialize timer: unable to open file " + pathToOutputFile.string());
+		s_OutputStream << std::setprecision(6);
 	}
 
 	double Timer::Stop()
 	{
 		std::chrono::time_point<std::chrono::steady_clock> end{ std::chrono::steady_clock::now() };
 		std::chrono::duration<double> dur = end - m_Begin;
-		s_OutputStream << m_Name << std::setw(s_MaxNameLength-m_Name.size()) << " took: " << dur.count() << "s or " << dur.count() * 1000 << "ms\n";
+		s_OutputStream << m_Name << std::setw(s_MaxNameLength - m_Name.size()) << " took: " << dur.count() << "s\t or " << dur.count() * 1000 << "ms\n";
 		m_Running = false;
 		return dur.count();
 	}

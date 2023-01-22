@@ -75,7 +75,7 @@ void SquareRenderer::RenderQueue()
 
 		m_Shader.SetUniform("u_Colour", square->m_Colour);
 		std::array<float, 2> middle = { (square->GetRightX() + square->GetLeftX()) / 2, (square->GetTopY() + square->GetBottomY()) / 2 };
-		std::array<float, 2> params = { 1 / std::pow(square->GetRightX() - middle[0], 10), 1 / std::pow(square->GetTopY() - middle[1], 10) };
+		std::array<float, 2> params = { 1 / std::pow(square->GetRightX() - middle[0], 10.0f), 1 / std::pow(square->GetTopY() - middle[1], 10.0f) };
 		m_Shader.SetUniform("u_Middle", middle);
 		m_Shader.SetUniform("u_Params", params);
 		glBindVertexArray(square->m_Vao);

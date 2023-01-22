@@ -11,7 +11,7 @@
 class KeyboardUI : public UIElement
 {
 public:
-	KeyboardUI(double leftX, double rightX, double topY, double bottomY);
+	KeyboardUI(float leftX, float rightX, float topY, float bottomY);
 	~KeyboardUI();
 	
 private:

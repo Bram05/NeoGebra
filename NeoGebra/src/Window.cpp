@@ -36,6 +36,8 @@ Window::Window(const WindowCreationOptions& options)
 	++s_NumWindowsCreated;
 
 	m_Window = glfwCreateWindow(options.width, options.height, options.title.c_str(), nullptr, nullptr);
+	if (!m_Window)
+		throw std::runtime_error("GLFW failed to create the window. Please make sure your graphics drivers support at least OpenGL 4.5");
 	glfwMakeContextCurrent(m_Window);
 
 	glfwSetWindowUserPointer(m_Window, this);
@@ -114,7 +116,7 @@ std::pair<int, int> Window::GetMouseLocation() const
 {
 	double x, y;
 	glfwGetCursorPos(m_Window, &x, &y);
-	return { x, y };
+	return { (int)x, (int)y };
 }
 
 const char* Window::GetClipboardContent() const

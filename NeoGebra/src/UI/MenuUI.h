@@ -10,7 +10,7 @@
 class MenuUI : public UIElement
 {
 public:
-	MenuUI(double leftX, double rightX, double topY, double bottomY);
+	MenuUI(float leftX, float rightX, float topY, float bottomY);
 	~MenuUI();
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;

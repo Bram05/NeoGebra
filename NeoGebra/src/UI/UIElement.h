@@ -20,14 +20,14 @@ struct SubUIElement
 class UIElement
 {
 public:
-	UIElement(double leftX, double rightX, double topY, double bottomY, const std::string& name);
+	UIElement(float leftX, float rightX, float topY, float bottomY, const std::string& name);
 	virtual ~UIElement();
 
 	// Getters
-	double GetLeftX() const { return m_LeftX; }
-	double GetTopY() const { return m_TopY; }
-	double GetRightX() const { return m_RightX; }
-	double GetBottomY() const { return m_BottomY; }
+	float GetLeftX() const { return m_LeftX; }
+	float GetTopY() const { return m_TopY; }
+	float GetRightX() const { return m_RightX; }
+	float GetBottomY() const { return m_BottomY; }
 	const std::string& GetName() const { return m_Name; }
 
 	// Queue all the necessary things for rendering
@@ -48,7 +48,7 @@ protected:
 	friend WindowUI;
 
 	// The bounds of this element
-	double m_LeftX, m_RightX, m_TopY, m_BottomY;
+	float m_LeftX, m_RightX, m_TopY, m_BottomY;
 	std::string m_Name;
 	std::vector<SubUIElement> m_SubUIElements;
 	bool m_MouseIsHovering{ false };

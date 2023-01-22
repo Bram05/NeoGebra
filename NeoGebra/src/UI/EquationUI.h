@@ -13,7 +13,7 @@ static void TabButtonClickedStatic(void*,int);
 class EquationUI : public UIElement
 {
 public:
-	EquationUI(double leftX, double rightX, double topY, double bottomY);
+	EquationUI(float leftX, float rightX, float topY, float bottomY);
 	~EquationUI();
 
 	void UpdateGraphs();
@@ -26,7 +26,8 @@ protected:
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
 	int m_LinesIndexBegin, m_PointsIndexBegin, m_LineDefInputField, m_PointDefInputField;
-	int m_UpdateGraphsButton, m_UpdateModelButton;
+	int m_ModelBeginIndex, m_ModelEndIndex;
+	int m_UpdateGraphsButton;
 
 	void TabButtonClicked(int value);
 	friend void TabButtonClickedStatic(void*,int);

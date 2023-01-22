@@ -21,11 +21,11 @@ struct CharacterInfo
 class Font
 {
 public:
-	// Loads the font with this name. Name has to be the name of the folder withing 'assets/fonts'
+	// Loads the font with this name. Name has to be the name of the folder within 'assets/fonts'
 	Font(const std::string& fontName);
 	~Font();
 
-	// Getters and setters
+	// Getters
 	CharacterInfo GetCharacterInfo(int character);
 	int GetWidth() const { return m_TotalWidth; }
 	int GetHeight() const { return m_TotalHeight; }
@@ -45,12 +45,13 @@ private:
 
 class TextRenderer;
 
-// Text object
+// Text object to be rendered
 class Text
 {
 public:
-	// Letters is a vector of unicode numbers for the characters
-	Text(const AdvancedString& letters, float leftX, float rightX, float baseLine, float size);
+	// Constructor
+	// @param renderAllText: should all the text be rendered, or only the part between m_RenderBegin and m_RenderEnd
+	Text(const AdvancedString& letters, float leftX, float rightX, float baseLine, float size, bool renderAllText = true);
 	Text(const std::string& text, float leftX, float rightX, float baseLine, float size);
 	~Text();
 
@@ -61,9 +62,12 @@ public:
 	const AdvancedString& GetText() const { return m_Text; }
 	float GetScale() const { return m_Scale; }
 
+	// The first and last letter of the text that needs to be rendered. RenderEnd is one beyond the last rendered character
+	// This is only used if m_RenderAllText is false
 	int m_RenderBegin, m_RenderEnd;
 
 private:
+	bool m_RenderAllText;
 	float m_Size;
 	AdvancedString m_Text;
 	float m_LeftX, m_RightX, m_Baseline;

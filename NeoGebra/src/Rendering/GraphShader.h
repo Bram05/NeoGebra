@@ -9,6 +9,7 @@
 
 // Handles an OpenGL shader object
 // The shaders are written in GLSL
+// These shaders are meant specifically for the GraphUI and GraphRenderer
 class GraphShader
 {
 public:

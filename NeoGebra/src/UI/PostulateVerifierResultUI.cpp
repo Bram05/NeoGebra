@@ -4,7 +4,7 @@
 
 #include "Application.h"
 
-PostulateVerifierResultUI::PostulateVerifierResultUI(double leftX, double rightX, double topY, double bottomY)
+PostulateVerifierResultUI::PostulateVerifierResultUI(float leftX, float rightX, float topY, float bottomY)
 	: UIElement(leftX, rightX, topY, bottomY, "PostulateVerifierResultUI")
 {
 	m_Lines.push_back(std::make_shared<Line>(Point(leftX, topY), Point(leftX, bottomY))); // Left size

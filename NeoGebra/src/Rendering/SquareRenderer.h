@@ -17,10 +17,10 @@ public:
 	~Square();
 
 	// Getters and setters
-	double GetLeftX() const { return m_LeftX; }
-	double GetTopY() const { return m_TopY; }
-	double GetRightX() const { return m_RightX; }
-	double GetBottomY() const { return m_BottomY; }
+	float GetLeftX() const { return m_LeftX; }
+	float GetTopY() const { return m_TopY; }
+	float GetRightX() const { return m_RightX; }
+	float GetBottomY() const { return m_BottomY; }
 
 	void SetPosition(float leftX, float rightX, float topY, float bottomY);
 

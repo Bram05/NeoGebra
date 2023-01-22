@@ -25,7 +25,7 @@ static void UpdateModelStatic(void* obj)
 
 constexpr int NumInputFields{ 5 };
 
-EquationUI::EquationUI(double leftX, double rightX, double topY, double bottomY)
+EquationUI::EquationUI(float leftX, float rightX, float topY, float bottomY)
 	: UIElement(leftX, rightX, topY, bottomY, "EquationUI")
 {
 	m_Lines.push_back(std::make_shared<Line>(Point(leftX, topY), Point(leftX, bottomY))); // Left size
@@ -44,16 +44,19 @@ EquationUI::EquationUI(double leftX, double rightX, double topY, double bottomY)
 		m_SubUIElements.emplace_back(std::make_shared<TextInputField>(leftX, rightX, topY - 0.2f - i * 0.15f, topY - 0.35f - i * 0.15f, UpdateGraphsStatic, this), false);
 	}
 
-	m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX, rightX, topY - 0.2f, topY - 0.4f, "Point definition: ", 0.2f, UpdateModelStatic, this), false);
+	m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX, rightX, topY - 0.2f, topY - 0.4f, "Number of point identifiers: ", 0.2f, UpdateModelStatic, this), false);
+	m_ModelBeginIndex = m_SubUIElements.size() - 1;
+	m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX, rightX, topY - 0.4f, topY - 0.6f, "Point definition: ", 0.2f, UpdateModelStatic, this), false);
 	m_PointDefInputField = m_SubUIElements.size() - 1;
-	m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX, rightX, topY - 0.4f, topY - 0.6f, "Line definition: ", 0.2f, UpdateModelStatic, this), false);
+	m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX, rightX, topY - 0.6f, topY - 0.8f, "Number of line identifiers: ", 0.2f, UpdateModelStatic, this), false);
+	m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX, rightX, topY - 0.8f, topY - 1.0f, "Line definition: ", 0.2f, UpdateModelStatic, this), false);
 	m_LineDefInputField = m_SubUIElements.size() - 1;
+	m_SubUIElements.emplace_back(std::make_shared<ButtonUI>(leftX + 0.02f, rightX - 0.02f, bottomY + 0.85f, bottomY + 0.72f, UpdateModelStatic, this, "Update model"), false);
+	m_ModelEndIndex = m_SubUIElements.size() - 1;
 	m_SubUIElements.emplace_back(std::make_shared<KeyboardUI>(leftX, rightX, bottomY + 0.7f, bottomY));
 	m_SubUIElements.emplace_back(std::make_shared<TabUI>(leftX, rightX, topY, topY - 0.2f, 0, &TabButtonClickedStatic, this));
 	m_SubUIElements.emplace_back(std::make_shared<ButtonUI>(leftX + 0.02f, rightX - 0.02f, bottomY + 0.85f, bottomY + 0.72f, UpdateGraphsStatic, this, "Update graphs"));
 	m_UpdateGraphsButton = m_SubUIElements.size() - 1;
-	m_SubUIElements.emplace_back(std::make_shared<ButtonUI>(leftX + 0.02f, rightX - 0.02f, bottomY + 0.85f, bottomY + 0.72f, UpdateModelStatic, this, "Update model"), false);
-	m_UpdateModelButton = m_SubUIElements.size() - 1;
 }
 
 EquationUI::~EquationUI()
@@ -70,10 +73,11 @@ void EquationUI::TabButtonClicked(int value)
 	{
 		m_SubUIElements[i].shouldRender = value == 1;
 	}
-	m_SubUIElements[m_PointDefInputField].shouldRender = value == 2;
-	m_SubUIElements[m_LineDefInputField].shouldRender = value == 2;
+	for (int i{ m_ModelBeginIndex }; i <= m_ModelEndIndex; i++)
+	{
+		m_SubUIElements[i].shouldRender = value == 2;
+	}
 	m_SubUIElements[m_UpdateGraphsButton].shouldRender = value == 0 || value == 1;
-	m_SubUIElements[m_UpdateModelButton].shouldRender = value == 2;
 }
 
 
@@ -172,10 +176,12 @@ void EquationUI::UpdateModel()
 {
 	const AdvancedString& pointDef{ ((TextInputFieldWithDesc*)(m_SubUIElements[m_PointDefInputField].element.get()))->GetText() };
 	const AdvancedString& lineDef{ ((TextInputFieldWithDesc*)(m_SubUIElements[m_LineDefInputField].element.get()))->GetText() };
+	int numPointsIdents{ std::stoi(((TextInputFieldWithDesc*)(m_SubUIElements[m_ModelBeginIndex].element.get()))->GetText().toString()) };
+	int numLineIdents{ std::stoi(((TextInputFieldWithDesc*)(m_SubUIElements[m_ModelBeginIndex+2].element.get()))->GetText().toString()) };
 	Equation pointDefEq({ AdvancedString("p") }, pointDef);
-	Equation lineDefEq({ {AdvancedString("l") }}, lineDef);
+	Equation lineDefEq({ {AdvancedString("l") } }, lineDef);
 	std::shared_ptr<Model> model{ Application::Get()->GetModel() };
-	Application::Get()->SetModel(model->GetNumPointIdentifiers(), pointDefEq, model->GetNumLineIdentifiers(), lineDefEq, model->GetIncidenceConstr(), model->GetBetweennessConstr());
+	Application::Get()->SetModel(numPointsIdents, pointDefEq, numLineIdents, lineDefEq, model->GetIncidenceConstr(), model->GetBetweennessConstr());
 	Application::Get()->GetWindowUI()->GetGraphUI()->DeleteGraphs();
 	UpdateGraphs();
 }

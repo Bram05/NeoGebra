@@ -9,7 +9,7 @@
 class Shader
 {
 public:
-	// Creates the shader. name = the name of shader. For shader assets/shaders/example.vert/.frag name would be: example
+	// Creates the shader. name = the name of shader. For shader assets/shaders/example(.vert/.frag) name would be: example
 	Shader(const std::string name);
 	~Shader();
 

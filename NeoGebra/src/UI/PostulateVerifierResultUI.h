@@ -9,7 +9,7 @@
 class PostulateVerifierResultUI : public UIElement
 {
 public:
-	PostulateVerifierResultUI(double leftX, double rightX, double topY, double bottomY);
+	PostulateVerifierResultUI(float leftX, float rightX, float topY, float bottomY);
 	~PostulateVerifierResultUI();
 
 protected:

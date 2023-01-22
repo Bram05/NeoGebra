@@ -66,7 +66,7 @@ Renderer::Renderer()
 	int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	if (status == 0)
 	{
-		throw std::runtime_error("Glad failed to initialize. Make sure your graphics drivers support OpenGL 4.5");
+		throw std::runtime_error("Glad failed to initialize. Please make sure your graphics drivers support at least OpenGL 4.5");
 	}
 	PrintInfo(std::cout << "Loaded GL version " << glGetString(GL_VERSION) << '\n');
 

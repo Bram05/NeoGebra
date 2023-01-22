@@ -10,7 +10,7 @@ PermaButtonUI::PermaButtonUI(float leftX, float rightX, float topY, float bottom
 	m_Background(std::make_shared<Square>(leftX, rightX, topY, bottomY, std::array<float, 4>{0.0f, 1.0f, 1.0f, 1.0f})),
 	m_Value(value),
 	m_Parent(parent),
-	m_Text(std::make_shared<Text>(text, leftX + 0.02f, rightX - 0.02f, bottomY + 0.02f, 30))
+	m_Text(std::make_shared<Text>(text, leftX + 0.02f, rightX - 0.02f, bottomY + 0.02f, 30.0f))
 {
 }
 

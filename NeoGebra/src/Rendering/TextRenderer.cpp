@@ -1,4 +1,4 @@
-// Standard library files and some others are automatically included from the precompiled header
+﻿// Standard library files and some others are automatically included from the precompiled header
 // https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
 #include "TextRenderer.h"
 #include "stb/stb_image.h"
@@ -60,7 +60,9 @@ void TextRenderer::RenderQueue()
 		float scale = (float)t->m_Size / font->GetSize();
 		float currentX = t->m_LeftX;
 		float currentY = t->m_Baseline;
-		for (int i{ t->m_RenderBegin }; i < t->m_RenderEnd; ++i)
+		int begin = t->m_RenderAllText ? 0 : t->m_RenderBegin;
+		int end = t->m_RenderAllText ? t->m_Text.size() : t->m_RenderEnd;
+		for (int i{ begin }; i < end; ++i)
 		{
 			int c = t->m_Text[i];
 			const CharacterInfo& info{ font->GetCharacterInfo(c) };
@@ -209,7 +211,10 @@ CharacterInfo Font::GetCharacterInfo(int character)
 	auto it = m_CharacterInformation.find(character);
 	if (it == m_CharacterInformation.end())
 	{
-		throw std::runtime_error(std::string("Unkown character ") + (char)character + " with code " + std::to_string(character));
+		PrintInfo(std::cerr << "Unkown character " << (char)character << " with code " << character << '\n');
+		it = m_CharacterInformation.find(63);
+		if (it == m_CharacterInformation.end())
+			throw std::runtime_error("Unable to find character ?, no way to continue");
 	}
 	return it->second;
 }
@@ -219,8 +224,8 @@ Text::Text(const std::string& text, float leftX, float rightX, float baseLine, f
 {
 }
 
-Text::Text(const AdvancedString& letters, float leftX, float rightX, float baseLine, float size)
-	: m_Text{ letters }, m_LeftX{ leftX }, m_RightX{ rightX }, m_Baseline{ baseLine }, m_Size{ size }, m_RenderBegin{ 0 }, m_RenderEnd{ (int)letters.size() }
+Text::Text(const AdvancedString& letters, float leftX, float rightX, float baseLine, float size, bool renderAllText)
+	: m_RenderAllText{renderAllText}, m_Text{ letters }, m_LeftX{ leftX }, m_RightX{ rightX }, m_Baseline{ baseLine }, m_Size{ size }, m_RenderBegin{ 0 }, m_RenderEnd{ (int)letters.size() }
 {
 	std::shared_ptr<Font> font = Application::Get()->GetRenderer()->GetFont();
 	auto [width, height] = Application::Get()->GetWindow()->GetSize();
@@ -236,23 +241,6 @@ Text::~Text()
 void Text::AddText(const AdvancedString& letters, int position)
 {
 	m_Text.insert(m_Text.begin()+position, letters.begin(), letters.end());
-	/*
-	std::vector<int> text;
-	text.resize(letters.size());
-	for (int i{ 0 }; i < letters.size(); ++i)
-	{
-		text[i] = letters[i];
-	}
-
-	std::shared_ptr<Font> font = Application::Get()->GetRenderer()->GetFont();
-	auto [width, height] = Application::Get()->GetWindow()->GetSize();
-	for (int i{ 0 }; i < letters.size(); ++i)
-	{
-		int c = letters[i];
-		const CharacterInfo& info{ font->GetCharacterInfo(c) };
-		text[i].second = (float)info.xAdvance * m_Scale;
-	}
-	m_Text.insert(m_Text.begin() + position, text.begin(), text.end());*/
 }
 
 void Text::AddText(const std::string& letters, int position)
