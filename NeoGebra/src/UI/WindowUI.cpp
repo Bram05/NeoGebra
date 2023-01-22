@@ -10,6 +10,7 @@
 #include "TabUI.h"
 #include "FPSCounterUI.h"
 #include "Constants.h"
+#include "ErrorBox.h"
 
 void tabTest(void* obj, int x) {
 		std::cout << x <<  "\n";
@@ -18,7 +19,8 @@ void tabTest(void* obj, int x) {
 WindowUI::WindowUI()
 {
 	m_UIElements.push_back(std::make_shared<EquationUI>(-1.0f, -0.5f, 0.9f, -1.0f));
-	m_UIElements.push_back(std::make_shared<PostulateVerifierResultUI>(0.5f, 1.0f, 0.9f, -1.0f));
+	m_UIElements.push_back(std::make_shared<PostulateVerifierResultUI>(0.5f, 1.0f, 0.9f, -0.5f));
+	m_UIElements.push_back(std::make_shared<ErrorBox>(0.5f, 1.0f, -0.5f, -1.0f));
 	m_UIElements.push_back(std::make_shared<GraphUI>(-0.5f, 0.5f, 0.9f, -1.0f));
 	m_GraphUIIndex = m_UIElements.size() - 1;
 	m_UIElements.push_back(std::make_shared<MenuUI>(-1.0f, 1.0f, 1.0f, 0.9f));
@@ -26,6 +28,10 @@ WindowUI::WindowUI()
 	m_UIElements.push_back(std::make_shared<FPSCounterUI>(0.7f, 1.0f, 1.0f, 0.8f));
 	m_FPSCounterIndex = m_UIElements.size() - 1;
 	#endif
+}
+
+void WindowUI::AddError(std::string error) {
+	(*(std::shared_ptr<ErrorBox>*)&m_UIElements[2])->updateError(error);
 }
 
 WindowUI::~WindowUI()

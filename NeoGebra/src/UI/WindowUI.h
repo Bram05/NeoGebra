@@ -27,7 +27,7 @@ public:
 	void UpdateGraphUI();
 	void SetFPSCounter(float fps);
 	void InsertKey(int codepoint);
-
+	void AddError(std::string error);
 	GraphUI* GetGraphUI();
 
 private:
