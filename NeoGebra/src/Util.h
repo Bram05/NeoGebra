@@ -6,7 +6,9 @@
 
 namespace Util
 {
-	// Convert between pixel coordinates and OpenGL coordinates
+	// Convert between pixel coordinates and OpenGL coordinates.
+	// The difference between the coordinate and value functions are that the coordinates take an actual coordinate,
+	// while the value functions take a certain width/height
 	// @param num: one part of the coordinates to be converted
 	// @param isX: is this part in the x direction
 	// @return the converted coordinate
@@ -15,6 +17,9 @@ namespace Util
 	// Pixel coordinates are used by GLFW and is the number of pixels from the bottom left of the screen in the x and y direction
 	float ConvertToOpenGLCoordinate(int num, bool isX);
 	int ConvertToPixelCoordinate(float num, bool isX);
+	int ConvertToPixelValue(float num, bool isX);
+
+	void ExitDueToFailure();
 
 #ifdef PRINTINFO
 #define PrintInfo(x) x
@@ -33,6 +38,7 @@ namespace Util
 		~Timer();
 
 		static void Initialize(const std::filesystem::path& pathToOutputFile);
+		static void Terminate();
 
 		// Stop the timer, print the information to the file and return the time in seconds
 		double Stop();
@@ -52,6 +58,7 @@ namespace Util
 		Timer(const std::string&) {}
 
 		static void Initialize(const std::filesystem::path& pathToOutputFile) {}
+		static void Terminate() {}
 
 		double Stop() { return -1.0f; }
 		void Restart(const std::string& name) {}

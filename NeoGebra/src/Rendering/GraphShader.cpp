@@ -42,7 +42,8 @@ void GraphShader::CreateShader(const std::string name)
 
 		char* log = new char[length];
 		glGetProgramInfoLog(m_Shader, length, &length, log);
-		throw std::runtime_error(std::string("Failed to link shader ") + name + ": " + log);
+		std::cerr << "Failed to link shader " << name << ": " << log << '\n';
+		Util::ExitDueToFailure();
 	}
 	glDetachShader(m_Shader, vs);
 	glDetachShader(m_Shader, fs);
@@ -111,12 +112,14 @@ static int CompileShader(ShaderType type, const std::filesystem::path& path, con
 	case FRAGMENT_SHADER:
 		glType = GL_FRAGMENT_SHADER; break;
 	default:
-		throw std::runtime_error(std::string("Unknown shader type ") + std::to_string(type));
+		std::cerr << "Unknown shader type " << std::to_string(type) << '\n';
+		Util::ExitDueToFailure();
 	}
 	std::ifstream file(path);
 	if (!file.is_open())
 	{
-		throw std::runtime_error("File " + path.string() + " could not be opened");
+		std::cerr << "Shader " << path << " could not be opened\n";
+		Util::ExitDueToFailure();
 	}
 	std::stringstream source;
 	std::string line;
@@ -139,7 +142,8 @@ static int CompileShader(ShaderType type, const std::filesystem::path& path, con
 
 		char* log = new char[length];
 		glGetShaderInfoLog(shader, length, &length, log);
-		throw std::runtime_error(std::string("Failed to compile ") + (type == VERTEX_SHADER ? "vertex" : (type == FRAGMENT_SHADER ? "fragment" : "compute")) + " shader (" + path.string() + "): " + log);
+		std::cerr << "Failed to compile " << (type == VERTEX_SHADER ? "vertex" : (type == FRAGMENT_SHADER ? "fragment" : "compute")) << " shader (" << path << "): " << log << '\n';
+		Util::ExitDueToFailure();
 	}
 	return shader;
 }
@@ -151,7 +155,12 @@ int GraphShader::GetUniformLocation(const std::string& name) const
 	{
 		int loc = glGetUniformLocation(m_Shader, name.c_str());
 		if (loc == -1)
-			throw std::runtime_error("Uniform " + name + " for shader " + m_Name + " was not found or is not used");
+		{
+			// This isn't really an unrecoverable situation but it is easier to just crash
+			// It really shouldn't happen anyway
+			std::cerr << "Uniform " << name << " for shader " << m_Name << " was not found or is not used\n";
+			Util::ExitDueToFailure();
+		}
 		m_UniformLocations.insert({ name, loc });
 		return loc;
 	}

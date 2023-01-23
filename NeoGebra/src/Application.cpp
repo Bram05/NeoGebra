@@ -49,6 +49,7 @@ static void KeyCallback(int key, int scancode, int action, int mods)
 Application::Application()
 {
 	Util::Timer::Initialize("times.txt");
+	std::atexit(Util::Timer::Terminate);
 	Util::Timer t("Creating Application");
 	Equation P2pointDef{ {AdvancedString("p")}, AdvancedString("x = p0 & y = p1 & p0^2 + p1^2 < 1") };
 	Equation P2lineDef{ {AdvancedString("l")}, AdvancedString("(x-l0)^2 + (y-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2 & l0^2 + l1^2 > 1 & x^2 + y^2 < 1") };
@@ -120,9 +121,4 @@ void Application::UpdateFrameTimes()
 Application* Application::Get()
 {
 	return s_Instance;
-}
-
-
-void Application::AddError(std::string error) {
-	m_WindowUI->AddError(error);
 }

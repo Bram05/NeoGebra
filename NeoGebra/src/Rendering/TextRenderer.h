@@ -25,8 +25,9 @@ public:
 	Font(const std::string& fontName);
 	~Font();
 
-	// Getters
-	CharacterInfo GetCharacterInfo(int character);
+	// Get the info for this charater loaded from the font
+	// @param character: the unicode point for the character. It will change this value to be ? if the character is not found
+	CharacterInfo GetCharacterInfo(unsigned int& character);
 	int GetWidth() const { return m_TotalWidth; }
 	int GetHeight() const { return m_TotalHeight; }
 	GLuint GetBitmap() const { return m_Bitmap; }
@@ -51,8 +52,8 @@ class Text
 public:
 	// Constructor
 	// @param renderAllText: should all the text be rendered, or only the part between m_RenderBegin and m_RenderEnd
-	Text(const AdvancedString& letters, float leftX, float rightX, float baseLine, float size, bool renderAllText = true);
-	Text(const std::string& text, float leftX, float rightX, float baseLine, float size);
+	Text(const AdvancedString& letters, float leftX, float rightX, float baseLine, float size, bool renderAllText = true, const std::array<float, 4>& colour = { 0.0f,0.0f,0.0f,1.0f });
+	Text(const std::string& text, float leftX, float rightX, float baseLine, float size, bool renderAllText = true, const std::array<float, 4>& colour = { 0.0f,0.0f,0.0f,1.0f });
 	~Text();
 
 	void AddText(const AdvancedString& letters, int position);
@@ -62,11 +63,13 @@ public:
 	void RemoveText(int begin, int num);
 
 	const AdvancedString& GetText() const { return m_Text; }
+	AdvancedString& GetText() { return m_Text; }
 	float GetScale() const { return m_Scale; }
 
 	// The first and last letter of the text that needs to be rendered. RenderEnd is one beyond the last rendered character
 	// This is only used if m_RenderAllText is false
 	int m_RenderBegin, m_RenderEnd;
+	std::array<float, 4> m_Colour;
 
 private:
 	bool m_RenderAllText;

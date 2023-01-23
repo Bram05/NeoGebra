@@ -21,24 +21,14 @@ public:
 	~Graph();
 
 	// Getters and setters
-	double GetLeftX() const { return m_LeftX; }
-	double GetTopY() const { return m_TopY; }
-	double GetRightX() const { return m_RightX; }
-	double GetBottomY() const { return m_BottomY; }
 	unsigned int GetCompShader1() const { return m_CompShader1; }
-	std::pair<float, float> GetMidCoord() const { return { m_MidCoordX, m_MidCoordY }; }
-	float GetUnitLengthPixels() const { return m_UnitLengthPixels; }
 	unsigned int GetTexture() const { return m_Texture; }
-
-	void ReGenTexture(const GraphComputeShaderManager& manager);
 
 	RGBColour getColour() const { return m_Colour; };
 	void setColour(const RGBColour& colour) { m_Colour = colour; }
 	NEElement& getElement() const { return m_El; };
 private:
 	RGBColour m_Colour;
-	float m_LeftX, m_RightX, m_TopY, m_BottomY;
-	float m_MidCoordX, m_MidCoordY, m_UnitLengthPixels;
 	NEElement& m_El;
 	GLuint m_Vao;
 	GLuint m_Vb;

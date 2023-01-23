@@ -57,6 +57,8 @@ void TextRenderer::RenderQueue()
 		std::shared_ptr<Text> t = m_RenderQueue.front();
 		m_RenderQueue.pop();
 
+		m_TextShader.SetUniform("u_Colour", t->m_Colour);
+
 		float scale = (float)t->m_Size / font->GetSize();
 		float currentX = t->m_LeftX;
 		float currentY = t->m_Baseline;
@@ -64,7 +66,7 @@ void TextRenderer::RenderQueue()
 		int end = t->m_RenderAllText ? t->m_Text.size() : t->m_RenderEnd;
 		for (int i{ begin }; i < end; ++i)
 		{
-			int c = t->m_Text[i];
+			unsigned int c = t->m_Text[i];
 			const CharacterInfo& info{ font->GetCharacterInfo(c) };
 
 			float charLeftX = currentX + (float)info.xOffset / width * scale;
@@ -103,7 +105,10 @@ Font::Font(const std::string& fontName)
 {
 	std::ifstream file(AssetsFolder / "fonts" / fontName / "info.txt");
 	if (!file)
-		throw std::runtime_error("Failed to load info for font" + fontName);
+	{
+		std::cerr << "Failed to load info for font " << fontName << '\n';
+		Util::ExitDueToFailure();
+	}
 
 	std::string word;
 	while (file >> word)
@@ -162,9 +167,12 @@ Font::Font(const std::string& fontName)
 
 	int width, height, numChannels;
 	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data{ stbi_load((AssetsFolder / "fonts" / fontName / "bitmap.png").string().c_str(), &width, &height, &numChannels, 0)};
+	unsigned char* data{ stbi_load((AssetsFolder / "fonts" / fontName / "bitmap.png").string().c_str(), &width, &height, &numChannels, 0) };
 	if (!data)
-		throw std::runtime_error("Failed to load bitmap for font: " + fontName);
+	{
+		std::cerr << "Failed to load bitmap for font: " << fontName << '\n';
+		Util::ExitDueToFailure();
+	}
 	m_TotalHeight = height;
 	m_TotalWidth = width;
 
@@ -184,7 +192,8 @@ Font::Font(const std::string& fontName)
 		imageType = GL_RGBA;
 		break;
 	default:
-		throw std::runtime_error("Weird number of channels " + std::to_string(numChannels) + " from font " + fontName);
+		std::cerr << "Weird number of channels " << std::to_string(numChannels) << " from font " << fontName << '\n';
+		Util::ExitDueToFailure();
 	}
 	glGenTextures(1, &m_Bitmap);
 	glBindTexture(GL_TEXTURE_2D, m_Bitmap);
@@ -206,26 +215,30 @@ Font::~Font()
 	glDeleteTextures(1, &m_Bitmap);
 }
 
-CharacterInfo Font::GetCharacterInfo(int character)
+CharacterInfo Font::GetCharacterInfo(unsigned int& character)
 {
 	auto it = m_CharacterInformation.find(character);
 	if (it == m_CharacterInformation.end())
 	{
-		PrintInfo(std::cerr << "Unkown character " << (char)character << " with code " << character << '\n');
+		Application::Get()->GetWindowUI()->DisplayError(AdvancedString("Unkown character ") + AdvancedString(character) + " with code " + std::to_string(character));
 		it = m_CharacterInformation.find(63);
 		if (it == m_CharacterInformation.end())
-			throw std::runtime_error("Unable to find character ?, no way to continue");
+		{
+			std::cerr << "Unable to find character ?, no way to continue\n";
+			Util::ExitDueToFailure();
+		}
+		character = 63;
 	}
 	return it->second;
 }
 
-Text::Text(const std::string& text, float leftX, float rightX, float baseLine, float size)
-	: Text(AdvancedString(text), leftX, rightX, baseLine, size)
+Text::Text(const std::string& text, float leftX, float rightX, float baseLine, float size, bool renderAllText, const std::array<float, 4>& colour)
+	: Text(AdvancedString(text), leftX, rightX, baseLine, size, renderAllText, colour)
 {
 }
 
-Text::Text(const AdvancedString& letters, float leftX, float rightX, float baseLine, float size, bool renderAllText)
-	: m_RenderAllText{renderAllText}, m_Text{ letters }, m_LeftX{ leftX }, m_RightX{ rightX }, m_Baseline{ baseLine }, m_Size{ size }, m_RenderBegin{ 0 }, m_RenderEnd{ (int)letters.size() }
+Text::Text(const AdvancedString& letters, float leftX, float rightX, float baseLine, float size, bool renderAllText, const std::array<float, 4>& colour)
+	: m_RenderAllText{ renderAllText }, m_Text{ letters }, m_LeftX{ leftX }, m_RightX{ rightX }, m_Baseline{ baseLine }, m_Size{ size }, m_RenderBegin{ 0 }, m_RenderEnd{ (int)letters.size() }, m_Colour{ colour }
 {
 	std::shared_ptr<Font> font = Application::Get()->GetRenderer()->GetFont();
 	auto [width, height] = Application::Get()->GetWindow()->GetSize();
@@ -240,12 +253,12 @@ Text::~Text()
 
 void Text::AddText(const AdvancedString& letters, int position)
 {
-	m_Text.insert(m_Text.begin()+position, letters.begin(), letters.end());
+	m_Text.insert(m_Text.begin() + position, letters.begin(), letters.end());
 }
 
 void Text::AddText(const std::string& letters, int position)
 {
-	AddText(AdvancedString{letters}, position);
+	AddText(AdvancedString{ letters }, position);
 }
 
 void Text::SetText(const AdvancedString& text)

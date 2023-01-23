@@ -40,8 +40,8 @@ void GraphUI::RenderPass(Renderer* r)
 
 void GraphUI::ResizeWindow(int width, int height)
 {
-	//UpdateLines();
-	//UpdateGraphs();
+	UpdateLines();
+	UpdateGraphs();
 	UIElement::ResizeWindow(width, height);
 }
 
@@ -70,10 +70,10 @@ void GraphUI::UpdateLines()
 	//Util::Timer t("UpdateLines");
 	m_Lines.clear();
 	
-	/*m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, m_TopY), Point(m_LeftX, m_BottomY))); // Left size
+	m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, m_TopY), Point(m_LeftX, m_BottomY))); // Left size
 	m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, m_TopY), Point(m_RightX, m_TopY))); // top
 	m_Lines.push_back(std::make_shared<Line>(Point(m_RightX, m_BottomY), Point(m_RightX, m_TopY))); // right
-	m_Lines.push_back(std::make_shared<Line>(Point(m_RightX, m_BottomY), Point(m_LeftX, m_BottomY))); // bottom*/
+	m_Lines.push_back(std::make_shared<Line>(Point(m_RightX, m_BottomY), Point(m_LeftX, m_BottomY))); // bottom
 
 	float pixelTopY = Util::ConvertToPixelCoordinate(m_TopY, false);
 	float pixelBottomY = Util::ConvertToPixelCoordinate(m_BottomY, false);
@@ -208,7 +208,7 @@ void GraphUI::UpdateGraphs()
 		}
 		else {
 			//Need to regenerate texture because graph moved
-			graph->ReGenTexture(m_ComputeShaderManager);
+			m_ComputeShaderManager.RunComputeShader(graph.get(), m_MidCoordX, m_MidCoordY, m_UnitLengthPixels);
 		}
 	}
 }

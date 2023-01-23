@@ -14,12 +14,12 @@ int Window::s_NumWindowsCreated{ 0 };
 Window::Window(const WindowCreationOptions& options)
 	: m_Title{options.title}, m_MouseButtonCallback{ options.mouseButtonCallback }, m_TextCallback{ options.textCallback }, m_MouseMovedCallback{ options.mouseMovedCallback }, m_SpecialKeyCallback{ options.specialKeyCallback }
 {
-	Util::Timer t("Creating window");
 	if (!s_NumWindowsCreated)
 	{
 		if (!glfwInit())
 		{
-			throw std::runtime_error("GLFW failed to initialize");
+			std::cerr << "GLFW failed to initialize\n";
+			Util::ExitDueToFailure();
 		}
 		PrintInfo(std::cout << "GLFW initialized\n");
 		MouseButton::left = GLFW_MOUSE_BUTTON_LEFT;
@@ -35,9 +35,13 @@ Window::Window(const WindowCreationOptions& options)
 	}
 	++s_NumWindowsCreated;
 
+	Util::Timer t("Creating window");
 	m_Window = glfwCreateWindow(options.width, options.height, options.title.c_str(), nullptr, nullptr);
 	if (!m_Window)
-		throw std::runtime_error("GLFW failed to create the window. Please make sure your graphics drivers support at least OpenGL 4.5");
+	{
+		std::cerr << "GLFW failed to create the window. Please make sure your graphics drivers support at least OpenGL 4.5\n";
+		Util::ExitDueToFailure();
+	}
 	glfwMakeContextCurrent(m_Window);
 
 	glfwSetWindowUserPointer(m_Window, this);

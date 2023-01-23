@@ -2,26 +2,15 @@
 
 #include "GraphComputeShaderManager.h"
 #include "Util.h"
+#include "Application.h"
 
 Graph::Graph(NEElement& el, const GraphComputeShaderManager& manager, float leftX, float rightX, float topY, float bottomY, float midCoordX, float midCoordY, float unitLengthPixels, const RGBColour& colour)
 	: m_El{ el },
-	m_LeftX{ leftX }, m_RightX{ rightX }, m_TopY{ topY }, m_BottomY{ bottomY },
-	m_MidCoordX{ midCoordX }, m_MidCoordY{ midCoordY }, m_UnitLengthPixels{ unitLengthPixels },
-	m_Colour{ colour }
+	m_Colour{ colour },
+	m_Texture{ manager.CreateTexture() }
 {
-	int widthPix{ Util::ConvertToPixelCoordinate(rightX - leftX, true) };
-	int heightPix{ Util::ConvertToPixelCoordinate(topY - bottomY, false) };
-	glGenTextures(1, &m_Texture);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_Texture);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, widthPix, heightPix, 0, GL_RED, GL_FLOAT, NULL);
-	glBindImageTexture(0, m_Texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
-
 	m_CompShader1 = manager.CreateCompShader("graphShader1", m_El.getShader());
+	// It is not needed to run the compute shader, because this will be done from GraphUI
 
 	float buffer[16] = {
 		leftX,	topY,	 0.0f, 1.0f,
@@ -59,15 +48,11 @@ Graph::~Graph()
 	glDeleteTextures(1, &m_Texture);
 }
 
-void Graph::ReGenTexture(const GraphComputeShaderManager& manager) {
-	manager.RunComputeShader(this);
-}
-
 GraphRenderer::GraphRenderer()
 	: m_Shader("graphShader")
 {
-	setLineThickness(3);
-	setPointSize(20);
+	setLineThickness(3); // Make sure these number are valid, because otherwise it will crash, because we can't display errors yet, since WindowUI is not fully constructed yet and not set in Application
+	setPointSize(10);
 }
 
 GraphRenderer::~GraphRenderer()
@@ -81,14 +66,16 @@ void GraphRenderer::AddToRenderQueue(const std::shared_ptr<Graph>& graph)
 
 void GraphRenderer::setLineThickness(int pixels) {
 	if (pixels < 1) {
-		throw std::invalid_argument("Invalid line thickness: " + std::to_string(pixels));
+		Application::Get()->GetWindowUI()->DisplayError("Invalid line thickness: " + std::to_string(pixels) + "\nFalling back to default 3");
+		pixels = 3;
 	}
 	m_LineThickness = pixels;
 }
 
 void GraphRenderer::setPointSize(int pixels) {
 	if (pixels < 1) {
-		throw std::invalid_argument("Invalid point size: " + std::to_string(pixels));
+		Application::Get()->GetWindowUI()->DisplayError("Invalid point size: " + std::to_string(pixels) + "\nFalling back to default 10");
+		pixels = 10;
 	}
 	m_PointSize = pixels;
 }
@@ -113,7 +100,8 @@ void GraphRenderer::RenderQueue()
 			m_Shader.SetUniform("u_Size", m_LineThickness);
 			break;
 		default:
-			throw std::runtime_error("Unkown type!");
+			std::cerr << "Unkown type!\n";
+			Util::ExitDueToFailure();
 		}
 		glBindVertexArray(graph->m_Vao);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);

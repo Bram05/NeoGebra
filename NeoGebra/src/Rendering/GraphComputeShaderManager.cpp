@@ -16,8 +16,8 @@ static int CompileShader(ShaderType type, const std::filesystem::path& path) { r
 GraphComputeShaderManager::GraphComputeShaderManager(const std::string& name, float width, float height)
 	: m_Name{name}
 {
-	m_Width = Util::ConvertToPixelCoordinate(width, true);
-	m_Height = Util::ConvertToPixelCoordinate(height, false);
+	m_Width = Util::ConvertToPixelValue(width, true);
+	m_Height = Util::ConvertToPixelValue(height, false);
 	m_CompShader2 = CreateCompShader(m_Name + "2", "");
 
 	glGenTextures(1, &m_IntermediateTexture);
@@ -34,7 +34,7 @@ GraphComputeShaderManager::GraphComputeShaderManager(const std::string& name, fl
 GraphComputeShaderManager::~GraphComputeShaderManager()
 {
 	glDeleteTextures(1, &m_IntermediateTexture);
-	glDeleteShader(m_CompShader2);
+	glDeleteProgram(m_CompShader2);
 }
 
 void GraphComputeShaderManager::SetGraphSize(float width, float height)
@@ -66,7 +66,8 @@ unsigned int GraphComputeShaderManager::CreateCompShader(const std::string name,
 
 		char* log = new char[length];
 		glGetProgramInfoLog(shaderProgram, length, &length, log);
-		throw std::runtime_error(std::string("Failed to link shader ") + path.string() + ": " + log);
+		std::cerr << "Failed to link shader " << path << ": " << log << '\n';
+		Util::ExitDueToFailure();
 	}
 	glDetachShader(shaderProgram, cs);
 	glDeleteShader(cs);
@@ -78,7 +79,8 @@ static int CompileShader(ShaderType type, const std::filesystem::path& path, con
 	std::ifstream file(path);
 	if (!file.is_open())
 	{
-		throw std::runtime_error("File " + path.string() + " could not be opened");
+		std::cerr << "File " << path.string() << " could not be opened\n";
+		Util::ExitDueToFailure();
 	}
 	std::stringstream source;
 	std::string line;
@@ -106,12 +108,13 @@ static int CompileShader(ShaderType type, const std::filesystem::path& path, con
 
 		char* log = new char[length];
 		glGetShaderInfoLog(shader, length, &length, log);
-		throw std::runtime_error("Failed to compile compute shader (" + path.string() + "): " + log);
+		std::cerr << "Failed to compile compute shader (" << path.string() << "): " << log << '\n';
+		Util::ExitDueToFailure();
 	}
 	return shader;
 }
 
-void GraphComputeShaderManager::RunComputeShader(Graph* graph) const
+void GraphComputeShaderManager::RunComputeShader(Graph* graph, float midCoordX, float midCoordY, float unitLengthPixels) const
 {
 	//Util::Timer t("Running compute shader");
 	glBindImageTexture(0, m_IntermediateTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
@@ -120,8 +123,6 @@ void GraphComputeShaderManager::RunComputeShader(Graph* graph) const
 	//Run 1st shader
 	glUseProgram(graph->GetCompShader1());
 	// Left Right Top Bottom
-	auto [midCoordX, midCoordY] = graph->GetMidCoord();
-	float unitLengthPixels = graph->GetUnitLengthPixels();
 	SetUniform(1, std::array<float, 4>{ midCoordX - 0.5f * m_Width / unitLengthPixels,
 		midCoordX + 0.5f * m_Width / unitLengthPixels,
 		midCoordY + 0.5f * m_Height / unitLengthPixels,
@@ -135,4 +136,19 @@ void GraphComputeShaderManager::RunComputeShader(Graph* graph) const
 	glUseProgram(m_CompShader2);
 	glDispatchCompute(m_Width, m_Height, 1);
 	glMemoryBarrier(GL_ALL_BARRIER_BITS);
+}
+
+unsigned int GraphComputeShaderManager::CreateTexture() const
+{
+	unsigned int texture;
+	glGenTextures(1, &texture);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, m_Width, m_Height, 0, GL_RED, GL_FLOAT, NULL);
+	glBindImageTexture(0, texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	return texture;
 }

@@ -66,7 +66,8 @@ Renderer::Renderer()
 	int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
 	if (status == 0)
 	{
-		throw std::runtime_error("Glad failed to initialize. Please make sure your graphics drivers support at least OpenGL 4.5");
+		std::cerr << "Glad failed to initialize. Please make sure your graphics drivers support at least OpenGL 4.5\n";
+		Util::ExitDueToFailure();
 	}
 	PrintInfo(std::cout << "Loaded GL version " << glGetString(GL_VERSION) << '\n');
 
@@ -107,10 +108,6 @@ Renderer::~Renderer()
 
 void Renderer::RenderQueues()
 {
-#ifdef DEBUG
-	if (glIsEnabled(GL_BLEND) == GL_FALSE)
-		throw std::runtime_error("Waarschijnlijk heeft Jeroen blending weer uitgezet ofzo");
-#endif
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 

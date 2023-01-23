@@ -36,11 +36,7 @@ public:
 		const Equation& betweennessConstr = { {}, {} })
 	{
 		m_Model = std::make_shared<Model>(pointIdentifiers, pointDef, lineIdentifiers, lineDef, incidenceConstr, betweennessConstr);
-	}
-	
-	
-	void AddError(std::string error);
-	
+	}	
 
 	// To prevent multiple application being created the constructor is private and only main is able to create one
 	friend int main();

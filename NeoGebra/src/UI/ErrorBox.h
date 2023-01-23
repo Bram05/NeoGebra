@@ -5,6 +5,7 @@
 #include "UIElement.h"
 #include "Rendering/LineRenderer.h"
 #include "Rendering/TextRenderer.h"
+#include "Maths/Equation.h"
 
 // The Error box
 class ErrorBox : public UIElement
@@ -12,12 +13,12 @@ class ErrorBox : public UIElement
 public:
 	ErrorBox(float leftX, float rightX, float topY, float bottomY);
 	~ErrorBox();
-	void updateError(std::string text);
+	void DisplayError(const AdvancedString& text);
 
 private:
 
+	std::shared_ptr<Text> m_ErrorBoxText;
 	std::shared_ptr<Text> m_ErrorText;
-
 	std::vector<std::shared_ptr<Line>> m_Lines;
 
 protected:

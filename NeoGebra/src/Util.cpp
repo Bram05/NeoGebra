@@ -34,6 +34,25 @@ namespace Util
 		}
 	}
 
+	int ConvertToPixelValue(float num, bool isX)
+	{
+		auto[width, height] = Application::Get()->GetWindow()->GetSize();
+		if (isX)
+			return (num / 2) * width;
+		else
+			return (num / 2) * height;
+	}
+
+	void ExitDueToFailure()
+	{
+		#ifdef DEBUG
+		__debugbreak();
+		#endif
+		std::cerr << "Press enter to exit\n";
+		std::cin.get();
+		std::exit(EXIT_FAILURE);
+	}
+
 #ifdef TIMING
 	std::ofstream Timer::s_OutputStream;
 
@@ -41,7 +60,10 @@ namespace Util
 		: m_Name{ name }, m_Begin{ std::chrono::steady_clock::now() }, m_Running{ true }
 	{
 		if (name.size() > s_MaxNameLength)
-			throw std::runtime_error("Timer name " + name + " exceeds the maximum length of " + std::to_string(s_MaxNameLength) + " characters");
+		{
+			std::cerr << "Timer name " << name << " exceeds the maximum length of " << std::to_string(s_MaxNameLength) << " characters\n";
+			Util::ExitDueToFailure();
+		}
 	}
 
 	Timer::~Timer()
@@ -55,8 +77,19 @@ namespace Util
 	{
 		s_OutputStream.open(pathToOutputFile);
 		if (!s_OutputStream)
-			throw std::runtime_error("Unable to initialize timer: unable to open file " + pathToOutputFile.string());
+		{
+			std::cerr << "Unable to initialize timer: unable to open file " << pathToOutputFile.string() << '\n';
+			Util::ExitDueToFailure();
+		}
+
 		s_OutputStream << std::setprecision(6);
+		PrintInfo(std::cout << "Timer initialized\n");
+	}
+
+	void Timer::Terminate()
+	{
+		s_OutputStream.close();
+		PrintInfo(std::cout << "Timer terminated\n");
 	}
 
 	double Timer::Stop()
@@ -71,7 +104,11 @@ namespace Util
 	void Timer::Restart(const std::string& name)
 	{
 		if (m_Running)
-			throw std::runtime_error("Attempting to restart an already running timer");
+		{
+			std::cerr << "Attempting to restart an already running timer\n";
+			Util::ExitDueToFailure();
+		}
+
 		m_Name = name;
 		m_Running = true;
 		m_Begin = std::chrono::steady_clock::now();

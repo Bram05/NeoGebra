@@ -17,7 +17,7 @@ void AddLine(void*) {
 }
 
 void AddError(void*) {
-	Application::Get()->AddError("Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test ");
+	Application::Get()->GetWindowUI()->DisplayError("Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test Test ");
 }
 
 

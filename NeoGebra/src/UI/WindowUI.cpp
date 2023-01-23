@@ -18,9 +18,9 @@ void tabTest(void* obj, int x) {
 
 WindowUI::WindowUI()
 {
+	m_UIElements.push_back(std::make_shared<ErrorBox>(0.5f, 1.0f, -0.5f, -1.0f));
 	m_UIElements.push_back(std::make_shared<EquationUI>(-1.0f, -0.5f, 0.9f, -1.0f));
 	m_UIElements.push_back(std::make_shared<PostulateVerifierResultUI>(0.5f, 1.0f, 0.9f, -0.5f));
-	m_UIElements.push_back(std::make_shared<ErrorBox>(0.5f, 1.0f, -0.5f, -1.0f));
 	m_UIElements.push_back(std::make_shared<GraphUI>(-0.5f, 0.5f, 0.9f, -1.0f));
 	m_GraphUIIndex = m_UIElements.size() - 1;
 	m_UIElements.push_back(std::make_shared<MenuUI>(-1.0f, 1.0f, 1.0f, 0.9f));
@@ -30,8 +30,8 @@ WindowUI::WindowUI()
 	#endif
 }
 
-void WindowUI::AddError(std::string error) {
-	(*(std::shared_ptr<ErrorBox>*)&m_UIElements[2])->updateError(error);
+void WindowUI::DisplayError(const AdvancedString& error) {
+	(*(std::shared_ptr<ErrorBox>*)&m_UIElements[0])->DisplayError(error);
 }
 
 WindowUI::~WindowUI()

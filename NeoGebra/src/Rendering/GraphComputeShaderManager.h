@@ -9,7 +9,8 @@ public:
 	~GraphComputeShaderManager();
 
 	unsigned int CreateCompShader(const std::string name, const std::string& insertText) const;
-	void RunComputeShader(Graph* graph) const;
+	void RunComputeShader(Graph* graph, float midCoordX, float midCoordY, float unitLengthPixels) const;
+	unsigned int CreateTexture() const;
 
 	void SetGraphSize(float width, float height);
 

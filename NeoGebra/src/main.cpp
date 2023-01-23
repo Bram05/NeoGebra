@@ -2,6 +2,7 @@
 // https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
 
 #include "Application.h"
+#include "Constants.h"
 
 // Entry point
 int main()
@@ -10,5 +11,8 @@ int main()
 	app->Run();
 	delete app;
 	
+	#ifdef PRINTINFO
+	std::cin.get();
+	#endif
 	return 0;
 }

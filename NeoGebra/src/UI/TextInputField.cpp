@@ -150,7 +150,7 @@ void TextInputField::UpdateEditingLine()
 {
 	auto [width, height] = Application::Get()->GetWindow()->GetSize();
 	auto font{ Application::Get()->GetRenderer()->GetFont() };
-	const AdvancedString& text = m_Text->GetText();
+	AdvancedString& text = m_Text->GetText();
 
 	float x = m_LeftX + 0.01f;
 	for (int i{ m_Text->m_RenderBegin }; i < m_Editingindex; ++i)

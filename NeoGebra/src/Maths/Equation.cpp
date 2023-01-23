@@ -378,7 +378,7 @@ int Equation::getNextOperator(const AdvancedString& s, bool& orEquals) const {
 
 AdvancedString operator+(const AdvancedString& s1, const AdvancedString& s2) {
 	AdvancedString res = s1;
-	res.content.insert(s1.content.end(), s2.content.begin(), s2.content.end());
+	res.content.insert(res.content.end(), s2.content.begin(), s2.content.end());
 	return res;
 }
 
