@@ -4,6 +4,9 @@
 #include <regex>
 #include <set>
 
+#define piConstant 3.14159265358979323846
+#define isDegrees false
+
 struct OrAnd { bool isEnd; std::string content; bool isOr; std::shared_ptr<OrAnd> s1; std::shared_ptr<OrAnd> s2; };
 
 struct equationResult { bool sat; z3::model* m; };
@@ -39,12 +42,14 @@ void replaceAll(AdvancedString& str, const AdvancedString& from, const AdvancedS
 class Equation
 {
 private:
-	float		  recIsTrue(const AdvancedString& s, const std::map<AdvancedString, float>& vars) const;
+	float	   recGetResult(const AdvancedString& s, const std::map<AdvancedString, float>& vars) const;
 	std::string recToSmtLib(const AdvancedString& s, const std::map<AdvancedString, float>& vars, std::set<std::string>& toDefine, std::vector<std::pair<std::string, std::string>>& sqrts, bool isFirstLayer = false) const;
 	std::string recToShader(const AdvancedString& s, const std::map<AdvancedString, float>& vars) const;
 	int		getNextOperator(const AdvancedString& s, bool& orEquals) const;
 
 	std::shared_ptr<OrAnd> recCombineShaders(const AdvancedString& s, std::map<AdvancedString, float>& vars) const;
+
+	std::pair<bool, float> getVariable(const AdvancedString& key) const { if (!definedVars || definedVars->find(key) == definedVars->end()) { return { false, 0.0 }; } else { return { true, definedVars->at(key) }; } }
 
 	/**
 	* Extracts variable names stored at the beginning of the equation.
@@ -61,11 +66,16 @@ private:
 	std::map<AdvancedString, float> linkVars(const std::vector<std::vector<float>>& identifiers) const;
 	void replaceVarName(AdvancedString& s, const AdvancedString& from, const AdvancedString& to);
 
+	std::map<AdvancedString, float>* definedVars;
+
 public:
-	std::vector<AdvancedString> m_VarNames;
+	std::vector<AdvancedString> m_NumberedVarNames;
 	AdvancedString m_EquationString;
 	Equation(const Equation& e1, const Equation& e2);
-	Equation(const std::vector<AdvancedString>& varNames, const AdvancedString& equationString);
+	Equation(const AdvancedString& equationString, std::map<AdvancedString, float>* definedVars = nullptr);
+	Equation(const std::vector<AdvancedString>& numberedVarNames, const AdvancedString& equationString, std::map<AdvancedString, float>* definedVars = nullptr);
+
+	void linkVars(std::map<AdvancedString, float>* vars) { definedVars = vars; }
 
 	/**
 	* Recursive function used to check if equation in string form is true. Input string must not contain spaces.
@@ -76,6 +86,7 @@ public:
 	*/
 	equationResult getSolution(const std::vector<std::vector<float>>& identifiers) const;
 
+	float getResult(const std::vector<std::vector<float>>& identifiers) const;
 	bool isTrue(const std::vector<std::vector<float>>& identifiers) const;
 	std::string toSmtLib(const std::vector<std::vector<float>>& identifiers) const;
 	OrAnd toShader(const std::vector<std::vector<float>>& identifiers) const;

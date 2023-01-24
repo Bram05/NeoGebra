@@ -41,6 +41,7 @@ Model::Model(unsigned int pointIdentifiers,
 	unsigned int lineIdentifiers,
 	const Equation& lineDef,
 	const Equation& incidenceConstr,
+	const Equation& distanceDef,
 	const Equation& betweennessConstr)
 	:
 	m_PointIdentifiers{ pointIdentifiers },
@@ -48,7 +49,15 @@ Model::Model(unsigned int pointIdentifiers,
 	m_LineIdentifiers{ lineIdentifiers },
 	m_LineDef{ lineDef },
 	m_IncidenceConstr{ incidenceConstr },
-	m_BetweennessConstr{ betweennessConstr } {}
+	m_DistanceDef{ distanceDef },
+	m_BetweennessConstr{ betweennessConstr } 
+{
+	m_PointDef.linkVars(&m_Variables);
+	m_LineDef.linkVars(&m_Variables);
+	m_IncidenceConstr.linkVars(&m_Variables);
+	m_DistanceDef.linkVars(&m_Variables);
+	m_BetweennessConstr.linkVars(&m_Variables);
+}
 
 Model::Model(const Model& m) :
 	m_PointIdentifiers{ m.m_PointIdentifiers },
@@ -56,16 +65,24 @@ Model::Model(const Model& m) :
 	m_LineIdentifiers{ m.m_LineIdentifiers },
 	m_LineDef{ m.m_LineDef },
 	m_IncidenceConstr{ m.m_IncidenceConstr },
-	m_BetweennessConstr{ m.m_BetweennessConstr } {}
+	m_DistanceDef{ m.m_DistanceDef },
+	m_BetweennessConstr{ m.m_BetweennessConstr } 
+{
+	m_PointDef.linkVars(&m_Variables);
+	m_LineDef.linkVars(&m_Variables);
+	m_IncidenceConstr.linkVars(&m_Variables);
+	m_DistanceDef.linkVars(&m_Variables);
+	m_BetweennessConstr.linkVars(&m_Variables);
+}
 
 void Model::addExtraEquation(Equation& eq, const RGBColour& colour) {
-	eq.m_VarNames = {AdvancedString("noVarName")};
-	m_Elements.push_back(NEElement({}, eq, 0, notype, shared_from_this(), colour, false));
+	eq.linkVars(&m_Variables);
+	m_Elements.push_back(NEElement(std::vector<float>{}, eq, 0, notype, shared_from_this(), colour, false));
 }
 
 NELine Model::newLine(NEPoint p1, NEPoint p2) {
 	Equation halfEq = m_IncidenceConstr;
-	halfEq.m_VarNames.erase(std::next(halfEq.m_VarNames.begin()));
+	halfEq.m_NumberedVarNames.erase(std::next(halfEq.m_NumberedVarNames.begin()));
 	Equation eq = halfEq + halfEq;
 	Equation tmp = { {}, AdvancedString("l1 = 0") };
 	eq = eq + tmp;
@@ -123,6 +140,10 @@ bool operator>>(const NEPoint& p, const NELine& l) {
 	//Custom condition
 	Equation eq = p.getModel()->m_IncidenceConstr;
 	return eq.isTrue({p.getIdentifiers(), l.getIdentifiers()});
+}
+
+float distance(const NEPoint& p1, const NEPoint& p2) {
+	return 0.0f;
 }
 
 bool isBetween(const NEPoint& p1, const NEPoint& p2, const NEPoint& p3) {

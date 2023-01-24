@@ -1,8 +1,8 @@
 #include "Equation.h"
 
-#define OPERNUM 12
-const unsigned int calcOrder[OPERNUM] = { '|', '&', '!', '>', '<', '=', '+', '-', '*', '/', '^', '~' };
-const unsigned int specialCharacters[] = { '|', '&', '!', '>', '<', '=', '+', '-', '*', '/', '^', '~', '(', ')', 0x221A};
+#define OPERNUM 13
+const unsigned int calcOrder[OPERNUM] = { '|', '&', '!', '>', '<', '=', '+', '-', '*', '/', '^', 0x221A, 0x33D2};
+const unsigned int specialCharacters[] = { '|', '&', '!', '>', '<', '=', '+', '-', '*', '/', '^', 0x221A, 0x33D2, '(', ')'};
 
 /// Checks if a string contains a signed float. 
 bool isNumber(const AdvancedString& str)
@@ -46,57 +46,87 @@ bool floatCompare(float f1, float f2) {
 }
 
 std::map<AdvancedString, float> Equation::linkVars(const std::vector<std::vector<float>>& identifiers) const {
-	if (m_VarNames.size() != identifiers.size()) {
+	if (m_NumberedVarNames.size() != identifiers.size() && m_NumberedVarNames.size() != 0) {
 		throw std::invalid_argument("Invalid identifiers");
 	}
 	
 	std::map<AdvancedString, float> m;
-	for (int i = 0; i < m_VarNames.size(); ++i) {
-		AdvancedString varName(m_VarNames[i]);
+	for (int i = 0; i < m_NumberedVarNames.size(); ++i) {
+		AdvancedString numberedVarName(m_NumberedVarNames[i]);
 		for (int j = 0; j < identifiers[i].size(); ++j) {
-			m[varName + std::to_string(j)] = identifiers[i][j];
+			m[numberedVarName + std::to_string(j)] = identifiers[i][j];
 		}
 	}
 	return m;
 }
 
-Equation::Equation(const std::vector<AdvancedString>& varNames, const AdvancedString& equationString) : m_VarNames{ varNames }, m_EquationString{ equationString }
+// replace logx with 10logx and sqrt(x) with 2sqrt(x) and 5(...) with 5*(...)
+void cleanUpEquation(AdvancedString& s) {
+	replaceAll(s, AdvancedString(" "), AdvancedString(""));
+	replaceAll(s, AdvancedString("~"), AdvancedString({ 0x221A }));
+	replaceAll(s, AdvancedString("log"), AdvancedString({ 0x33D2 }));
+	replaceAll(s, AdvancedString("sqrt("), AdvancedString(std::vector<unsigned int>{ 0x221A, '('}));
+	unsigned int prev;
+	for (int i = 0; i < s.size(); i++) {
+		prev = i == 0 ? 0 : s[i - 1];
+		if (s[i] == 0x33D2 && (i == 0 || !((prev >= '0' && prev <= '9') || prev == '-' || prev == ')' || prev == ']'))) {
+			s.insert(s.begin() + i, "10");
+		}
+		if (s[i] == 0x221A && (i == 0 || !((prev >= '0' && prev <= '9') || prev == '-' || prev == ')' || prev == ']'))) {
+			s.insert(s.begin() + i, "2");
+		}
+		if (((s[i] >= 'A' && s[i] <= 'Z') || (s[i] >= 'a' && s[i] <= 'z') || s[i] == '(' || s[i] == '[') && ((prev >= '0' && prev <= '9') || prev == ')' || prev == ']')) {
+			s.insert(s.begin() + i, "*");
+		}
+	}
+}
+
+Equation::Equation(const std::vector<AdvancedString>& numberedVarNames, const AdvancedString& equationString, std::map<AdvancedString, float>* definedVars) : m_NumberedVarNames{ numberedVarNames }, m_EquationString{ equationString }, definedVars{ definedVars }
 {
-	replaceAll(m_EquationString, AdvancedString(" "), AdvancedString(""));
+	cleanUpEquation(m_EquationString);
+}
+
+Equation::Equation(const AdvancedString& equationString, std::map<AdvancedString, float>* definedVars) : m_EquationString{ equationString }, definedVars{ definedVars }
+{
+	cleanUpEquation(m_EquationString);
 }
 
 Equation::Equation(const Equation& e1, const Equation& e2) {
 	AdvancedString s1 = e1.m_EquationString;
 	AdvancedString s2 = e2.m_EquationString;
+	if (e1.definedVars)
+		definedVars = e1.definedVars;
+	else
+		definedVars = e2.definedVars;
 
-	for (AdvancedString var1 : e1.m_VarNames) {
+	for (AdvancedString var1 : e1.m_NumberedVarNames) {
 		bool varNameAdded = false;
-		for (AdvancedString var2 : e2.m_VarNames) {
+		for (AdvancedString var2 : e2.m_NumberedVarNames) {
 			if (var1 == var2) {
 				varNameAdded = true;
 				AdvancedString newVarName = var1;
 				newVarName.push_back('a');
-				m_VarNames.push_back(newVarName);
+				m_NumberedVarNames.push_back(newVarName);
 				replaceVarName(s1, var1, newVarName);
 			}
 		}
 		if (!varNameAdded) {
-			m_VarNames.push_back(var1);
+			m_NumberedVarNames.push_back(var1);
 		}
 	}
-	for (AdvancedString var2 : e2.m_VarNames) {
+	for (AdvancedString var2 : e2.m_NumberedVarNames) {
 		bool varNameAdded = false;
-		for (AdvancedString var1 : e1.m_VarNames) {
+		for (AdvancedString var1 : e1.m_NumberedVarNames) {
 			if (var1 == var2) {
 				varNameAdded = true;
 				AdvancedString newVarName = var2;
 				newVarName.push_back('b');
-				m_VarNames.push_back(newVarName);
+				m_NumberedVarNames.push_back(newVarName);
 				replaceVarName(s2, var2, newVarName);
 			}
 		}
 		if (!varNameAdded) {
-			m_VarNames.push_back(var2);
+			m_NumberedVarNames.push_back(var2);
 		}
 	}
 
@@ -133,7 +163,7 @@ Equation operator!(const Equation& e) {
 	AdvancedString newEquationStr = e.m_EquationString;
 	newEquationStr.insert(newEquationStr.begin(), "!(");
 	newEquationStr.insert(newEquationStr.end(), ')');
-	return Equation{ e.m_VarNames, newEquationStr };
+	return Equation{ e.m_NumberedVarNames, newEquationStr };
 }
 
 equationResult Equation::getSolution(const std::vector<std::vector<float>>& identifiers) const {
@@ -158,9 +188,14 @@ equationResult Equation::getSolution(const std::vector<std::vector<float>>& iden
 	}
 }
 
+float Equation::getResult(const std::vector<std::vector<float>>& identifiers) const {
+	std::map<AdvancedString, float> vars = linkVars(identifiers);
+	return recGetResult(m_EquationString, vars);
+}
+
 bool Equation::isTrue(const std::vector<std::vector<float>>& identifiers) const {
 	std::map<AdvancedString, float> vars = linkVars(identifiers);
-	return recIsTrue(m_EquationString, vars);
+	return recGetResult(m_EquationString, vars);
 }
 
 std::string Equation::toSmtLib(const std::vector<std::vector<float>>& identifiers) const {
@@ -205,7 +240,7 @@ std::shared_ptr<OrAnd> Equation::recCombineShaders(const AdvancedString& s, std:
 	}
 }
 
-float Equation::recIsTrue(const AdvancedString& s, const std::map<AdvancedString, float>& vars) const {
+float Equation::recGetResult(const AdvancedString& s, const std::map<AdvancedString, float>& vars) const {
 	bool orEquals = false; // True if the > or < is a >= or <=
 	int operIndex = getNextOperator(s, orEquals);
 
@@ -214,17 +249,29 @@ float Equation::recIsTrue(const AdvancedString& s, const std::map<AdvancedString
 		if (isNumber(s)) { return s.toFloat(); }
 		if (s[0] != '-') {
 			if (vars.count(s)) { return vars.at(s); }
-			if (s[0] == '(' and s.back() == ')') { return recIsTrue(s.substr(1, s.length() - 2), vars); }
-			if (s[0] == '[' and s.back() == ']') { return std::abs(recIsTrue(s.substr(1, s.length() - 2), vars)); }
-			if (s[0] == '!') { return !recIsTrue(s.substr(1, s.length() - 1), vars); }
+			if (s[0] == '(' and s.back() == ')') { return recGetResult(s.substr(1, s.length() - 2), vars); }
+			if (s[0] == '[' and s.back() == ']') { return std::abs(recGetResult(s.substr(1, s.length() - 2), vars)); }
+			if (s[0] == '!') { return !recGetResult(s.substr(1, s.length() - 1), vars); }
+			if (s.size() > 4) {
+				if (s.substr(0, 4) == "sin(" and s.back() == ')') { return std::sin(recGetResult(s.substr(4, s.length() - 5), vars) * (isDegrees ? piConstant / 180 : 1)); }
+				if (s.substr(0, 4) == "cos(" and s.back() == ')') { return std::cos(recGetResult(s.substr(4, s.length() - 5), vars) * (isDegrees ? piConstant / 180 : 1)); }
+			}
 		}
 		else {
 			if (vars.count(s.substr(1, s.length() - 1))) { return -vars.at(s.substr(1, s.length() - 1)); }
-			if (s[1] == '(' and s.back() == ')') { return -recIsTrue(s.substr(2, s.length() - 3), vars); }
-			if (s[1] == '[' and s.back() == ']') { return -std::abs(recIsTrue(s.substr(2, s.length() - 3), vars)); }
+			if (s[1] == '(' and s.back() == ')') { return -recGetResult(s.substr(2, s.length() - 3), vars); }
+			if (s[1] == '[' and s.back() == ']') { return -std::abs(recGetResult(s.substr(2, s.length() - 3), vars)); }
+			if (s.size() > 5) {
+				if (s.substr(0, 5) == "-sin(" and s.back() == ')') { return std::sin(recGetResult(s.substr(5, s.length() - 6), vars) * (isDegrees ? piConstant / 180 : 1)); }
+				if (s.substr(0, 5) == "-cos(" and s.back() == ')') { return std::cos(recGetResult(s.substr(5, s.length() - 6), vars) * (isDegrees ? piConstant / 180 : 1)); }
+			}
 		}
 		if (s == "t") { return true; }
 		if (s == "f") { return false; }
+		if (s[0] == 0x03C0) { return piConstant; }
+		bool succes; float val;
+		std::tie(succes, val) = getVariable(s);
+		if (succes) { return val; }
 		throw std::invalid_argument("Invalid operator");
 	}
 
@@ -232,22 +279,23 @@ float Equation::recIsTrue(const AdvancedString& s, const std::map<AdvancedString
 	AdvancedString s2 = s.substr(operIndex + 1, s.length() - operIndex - 1);
 
 	switch (s[operIndex]) {
-	case '|': return recIsTrue(s1, vars) or recIsTrue(s2, vars);
-	case '&': return recIsTrue(s1, vars) and recIsTrue(s2, vars);
-	case '!': return !floatCompare(recIsTrue(s1, vars), recIsTrue(s2.substr(1, s2.length() - 1), vars));
+	case '|': return recGetResult(s1, vars) or recGetResult(s2, vars);
+	case '&': return recGetResult(s1, vars) and recGetResult(s2, vars);
+	case '!': return !floatCompare(recGetResult(s1, vars), recGetResult(s2.substr(1, s2.length() - 1), vars));
 	case '>':
-		if (!orEquals) { return recIsTrue(s1, vars) > recIsTrue(s2, vars); }
-		else { return recIsTrue(s1, vars) >= recIsTrue(s2.substr(1, s2.length() - 1), vars); }
+		if (!orEquals) { return recGetResult(s1, vars) > recGetResult(s2, vars); }
+		else { return recGetResult(s1, vars) >= recGetResult(s2.substr(1, s2.length() - 1), vars); }
 	case '<':
-		if (!orEquals) { return recIsTrue(s1, vars) < recIsTrue(s2, vars); }
-		else { return recIsTrue(s1, vars) <= recIsTrue(s2.substr(1, s2.length() - 1), vars); }
-	case '=': return floatCompare(recIsTrue(s1, vars), recIsTrue(s2, vars));
-	case '+': return recIsTrue(s1, vars) + recIsTrue(s2, vars);
-	case '-': return recIsTrue(s1, vars) - recIsTrue(s2, vars);
-	case '*': return recIsTrue(s1, vars) * recIsTrue(s2, vars);
-	case '/': return recIsTrue(s1, vars) / recIsTrue(s2, vars);
-	case '^': return std::pow(recIsTrue(s1, vars), recIsTrue(s2, vars));
-	case '~': return std::pow(recIsTrue(s2, vars), 1 / recIsTrue(s1, vars));
+		if (!orEquals) { return recGetResult(s1, vars) < recGetResult(s2, vars); }
+		else { return recGetResult(s1, vars) <= recGetResult(s2.substr(1, s2.length() - 1), vars); }
+	case '=': return floatCompare(recGetResult(s1, vars), recGetResult(s2, vars));
+	case '+': return recGetResult(s1, vars) + recGetResult(s2, vars);
+	case '-': return recGetResult(s1, vars) - recGetResult(s2, vars);
+	case '*': return recGetResult(s1, vars) * recGetResult(s2, vars);
+	case '/': return recGetResult(s1, vars) / recGetResult(s2, vars);
+	case '^': return std::pow(recGetResult(s1, vars), recGetResult(s2, vars));
+	case 0x221A: return std::pow(recGetResult(s2, vars), 1 / recGetResult(s1, vars));
+	case 0x33D2: return std::log(recGetResult(s2, vars)) / std::log(recGetResult(s1, vars));
 	default:  throw std::invalid_argument("Invalid operator");
 	}
 }
@@ -264,6 +312,7 @@ std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<Advanc
 			if (s[0] == '(' and s.back() == ')') { return recToSmtLib(s.substr(1, s.length() - 2), vars, toDefine, sqrts); }
 			if (s[0] == '[' and s.back() == ']') { return ("(abs " + recToSmtLib(s.substr(1, s.length() - 2), vars, toDefine, sqrts) + ')'); }
 			if (s[0] == '!') { return ("(not " + recToSmtLib(s.substr(1, s.length() - 1), vars, toDefine, sqrts) + ')'); }
+			//ToDo add cos and sin
 		}
 		else {
 			if (vars.count(s.substr(1, s.length() - 1))) { return std::to_string(-vars.at(s.substr(1, s.length() - 1))); }
@@ -272,6 +321,10 @@ std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<Advanc
 		}
 		if (s == "t") { return "true"; }
 		if (s == "f") { return "false"; }
+		//toDo add pi
+		bool succes; float val;
+		std::tie(succes, val) = getVariable(s);
+		if (succes) { return std::to_string(val); }
 		toDefine.insert(s.toString());
 		return s.toString();
 	}
@@ -300,7 +353,7 @@ std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<Advanc
 	case '*': return "(* " + recToSmtLib(s1, vars, toDefine, sqrts) + " " + recToSmtLib(s2, vars, toDefine, sqrts) + ")";
 	case '/': return "(/ " + recToSmtLib(s1, vars, toDefine, sqrts) + " " + recToSmtLib(s2, vars, toDefine, sqrts) + ")";
 	case '^': return "(^ " + recToSmtLib(s1, vars, toDefine, sqrts) + " " + recToSmtLib(s2, vars, toDefine, sqrts) + ")"; //s2 only ints (https://stackoverflow.com/questions/36812843/why-z3-always-return-unknown-when-assertions-have-power)
-	case '~': {
+	case 0x221A: {
 		std::pair<std::string, std::string> sqrt = { recToSmtLib(s2, vars, toDefine, sqrts) , recToSmtLib(s1, vars, toDefine, sqrts) };
 		auto it = std::find(sqrts.begin(), sqrts.end(), sqrt);
 		if (it != sqrts.end()) {
@@ -311,6 +364,7 @@ std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<Advanc
 			return "sqrt" + std::to_string(sqrts.size() - 1); //s2 only ints (https://stackoverflow.com/questions/36812843/why-z3-always-return-unknown-when-assertions-have-power)
 		}
 	}
+	//ToDo add log to z3
 	default:  throw std::invalid_argument("Invalid operator");
 	}
 }
@@ -327,15 +381,27 @@ std::string Equation::recToShader(const AdvancedString& s, const std::map<Advanc
 			if (s[0] == '(' and s.back() == ')') { return "(" + recToShader(s.substr(1, s.length() - 2), vars) + ")"; }
 			if (s[0] == '[' and s.back() == ']') { return ("abs(" + recToShader(s.substr(1, s.length() - 2), vars) + ')'); }
 			if (s[0] == '!') { return ("((" + recToShader(s.substr(1, s.length() - 1), vars) + " == 0.0) ? 1/0.0 : 0.0)"); } //Have to look into potential problems
+			if (s.size() > 4) {
+				if (s.substr(0, 4) == "sin(" and s.back() == ')') { return "sin((" + (recToShader(s.substr(4, s.length() - 5), vars) + (isDegrees ? ") * " + std::to_string(piConstant / 180) + ")" : "))")); }
+				if (s.substr(0, 4) == "cos(" and s.back() == ')') { return "cos((" + (recToShader(s.substr(4, s.length() - 5), vars) + (isDegrees ? ") * " + std::to_string(piConstant / 180) + ")" : "))")); }
+			}
 		}
 		else {
 			if (vars.count(s.substr(1, s.length() - 1))) { return std::to_string(-vars.at(s.substr(1, s.length() - 1))); }
 			if (s[1] == '(' and s.back() == ')') { return ("-(" + recToShader(s.substr(2, s.length() - 3), vars) + ")"); } 
 			if (s[1] == '[' and s.back() == ']') { return ("-abs( " + recToShader(s.substr(2, s.length() - 3), vars) + ")"); }
+			if (s.size() > 5) {
+				if (s.substr(0, 5) == "-sin(" and s.back() == ')') { return "-sin((" + (recToShader(s.substr(5, s.length() - 6), vars) + (isDegrees ? ") * " + std::to_string(piConstant / 180) + ")" : "))")); }
+				if (s.substr(0, 5) == "-cos(" and s.back() == ')') { return "-cos((" + (recToShader(s.substr(5, s.length() - 6), vars) + (isDegrees ? ") * " + std::to_string(piConstant / 180) + ")" : "))")); }
+			}
 		}
 		if (s == "t") { return "true"; }
 		if (s == "f") { return "false"; }
+		if (s[0] == 0x03C0) { return std::to_string(piConstant); }
 		if (s == "x" or s == "y") { return "coords." + s.toString(); }
+		bool succes; float val;
+		std::tie(succes, val) = getVariable(s);
+		if (succes) { return std::to_string(val); }
 		throw std::invalid_argument("Invalid statement");
 	}	
 
@@ -359,7 +425,8 @@ std::string Equation::recToShader(const AdvancedString& s, const std::map<Advanc
 	case '*': return recToShader(s1, vars) + " * " + recToShader(s2, vars);
 	case '/': return recToShader(s1, vars) + " / " + recToShader(s2, vars);
 	case '^': return "customPow( " + recToShader(s1, vars) + ", " + recToShader(s2, vars) + ")"; 
-	case '~': return "customPow( " + recToShader(s2, vars) + ", (1.0 / " + recToShader(s1, vars) + "))";
+	case 0x221A: return "customPow( " + recToShader(s2, vars) + ", (1.0 / " + recToShader(s1, vars) + "))";
+	case 0x33D2: return "log( " + recToShader(s2, vars) + " ) / log( " + recToShader(s1, vars) + ")";
 	default:  throw std::invalid_argument("Invalid operator");
 	}
 }

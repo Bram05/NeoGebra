@@ -100,6 +100,7 @@ void GraphRenderer::RenderQueue()
 			m_Shader.SetUniform("u_Size", m_PointSize);
 			break;
 		case line:
+		case notype:
 			m_Shader.SetUniform("u_Size", m_LineThickness);
 			break;
 		default:

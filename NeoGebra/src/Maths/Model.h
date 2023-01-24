@@ -68,12 +68,16 @@ public:
 * Use operator>> to test incidence (point >> line).
 */
 class Model : public std::enable_shared_from_this<Model> {
+	std::map<AdvancedString, float> m_Variables;
 	std::vector<NEElement> m_Elements;
 
 	Equation m_PointDef;
 	Equation m_LineDef;
 	Equation m_IncidenceConstr;
 	Equation m_BetweennessConstr;
+
+	Equation m_DistanceDef;
+
 
 	unsigned int m_PointIdentifiers;
 	unsigned int m_LineIdentifiers;
@@ -97,13 +101,19 @@ public:
 		unsigned int lineIdentifiers,
 		const Equation& lineDef,
 		const Equation& incidenceConstr,
-		const Equation& betweennessConstr = Equation( {}, {} ));
+		const Equation& distanceDef = Equation({}),
+		const Equation& betweennessConstr = Equation( {} ));
 
 	/// Copy an existing Model object. 
 	Model(const Model& g);
 
 	void addExtraEquation(Equation& eq, const RGBColour& colour = RGBColour(125, 125, 125, 255));
 	std::vector<NEElement>& getExtraEquations() { return m_ExtraEquations; }
+
+	void addVariable(const AdvancedString& key, float val) { m_Variables[key] = val; }
+	void remVariable(const AdvancedString& key) { m_Variables.erase(key); }
+	const std::map<AdvancedString, float>& getVariables() const { return m_Variables; }
+	std::pair<bool, float> getVariable(const AdvancedString& key) const { if (m_Variables.find(key) == m_Variables.end()) { return { false, 0.0 }; } else { return { true, m_Variables.at(key) }; } }
 
 	std::vector<NEElement>& getElements() { return m_Elements; }
 	unsigned int GetNumPointIdentifiers() const { return m_PointIdentifiers; }
@@ -130,4 +140,5 @@ bool operator!=(const RGBColour& c1, const RGBColour& c2);
 
 /// Incidence check: Checks if point p lies on line l. 
 bool operator>>(const NEPoint& p, const NELine& l);
+float distance(const NEPoint& p1, const NEPoint& p2);
 bool isBetween(const NEPoint& p1, const NEPoint& p2, const NEPoint& p3);
