@@ -59,6 +59,8 @@ Application::Application()
 
 	m_Model = std::make_shared<Model>(2, P2pointDef, 2, P2lineDef, P2incidence, P2betweenness);
 
+	Equation circle{ {}, AdvancedString("x^2+y^2=1") };
+	m_Model->addExtraEquation(circle);
 	std::shared_ptr<NELine> l1(new NELine({ 1.25, 0 }, m_Model));
 	std::shared_ptr<NEPoint> p1(new NEPoint({ 0.625,  0.4145780988 }, m_Model, { 255, 0, 0, 255 }));
 
