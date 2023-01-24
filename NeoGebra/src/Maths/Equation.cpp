@@ -181,9 +181,28 @@ std::string Equation::toSmtLib(const std::vector<std::vector<float>>& identifier
 	return "(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))" + out;
 }
 
-std::string Equation::toShader(const std::vector<std::vector<float>>& identifiers) const {
+OrAnd Equation::toShader(const std::vector<std::vector<float>>& identifiers) const {
 	std::map<AdvancedString, float> vars = linkVars(identifiers);
-	return recToShader(m_EquationString, vars);
+	//ToDo change
+	//OrAnd res = *recCombineShaders(m_EquationString, vars);
+	OrAnd res(true, recToShader(m_EquationString, vars), false, nullptr, nullptr);
+	return res;
+}
+
+std::shared_ptr<OrAnd> Equation::recCombineShaders(const AdvancedString& s, std::map<AdvancedString, float>& vars) const {
+	bool tmp;
+	int operIndex = getNextOperator(s, tmp);
+	AdvancedString s1 = s.substr(0, operIndex);
+	AdvancedString s2 = s.substr(operIndex + 1, s.length() - operIndex - 1);
+	if (s[operIndex] == '|') {
+		return std::make_shared<OrAnd>(false, "", true, recCombineShaders(s1, vars), recCombineShaders(s2, vars));
+	}
+	else if (s[operIndex] == '&') {
+		return std::make_shared<OrAnd>(false, "", false, recCombineShaders(s1, vars), recCombineShaders(s2, vars));
+	}
+	else {
+		return std::make_shared<OrAnd>(true, recToShader(s, vars), false, nullptr, nullptr);
+	}
 }
 
 float Equation::recIsTrue(const AdvancedString& s, const std::map<AdvancedString, float>& vars) const {
@@ -324,6 +343,7 @@ std::string Equation::recToShader(const AdvancedString& s, const std::map<Advanc
 	AdvancedString s2 = s.substr(operIndex + 1, s.length() - operIndex - 1);
 
 	switch (s[operIndex]) {
+	//ToDo remove
 	case '|': return "min(" + recToShader(s1, vars) + ", " + recToShader(s2, vars) + ")";
 	case '&': return "abs(" + recToShader(s1, vars) + ") + abs(" + recToShader(s2, vars) + ")";
 	case '!': return "((" + recToShader(s1, vars) + " - " + recToShader(s2, vars) + " == 0.0) ? 1/0.0 : 0.0)"; //Have to look into potential problems
@@ -344,7 +364,7 @@ std::string Equation::recToShader(const AdvancedString& s, const std::map<Advanc
 	}
 }
 
-int Equation::getNextOperator(const AdvancedString& s, bool& orEquals) const {
+int Equation::getNextOperator(const AdvancedString& s, bool& orEquals ) const {
 	int depth = 0;
 	int best = OPERNUM;
 	int operIndex = -1;

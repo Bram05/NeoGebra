@@ -25,8 +25,9 @@ NEElement::NEElement(const std::vector<float>& identifiers, const Equation& def,
 	m_Model->m_Elements.push_back(*this);
 }
 
-std::string NEElement::getShader() {
-	return m_Def.toShader({ m_Identifiers });
+OrAnd NEElement::getShader() {
+	OrAnd res = m_Def.toShader({ m_Identifiers });
+	return res;
 }
 
 NEPoint::NEPoint(const std::vector<float>& identifiers, std::shared_ptr<Model> m, const RGBColour& colour, bool checkValidity)
