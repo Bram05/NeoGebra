@@ -9,7 +9,10 @@ Graph::Graph(NEElement& el, const GraphComputeShaderManager& manager, float left
 	m_Colour{ colour },
 	m_Texture{ manager.CreateTexture() }
 {
-	m_CompShader1 = manager.CreateCompShader("graphShader1", m_El.getShader());
+	//Vraag Jeroen voor uitleg
+	OrAnd shader = m_El.getShader();
+	m_CompShader1 = manager.CreateCompShader("graphShader1", shader.content);
+
 	// It is not needed to run the compute shader, because this will be done from GraphUI
 
 	float buffer[16] = {

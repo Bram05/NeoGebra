@@ -4,6 +4,8 @@
 #include <regex>
 #include <set>
 
+struct OrAnd { bool isEnd; std::string content; bool isOr; std::shared_ptr<OrAnd> s1; std::shared_ptr<OrAnd> s2; };
+
 struct equationResult { bool sat; z3::model* m; };
 // String with extra characters, such as square roots and pi
 // Some constructors are marked explicit to prevent objects unwantingly convert to advanced strings
@@ -42,6 +44,8 @@ private:
 	std::string recToShader(const AdvancedString& s, const std::map<AdvancedString, float>& vars) const;
 	int		getNextOperator(const AdvancedString& s, bool& orEquals) const;
 
+	std::shared_ptr<OrAnd> recCombineShaders(const AdvancedString& s, std::map<AdvancedString, float>& vars) const;
+
 	/**
 	* Extracts variable names stored at the beginning of the equation.
 	*
@@ -74,7 +78,7 @@ public:
 
 	bool isTrue(const std::vector<std::vector<float>>& identifiers) const;
 	std::string toSmtLib(const std::vector<std::vector<float>>& identifiers) const;
-	std::string toShader(const std::vector<std::vector<float>>& identifiers) const;
+	OrAnd toShader(const std::vector<std::vector<float>>& identifiers) const;
 };
 
 Equation operator+(const Equation& e1, const Equation& e2);
