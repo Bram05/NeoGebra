@@ -6,7 +6,7 @@
 #include "Application.h"
 #include "Util.h"
 
-enum ShaderType
+static enum ShaderType
 {
 	VERTEX_SHADER, FRAGMENT_SHADER
 };

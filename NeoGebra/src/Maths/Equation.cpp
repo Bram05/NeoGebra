@@ -181,11 +181,11 @@ std::string Equation::toSmtLib(const std::vector<std::vector<float>>& identifier
 	return "(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))" + out;
 }
 
-OrAnd Equation::toShader(const std::vector<std::vector<float>>& identifiers) const {
+std::shared_ptr<OrAnd> Equation::toShader(const std::vector<std::vector<float>>& identifiers) const {
 	std::map<AdvancedString, float> vars = linkVars(identifiers);
 	//ToDo change
-	//OrAnd res = *recCombineShaders(m_EquationString, vars);
-	OrAnd res(true, recToShader(m_EquationString, vars), false, nullptr, nullptr);
+	std::shared_ptr<OrAnd> res = recCombineShaders(m_EquationString, vars);
+	//std::shared_ptr<OrAnd> res = std::make_shared<OrAnd>(true, recToShader(m_EquationString, vars), false, nullptr, nullptr);
 	return res;
 }
 
@@ -344,8 +344,8 @@ std::string Equation::recToShader(const AdvancedString& s, const std::map<Advanc
 
 	switch (s[operIndex]) {
 	//ToDo remove
-	case '|': return "min(" + recToShader(s1, vars) + ", " + recToShader(s2, vars) + ")";
-	case '&': return "abs(" + recToShader(s1, vars) + ") + abs(" + recToShader(s2, vars) + ")";
+	//case '|': return "min(" + recToShader(s1, vars) + ", " + recToShader(s2, vars) + ")";
+	//case '&': return "abs(" + recToShader(s1, vars) + ") + abs(" + recToShader(s2, vars) + ")";
 	case '!': return "((" + recToShader(s1, vars) + " - " + recToShader(s2, vars) + " == 0.0) ? 1/0.0 : 0.0)"; //Have to look into potential problems
 	case '>':
 		if (!orEquals) { return "((" + recToShader(s1, vars) + " > " + recToShader(s2, vars) + ") ? 0.0 : 1/0.0)"; }

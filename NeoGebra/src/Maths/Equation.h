@@ -13,7 +13,7 @@ struct AdvancedString {
 	std::vector<unsigned int> content;
 	AdvancedString() {}
 	explicit AdvancedString(const std::string& str) { for (const char c : str) { content.push_back(c); } }
-	AdvancedString(const std::vector<unsigned int>& v) : content(v) {}
+	explicit AdvancedString(const std::vector<unsigned int>& v) : content(v) {}
 	AdvancedString(unsigned int c) : content({c}) {}
 	AdvancedString(const AdvancedString& s) : content(s.content) {}
 	size_t size() const { return content.size(); }
@@ -78,7 +78,7 @@ public:
 
 	bool isTrue(const std::vector<std::vector<float>>& identifiers) const;
 	std::string toSmtLib(const std::vector<std::vector<float>>& identifiers) const;
-	OrAnd toShader(const std::vector<std::vector<float>>& identifiers) const;
+	std::shared_ptr<OrAnd> toShader(const std::vector<std::vector<float>>& identifiers) const;
 };
 
 Equation operator+(const Equation& e1, const Equation& e2);

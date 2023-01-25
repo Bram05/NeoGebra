@@ -22,8 +22,9 @@ public:
 	~Graph();
 
 	// Getters and setters
-	unsigned int GetCompShader1() const { return m_CompShader1; }
-	unsigned int GetTexture() const { return m_Texture; }
+	const std::vector<unsigned int>& GetCompShader1() const { return m_FirstComputeShaders; }
+	const std::vector<unsigned int>& GetTextures() const { return m_Textures; }
+	std::shared_ptr<OrAnd> GetOrAnd() const { return m_OrAnd; }
 
 	RGBColour getColour() const { return m_Colour; };
 	void setColour(const RGBColour& colour) { m_Colour = colour; }
@@ -34,8 +35,10 @@ private:
 	GLuint m_Vao;
 	GLuint m_Vb;
 	GLuint m_Ib;
-	unsigned int m_CompShader1 = NULL;
-	unsigned int m_Texture;
+	std::vector<unsigned int> m_IntermediateTextures;
+	std::vector<unsigned int> m_FirstComputeShaders;
+	std::vector<unsigned int> m_Textures;
+	std::shared_ptr<OrAnd> m_OrAnd;
 	friend GraphRenderer;
 };
 

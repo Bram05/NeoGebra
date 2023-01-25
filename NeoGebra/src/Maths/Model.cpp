@@ -25,8 +25,8 @@ NEElement::NEElement(const std::vector<float>& identifiers, const Equation& def,
 	m_Model->m_Elements.push_back(*this);
 }
 
-OrAnd NEElement::getShader() {
-	OrAnd res = m_Def.toShader({ m_Identifiers });
+std::shared_ptr<OrAnd> NEElement::getShader() {
+	std::shared_ptr<OrAnd> res = m_Def.toShader({m_Identifiers});
 	return res;
 }
 

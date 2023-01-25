@@ -1,0 +1,20 @@
+#version 430 core
+
+layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+
+layout(r32f, binding = 0) uniform image2D inTexture1;
+layout(r32f, binding = 1) uniform image2D inTexture2;
+layout(location = 0) uniform int isAnd;
+
+void main()
+{
+    ivec2 pos = ivec2( gl_GlobalInvocationID.xy );
+    if (bool(isAnd))
+    {
+        imageStore(inTexture1, pos, vec4(min(imageLoad(inTexture1, pos).r, imageLoad(inTexture2, pos).r), 0.0,0.0,0.0));
+    }
+    else
+    {
+        imageStore(inTexture1, pos, vec4(max(imageLoad(inTexture1, pos).r, imageLoad(inTexture2, pos).r), 0.0,0.0,0.0));
+    }
+}

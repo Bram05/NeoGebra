@@ -208,7 +208,7 @@ void GraphUI::UpdateGraphs()
 		}
 		else {
 			//Need to regenerate texture because graph moved
-			m_ComputeShaderManager.RunComputeShader(graph.get(), m_MidCoordX, m_MidCoordY, m_UnitLengthPixels);
+			m_ComputeShaderManager.RunComputeShaders(graph.get(), m_MidCoordX, m_MidCoordY, m_UnitLengthPixels);
 		}
 	}
 }
