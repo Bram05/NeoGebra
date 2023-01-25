@@ -5,14 +5,16 @@
 #include "Rendering/Renderer.h"
 #include "Application.h"
 #include "Util.h"
+#include <string.h>
 
 GraphUI::GraphUI(float leftX, float rightX, float topY, float bottomY)
-	: UIElement(leftX, rightX, topY, bottomY, "GraphUI"), m_ComputeShaderManager("graphShader", rightX-leftX, topY-bottomY)
+	: UIElement(leftX, rightX, topY, bottomY, "GraphUI"), m_ComputeShaderManager("graphShader", rightX - leftX, topY - bottomY)
 {
 	m_MidCoordX = 0.0f, m_MidCoordY = 0.0f, m_UnitLengthPixels = 135.0f;
 
 	UpdateLines();
 	UpdateGraphs();
+	UpdateCoordinates();
 }
 
 GraphUI::~GraphUI()
@@ -35,6 +37,11 @@ void GraphUI::RenderPass(Renderer* r)
 	{
 		r->AddToRenderQueue(graph);
 	}
+
+	for (std::shared_ptr<Text>& text : m_Texts)
+	{
+		r->AddToRenderQueue(text);
+	}
 	UIElement::RenderPass(r);
 }
 
@@ -42,6 +49,7 @@ void GraphUI::ResizeWindow(int width, int height)
 {
 	UpdateLines();
 	UpdateGraphs();
+	UpdateCoordinates();
 	UIElement::ResizeWindow(width, height);
 }
 
@@ -63,13 +71,170 @@ void GraphUI::DraggedUpdate(float x, float y) {
 	m_MidCoordY = m_MidCoordYBeforeDrag - (Util::ConvertToPixelCoordinate(y, false) - Util::ConvertToPixelCoordinate(m_YBeforeDrag, false)) / m_UnitLengthPixels;
 	UpdateLines();
 	UpdateGraphs();
+	UpdateCoordinates();
 }
+
+int roundFloat(float value) {
+	//round to 2 values after comma, return float
+	return (int)((int)(value * 100) / 100.0f);
+
+}
+void GraphUI::UpdateCoordinates()
+{
+	m_Texts.clear();
+
+	float pixelTopY = Util::ConvertToPixelCoordinate(m_TopY, false);
+	float pixelBottomY = Util::ConvertToPixelCoordinate(m_BottomY, false);
+	float pixelLeftX = Util::ConvertToPixelCoordinate(m_LeftX, true);
+	float pixelRightX = Util::ConvertToPixelCoordinate(m_RightX, true);
+
+	float midPixelX = (pixelLeftX + pixelRightX) / 2;
+	float midPixelY = (pixelTopY + pixelBottomY) / 2;
+
+	//Pixel nearest to midpixel with  from floored whole coordinate in pixels (+1 for small correction, maybe better fix later)
+	float nearMidPixelX = midPixelX - (m_MidCoordX - (int)(m_MidCoordX)) * m_UnitLengthPixels + 1;
+	float nearMidPixelY = midPixelY - (m_MidCoordY - (int)(m_MidCoordY)) * m_UnitLengthPixels + 1;
+
+	//Calculate mid to origin
+
+	//Distance from mid to origin
+	float distanceX = (m_MidCoordX * m_UnitLengthPixels);//pixels
+	float distanceY = (m_MidCoordY * m_UnitLengthPixels);//pixels
+
+	int indexAxisX = 0;
+	int indexAxisY = 0;
+
+	indexAxisY = (int)(-1 * m_MidCoordX);// index of the y-axis
+	indexAxisX = (int)(-1 * m_MidCoordY);// index of the x-axis	
+
+	bool FFYDrawn = false;//first, fourth quadrant y axis drawn?
+	bool FFXDrawn = false;//first, fourth quadrant x axis drawn?
+
+	bool STYDrawn = false;//second, third quadrant y axis drawn?
+	bool STXDrawn = false;//second, third quadrant x axis drawn?
+
+	//first quadrant and fourth quadrant
+	for (int i = 0; i < (pixelRightX - nearMidPixelX) / m_UnitLengthPixels; ++i) {
+		float x = Util::ConvertToOpenGLCoordinate(nearMidPixelX + i * m_UnitLengthPixels, true);
+
+		for (int j = 0; j < (pixelTopY - nearMidPixelY) / m_UnitLengthPixels; ++j) {
+			float y = Util::ConvertToOpenGLCoordinate(nearMidPixelY + j * m_UnitLengthPixels, false);
+			if (i == indexAxisY) {
+				m_Texts.push_back(std::make_shared<Text>(std::to_string(roundFloat(indexAxisX * -1 + j)), x, x + 0.3, y, 35.0f));
+				FFYDrawn = true;
+			}
+			if (j == indexAxisX) {
+				m_Texts.push_back(std::make_shared<Text>(std::to_string(roundFloat(indexAxisY * -1 + i)), x, x + 0.3, y, 35.0f));
+				FFXDrawn = true;
+			}
+
+		}
+		for (int j = 0; j < (pixelTopY - nearMidPixelY) / m_UnitLengthPixels; ++j) {
+			float y = Util::ConvertToOpenGLCoordinate(nearMidPixelY - j * m_UnitLengthPixels, false);
+
+			if (i == indexAxisY) {
+				m_Texts.push_back(std::make_shared<Text>(std::to_string(roundFloat(indexAxisX * -1 - j)), x, x + 0.3, y, 35.0f));
+				FFYDrawn = true;
+			}
+			if (j == indexAxisX * -1) {
+				m_Texts.push_back(std::make_shared<Text>(std::to_string(roundFloat(indexAxisY * -1 + i)), x, x + 0.3, y, 35.0f));
+				FFXDrawn = true;
+			}
+		}
+	}
+	//second quadrant and third quadrant
+	for (int i = 0; i < (nearMidPixelX - pixelLeftX) / m_UnitLengthPixels; ++i) {
+		float x = Util::ConvertToOpenGLCoordinate(nearMidPixelX - i * m_UnitLengthPixels, true);
+
+		for (int j = 0; j < (pixelTopY - nearMidPixelY) / m_UnitLengthPixels; ++j) {
+			float y = Util::ConvertToOpenGLCoordinate(nearMidPixelY + j * m_UnitLengthPixels, false);
+			//Display axiis only
+			if (i == indexAxisY * -1) {
+				m_Texts.push_back(std::make_shared<Text>(std::to_string(roundFloat(indexAxisX * -1 + j)), x, x + 0.3, y, 35.0f));
+				STYDrawn = true;
+			}
+			if (j == indexAxisX) {
+				m_Texts.push_back(std::make_shared<Text>(std::to_string(roundFloat(indexAxisY * -1 - i)), x, x + 0.3, y, 35.0f));
+				STXDrawn = true;
+			}
+		}
+
+		for (int j = 0; j < (pixelTopY - nearMidPixelY) / m_UnitLengthPixels; ++j) {
+			float y = Util::ConvertToOpenGLCoordinate(nearMidPixelY - j * m_UnitLengthPixels, false);
+			//Display axiis only
+			if (i == indexAxisY * -1) {
+				m_Texts.push_back(std::make_shared<Text>(std::to_string(roundFloat(indexAxisX * -1 - j)), x, x + 0.3, y, 35.0f));
+				STYDrawn = true;
+			}
+			if (j == indexAxisX * -1) {
+				m_Texts.push_back(std::make_shared<Text>(std::to_string(roundFloat(indexAxisY * -1 - i)), x, x + 0.3, y, 35.0f));
+				STXDrawn = true;
+			}
+		}
+	}
+	//Y Axis is outside of the screen | Left side.
+	if (!FFYDrawn && !STYDrawn && indexAxisY < 0) {
+		float x = m_LeftX;
+		for (int j = 0; j < (pixelTopY - nearMidPixelY) / m_UnitLengthPixels; ++j) {
+			float y = Util::ConvertToOpenGLCoordinate(nearMidPixelY + j * m_UnitLengthPixels, false);
+			m_Texts.push_back(std::make_shared<Text>(std::to_string(roundFloat(indexAxisX * -1 + j)), x, x + 0.3, y, 35.0f));
+
+		}
+		for (int j = 0; j < (pixelTopY - nearMidPixelY) / m_UnitLengthPixels; ++j) {
+			float y = Util::ConvertToOpenGLCoordinate(nearMidPixelY - j * m_UnitLengthPixels, false);
+			m_Texts.push_back(std::make_shared<Text>(std::to_string(roundFloat(indexAxisX * -1 - j)), x, x + 0.3, y, 35.0f));
+
+		}
+	}
+	//Y Axis is outside of the screen | Right side.
+	if (!FFYDrawn && !STYDrawn && indexAxisY > 0) {
+		float x = m_RightX;
+
+		for (int j = 0; j < (pixelTopY - nearMidPixelY) / m_UnitLengthPixels; ++j) {
+			float y = Util::ConvertToOpenGLCoordinate(nearMidPixelY + j * m_UnitLengthPixels, false);
+			m_Texts.push_back(std::make_shared<Text>(std::to_string(roundFloat(indexAxisX * -1 + j)), x, x + 0.3, y, 35.0f));
+		}
+		for (int j = 0; j < (pixelTopY - nearMidPixelY) / m_UnitLengthPixels; ++j) {
+			float y = Util::ConvertToOpenGLCoordinate(nearMidPixelY - j * m_UnitLengthPixels, false);
+			m_Texts.push_back(std::make_shared<Text>(std::to_string(roundFloat(indexAxisX * -1 - j)), x, x + 0.3, y, 35.0f));
+		}
+	}
+	//std::cout <<"FFXDrawn: " << FFXDrawn << " STXDrawn: " << STXDrawn << "\n";
+	//X Axis is outside of the screen | Bottom side.
+	if (!FFXDrawn && !STXDrawn && indexAxisX < 0) {
+		float y = m_BottomY;
+		for (int i = 0; i < (pixelRightX - nearMidPixelX) / m_UnitLengthPixels; ++i) {
+
+			float x = Util::ConvertToOpenGLCoordinate(nearMidPixelX + i * m_UnitLengthPixels, true);
+			m_Texts.push_back(std::make_shared<Text>(std::to_string(roundFloat(indexAxisY * -1 + i)), x, x + 0.3, y, 35.0f));
+		}
+		for (int i = 0; i < (nearMidPixelX - pixelLeftX) / m_UnitLengthPixels; ++i) {
+
+			float x = Util::ConvertToOpenGLCoordinate(nearMidPixelX - i * m_UnitLengthPixels, true);
+			m_Texts.push_back(std::make_shared<Text>(std::to_string(roundFloat(indexAxisY * -1 - i)), x, x + 0.3, y, 35.0f));
+		}
+	}
+	//X Axis is outside of the screen | Top side.
+	if (!FFXDrawn && !STXDrawn && indexAxisX > 0) {
+		float y = m_TopY;
+		for (int i = 0; i < (pixelRightX - nearMidPixelX) / m_UnitLengthPixels; ++i) {
+			float x = Util::ConvertToOpenGLCoordinate(nearMidPixelX + i * m_UnitLengthPixels, true);
+			m_Texts.push_back(std::make_shared<Text>(std::to_string(roundFloat(indexAxisY * -1 + i)), x, x + 0.3, y, 35.0f));
+		}
+		for (int i = 0; i < (nearMidPixelX - pixelLeftX) / m_UnitLengthPixels; ++i) {
+			float x = Util::ConvertToOpenGLCoordinate(nearMidPixelX - i * m_UnitLengthPixels, true);
+			m_Texts.push_back(std::make_shared<Text>(std::to_string(roundFloat(indexAxisY * -1 - i)), x, x + 0.3, y, 35.0f));
+		}
+	}
+}
+
+//m_Texts.push_back(std::make_shared<Text>("(" + std::to_string(m_MidCoordX) + "," + std::to_string(m_MidCoordY) + ")", m_LeftX, 0.5f, 0, 50.0f));
 
 void GraphUI::UpdateLines()
 {
 	//Util::Timer t("UpdateLines");
 	m_Lines.clear();
-	
+
 	m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, m_TopY), Point(m_LeftX, m_BottomY))); // Left size
 	m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, m_TopY), Point(m_RightX, m_TopY))); // top
 	m_Lines.push_back(std::make_shared<Line>(Point(m_RightX, m_BottomY), Point(m_RightX, m_TopY))); // right
@@ -102,40 +267,49 @@ void GraphUI::UpdateLines()
 	indexAxisY = (int)(-1 * m_MidCoordX);// index of the y-axis
 	indexAxisX = (int)(-1 * m_MidCoordY);// index of the x-axis	
 
+
+	//"(" + std::to_string(m_MidCoordX) + "," + std::to_string(m_MidCoordY) + ")"
 	// left vertical
 	for (int i = 0; i < (nearMidPixelX - pixelLeftX) / m_UnitLengthPixels; ++i) {
 		float x = Util::ConvertToOpenGLCoordinate(nearMidPixelX - i * m_UnitLengthPixels, true);
-
+		float y = Util::ConvertToOpenGLCoordinate(nearMidPixelY - i * m_UnitLengthPixels, false);
 		if (i == -1 * indexAxisY) {
 			m_Lines.push_back(std::make_shared<Line>(Point(x, m_TopY), Point(x, m_BottomY), std::array<float, 4>{0.0f, 0.0f, 1.0f, 1.0f}));
+
 		}
 		else {
 			m_Lines.push_back(std::make_shared<Line>(Point(x, m_TopY), Point(x, m_BottomY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
 		}
+
 	}
 
 	//right vertical
 	for (int i = 1; i < (pixelRightX - nearMidPixelX) / m_UnitLengthPixels; ++i) {
 		float x = Util::ConvertToOpenGLCoordinate(nearMidPixelX + i * m_UnitLengthPixels, true);
+
 		if (i == indexAxisY) {
 			m_Lines.push_back(std::make_shared<Line>(Point(x, m_TopY), Point(x, m_BottomY), std::array<float, 4>{0.0f, 0.0f, 1.0f, 1.0f}));
 		}
 		else {
 			m_Lines.push_back(std::make_shared<Line>(Point(x, m_TopY), Point(x, m_BottomY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+
 		}
 
 	}
 
 	//bottom horizontal
 	for (int i = 0; i < (nearMidPixelY - pixelBottomY) / m_UnitLengthPixels; ++i) {
+		float x = Util::ConvertToOpenGLCoordinate(nearMidPixelX - i * m_UnitLengthPixels, true);
 		float y = Util::ConvertToOpenGLCoordinate(nearMidPixelY - i * m_UnitLengthPixels, false);
 
 		if (i == indexAxisX * -1) {
 			m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, y), Point(m_RightX, y), std::array<float, 4>{0.0f, 1.0f, 0.0f, 1.0f}));
 
+
 		}
 		else {
 			m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, y), Point(m_RightX, y), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}));
+
 
 		}
 
@@ -144,6 +318,7 @@ void GraphUI::UpdateLines()
 
 	//toppom horizontal
 	for (int i = 1; i < (pixelTopY - nearMidPixelY) / m_UnitLengthPixels; ++i) {
+		float x = Util::ConvertToOpenGLCoordinate(nearMidPixelX + i * m_UnitLengthPixels, true);
 		float y = Util::ConvertToOpenGLCoordinate(nearMidPixelY + i * m_UnitLengthPixels, false);
 		if (i == indexAxisX) {
 			m_Lines.push_back(std::make_shared<Line>(Point(m_LeftX, y), Point(m_RightX, y), std::array<float, 4>{0.0f, 1.0f, 0.0f, 1.0f}));
