@@ -113,7 +113,7 @@ void GraphUI::UpdateCoordinates()
 	bool STYDrawn = false;//second, third quadrant y axis drawn?
 	bool STXDrawn = false;//second, third quadrant x axis drawn?
 
-	std::cout << "index x axis: " << indexAxisX << "\n";
+	//std::cout << "index x axis: " << indexAxisX << "\n";
 
 	//first quadrant and fourth quadrant
 	for (int i = 0; i < (pixelRightX - nearMidPixelX) / m_UnitLengthPixels; ++i) {
