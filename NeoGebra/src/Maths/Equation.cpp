@@ -219,8 +219,8 @@ std::string Equation::toSmtLib(const std::vector<std::vector<float>>& identifier
 OrAnd Equation::toShader(const std::vector<std::vector<float>>& identifiers) const {
 	std::map<AdvancedString, float> vars = linkVars(identifiers);
 	//ToDo change
-	OrAnd res = *recCombineShaders(m_EquationString, vars);
-	//OrAnd res(true, recToShader(m_EquationString, vars), false, nullptr, nullptr);
+	//OrAnd res = *recCombineShaders(m_EquationString, vars);
+	OrAnd res(true, recToShader(m_EquationString, vars), false, nullptr, nullptr);
 	return res;
 }
 
