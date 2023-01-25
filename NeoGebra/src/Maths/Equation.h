@@ -5,7 +5,6 @@
 #include <set>
 
 #define piConstant 3.14159265358979323846
-#define isDegrees false
 
 struct OrAnd { bool isEnd; std::string content; bool isOr; std::shared_ptr<OrAnd> s1; std::shared_ptr<OrAnd> s2; };
 

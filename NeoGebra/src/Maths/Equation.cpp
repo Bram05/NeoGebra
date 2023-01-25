@@ -249,25 +249,24 @@ float Equation::recGetResult(const AdvancedString& s, const std::map<AdvancedStr
 	// No operator found, can be: number, negative, brackets, abs, sqrt, not, t, f
 	if (operIndex == -1) {
 		if (isNumber(s)) { return s.toFloat(); }
-		if (s[0] != '-') {
-			if (vars.count(s)) { return vars.at(s); }
-			if (s[0] == '(' and s.back() == ')') { return recGetResult(s.substr(1, s.length() - 2), vars); }
-			if (s[0] == '[' and s.back() == ']') { return std::abs(recGetResult(s.substr(1, s.length() - 2), vars)); }
-			if (s[0] == '!') { return !recGetResult(s.substr(1, s.length() - 1), vars); }
-			if (s.size() > 4) {
-				if (s.substr(0, 4) == "sin(" and s.back() == ')') { return std::sin(recGetResult(s.substr(4, s.length() - 5), vars) * (isDegrees ? piConstant / 180 : 1)); }
-				if (s.substr(0, 4) == "cos(" and s.back() == ')') { return std::cos(recGetResult(s.substr(4, s.length() - 5), vars) * (isDegrees ? piConstant / 180 : 1)); }
-			}
+		if (s[0] == '-') {
+			return -recGetResult(s.substr(1, s.length() - 1), vars);
 		}
-		else {
-			if (vars.count(s.substr(1, s.length() - 1))) { return -vars.at(s.substr(1, s.length() - 1)); }
-			if (s[1] == '(' and s.back() == ')') { return -recGetResult(s.substr(2, s.length() - 3), vars); }
-			if (s[1] == '[' and s.back() == ']') { return -std::abs(recGetResult(s.substr(2, s.length() - 3), vars)); }
-			if (s.size() > 5) {
-				if (s.substr(0, 5) == "-sin(" and s.back() == ')') { return std::sin(recGetResult(s.substr(5, s.length() - 6), vars) * (isDegrees ? piConstant / 180 : 1)); }
-				if (s.substr(0, 5) == "-cos(" and s.back() == ')') { return std::cos(recGetResult(s.substr(5, s.length() - 6), vars) * (isDegrees ? piConstant / 180 : 1)); }
-			}
+		if (vars.count(s)) { return vars.at(s); }
+		if (s[0] == '(' and s.back() == ')') { return recGetResult(s.substr(1, s.length() - 2), vars); }
+		if (s[0] == '[' and s.back() == ']') { return std::abs(recGetResult(s.substr(1, s.length() - 2), vars)); }
+		if (s[0] == '!') { return !recGetResult(s.substr(1, s.length() - 1), vars); }
+		if (s.size() > 5) {
+			if (s.substr(0, 4) == "sin(" and s.back() == ')') { return std::sin(recGetResult(s.substr(4, s.length() - 5), vars)); }
+			if (s.substr(0, 4) == "cos(" and s.back() == ')') { return std::cos(recGetResult(s.substr(4, s.length() - 5), vars)); }
+			if (s.substr(0, 5) == "asin(" and s.back() == ')') { return std::asin(recGetResult(s.substr(5, s.length() - 6), vars)); }
+			if (s.substr(0, 5) == "acos(" and s.back() == ')') { return std::acos(recGetResult(s.substr(5, s.length() - 6), vars)); }
+			if (s.substr(0, 5) == "sinh(" and s.back() == ')') { return std::sinh(recGetResult(s.substr(5, s.length() - 6), vars)); }
+			if (s.substr(0, 5) == "cosh(" and s.back() == ')') { return std::cosh(recGetResult(s.substr(5, s.length() - 6), vars)); }
+			if (s.substr(0, 6) == "asinh(" and s.back() == ')') { return std::asinh(recGetResult(s.substr(6, s.length() - 7), vars)); }
+			if (s.substr(0, 6) == "acosh(" and s.back() == ')') { return std::acosh(recGetResult(s.substr(6, s.length() - 7), vars)); }
 		}
+
 		if (s == "t") { return true; }
 		if (s == "f") { return false; }
 		if (s[0] == 0x03C0) { return piConstant; }
@@ -309,18 +308,15 @@ std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<Advanc
 	// No operator found, can be: number, negative, brackets, abs, sqrt, not, t, f
 	if (operIndex == -1) {
 		if (isNumber(s)) { return s.toString(); }
-		if (s[0] != '-') {
-			if (vars.count(s)) { return std::to_string(vars.at(s)); }
-			if (s[0] == '(' and s.back() == ')') { return recToSmtLib(s.substr(1, s.length() - 2), vars, toDefine, sqrts); }
-			if (s[0] == '[' and s.back() == ']') { return ("(abs " + recToSmtLib(s.substr(1, s.length() - 2), vars, toDefine, sqrts) + ')'); }
-			if (s[0] == '!') { return ("(not " + recToSmtLib(s.substr(1, s.length() - 1), vars, toDefine, sqrts) + ')'); }
-			//ToDo add cos and sin
+		if (s[0] == '-') {
+			return "(- " + recToSmtLib(s.substr(1, s.length() - 1), vars, toDefine, sqrts) + ")";
 		}
-		else {
-			if (vars.count(s.substr(1, s.length() - 1))) { return std::to_string(-vars.at(s.substr(1, s.length() - 1))); }
-			if (s[1] == '(' and s.back() == ')') { return ("(- " + recToSmtLib(s.substr(2, s.length() - 3), vars, toDefine, sqrts) + ")"); }
-			if (s[1] == '[' and s.back() == ']') { return ("(- (abs " + recToSmtLib(s.substr(2, s.length() - 3), vars, toDefine, sqrts) + "))"); }
-		}
+		if (vars.count(s)) { return std::to_string(vars.at(s)); }
+		if (s[0] == '(' and s.back() == ')') { return recToSmtLib(s.substr(1, s.length() - 2), vars, toDefine, sqrts); }
+		if (s[0] == '[' and s.back() == ']') { return ("(abs " + recToSmtLib(s.substr(1, s.length() - 2), vars, toDefine, sqrts) + ')'); }
+		if (s[0] == '!') { return ("(not " + recToSmtLib(s.substr(1, s.length() - 1), vars, toDefine, sqrts) + ')'); }
+		//ToDo add cos and sin
+
 		if (s == "t") { return "true"; }
 		if (s == "f") { return "false"; }
 		//toDo add pi
@@ -378,25 +374,25 @@ std::string Equation::recToShader(const AdvancedString& s, const std::map<Advanc
 	// No operator found, can be: number, negative, brackets, abs, sqrt, not, t, f
 	if (operIndex == -1) {
 		if (isNumber(s)) { return std::to_string(s.toFloat()); }
-		if (s[0] != '-') {
-			if (vars.count(s)) { return std::to_string(vars.at(s)); }
-			if (s[0] == '(' and s.back() == ')') { return "(" + recToShader(s.substr(1, s.length() - 2), vars) + ")"; }
-			if (s[0] == '[' and s.back() == ']') { return ("abs(" + recToShader(s.substr(1, s.length() - 2), vars) + ')'); }
-			if (s[0] == '!') { return ("((" + recToShader(s.substr(1, s.length() - 1), vars) + " == 0.0) ? 1/0.0 : 0.0)"); } //Have to look into potential problems
-			if (s.size() > 4) {
-				if (s.substr(0, 4) == "sin(" and s.back() == ')') { return "sin((" + (recToShader(s.substr(4, s.length() - 5), vars) + (isDegrees ? ") * " + std::to_string(piConstant / 180) + ")" : "))")); }
-				if (s.substr(0, 4) == "cos(" and s.back() == ')') { return "cos((" + (recToShader(s.substr(4, s.length() - 5), vars) + (isDegrees ? ") * " + std::to_string(piConstant / 180) + ")" : "))")); }
-			}
+		if (s[0] == '-') {
+			return "-(" + recToShader(s.substr(1, s.length() - 2), vars) + ")";
 		}
-		else {
-			if (vars.count(s.substr(1, s.length() - 1))) { return std::to_string(-vars.at(s.substr(1, s.length() - 1))); }
-			if (s[1] == '(' and s.back() == ')') { return ("-(" + recToShader(s.substr(2, s.length() - 3), vars) + ")"); } 
-			if (s[1] == '[' and s.back() == ']') { return ("-abs( " + recToShader(s.substr(2, s.length() - 3), vars) + ")"); }
-			if (s.size() > 5) {
-				if (s.substr(0, 5) == "-sin(" and s.back() == ')') { return "-sin((" + (recToShader(s.substr(5, s.length() - 6), vars) + (isDegrees ? ") * " + std::to_string(piConstant / 180) + ")" : "))")); }
-				if (s.substr(0, 5) == "-cos(" and s.back() == ')') { return "-cos((" + (recToShader(s.substr(5, s.length() - 6), vars) + (isDegrees ? ") * " + std::to_string(piConstant / 180) + ")" : "))")); }
-			}
+
+		if (vars.count(s)) { return std::to_string(vars.at(s)); }
+		if (s[0] == '(' and s.back() == ')') { return "(" + recToShader(s.substr(1, s.length() - 2), vars) + ")"; }
+		if (s[0] == '[' and s.back() == ']') { return ("abs(" + recToShader(s.substr(1, s.length() - 2), vars) + ')'); }
+		if (s[0] == '!') { return ("((" + recToShader(s.substr(1, s.length() - 1), vars) + " == 0.0) ? 1/0.0 : 0.0)"); } //Have to look into potential problems
+		if (s.size() > 5) {
+			if (s.substr(0, 4) == "sin(" and s.back() == ')') { return "cos(" + recToShader(s.substr(4, s.length() - 5), vars) + ")"; }
+			if (s.substr(0, 4) == "cos(" and s.back() == ')') { return "cos(" + recToShader(s.substr(4, s.length() - 5), vars) + ")"; }
+			if (s.substr(0, 5) == "asin(" and s.back() == ')') { return "asin(" + recToShader(s.substr(5, s.length() - 6), vars) + ")"; }
+			if (s.substr(0, 5) == "acos(" and s.back() == ')') { return "acos(" + recToShader(s.substr(5, s.length() - 6), vars) + ")"; }
+			if (s.substr(0, 5) == "sinh(" and s.back() == ')') { return "sinh(" + recToShader(s.substr(5, s.length() - 6), vars) + ")"; }
+			if (s.substr(0, 5) == "cosh(" and s.back() == ')') { return "cosh(" + recToShader(s.substr(5, s.length() - 6), vars) + ")"; }
+			if (s.substr(0, 6) == "asinh(" and s.back() == ')') { return "asinh(" + recToShader(s.substr(6, s.length() - 7), vars) + ")"; }
+			if (s.substr(0, 6) == "acosh(" and s.back() == ')') { return "acosh(" + recToShader(s.substr(6, s.length() - 7), vars) + ")"; }
 		}
+
 		if (s == "t") { return "true"; }
 		if (s == "f") { return "false"; }
 		if (s[0] == 0x03C0) { return std::to_string(piConstant); }
