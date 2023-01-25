@@ -219,24 +219,26 @@ std::string Equation::toSmtLib(const std::vector<std::vector<float>>& identifier
 OrAnd Equation::toShader(const std::vector<std::vector<float>>& identifiers) const {
 	std::map<AdvancedString, float> vars = linkVars(identifiers);
 	//ToDo change
-	//OrAnd res = *recCombineShaders(m_EquationString, vars);
-	OrAnd res(true, recToShader(m_EquationString, vars), false, nullptr, nullptr);
+	OrAnd res = *recCombineShaders(m_EquationString, vars);
+	//OrAnd res(true, recToShader(m_EquationString, vars), false, nullptr, nullptr);
 	return res;
 }
 
 std::shared_ptr<OrAnd> Equation::recCombineShaders(const AdvancedString& s, std::map<AdvancedString, float>& vars) const {
 	bool tmp;
-	int operIndex = getNextOperator(s, tmp);
-	AdvancedString s1 = s.substr(0, operIndex);
-	AdvancedString s2 = s.substr(operIndex + 1, s.length() - operIndex - 1);
-	if (s[operIndex] == '|') {
+	AdvancedString newS = s;
+	int operIndex = getNextOperator(newS, tmp);
+	while (operIndex == -1 && newS[0] == '(' && newS.back() == ')') { newS = newS.substr(1, newS.size() - 2); operIndex = getNextOperator(newS, tmp); }
+	AdvancedString s1 = newS.substr(0, operIndex);
+	AdvancedString s2 = newS.substr(operIndex + 1, newS.length() - operIndex - 1);
+	if (newS[operIndex] == '|') {
 		return std::make_shared<OrAnd>(false, "", true, recCombineShaders(s1, vars), recCombineShaders(s2, vars));
 	}
-	else if (s[operIndex] == '&') {
+	else if (newS[operIndex] == '&') {
 		return std::make_shared<OrAnd>(false, "", false, recCombineShaders(s1, vars), recCombineShaders(s2, vars));
 	}
 	else {
-		return std::make_shared<OrAnd>(true, recToShader(s, vars), false, nullptr, nullptr);
+		return std::make_shared<OrAnd>(true, recToShader(newS, vars), false, nullptr, nullptr);
 	}
 }
 
