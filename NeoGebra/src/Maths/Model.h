@@ -127,6 +127,7 @@ public:
 
 	friend bool operator==(const NEElement& lhs, const NEElement& rhs);
 	friend bool operator>>(const NEPoint& p, const NELine& l);
+	friend float distance(const NEPoint& p1, const NEPoint& p2);
 	friend bool isBetween(const NEPoint& p1, const NEPoint& p2, const NEPoint& p3);
 	friend NEElement;
 	friend NEPoint;

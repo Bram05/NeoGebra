@@ -143,7 +143,7 @@ bool operator>>(const NEPoint& p, const NELine& l) {
 }
 
 float distance(const NEPoint& p1, const NEPoint& p2) {
-	return 0.0f;
+	return p1.getModel()->m_DistanceDef.getResult({p1.getIdentifiers(), p2.getIdentifiers()});
 }
 
 bool isBetween(const NEPoint& p1, const NEPoint& p2, const NEPoint& p3) {
