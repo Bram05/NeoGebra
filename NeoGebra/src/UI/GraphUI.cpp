@@ -40,6 +40,11 @@ void GraphUI::RenderPass(Renderer* r)
 
 void GraphUI::ResizeWindow(int width, int height)
 {
+	m_ComputeShaderManager.SetGraphSize(Util::ConvertToPixelValue(m_RightX - m_LeftX, true), Util::ConvertToPixelValue(m_TopY - m_BottomY, false));
+	for (std::shared_ptr<Graph>& g : m_Graphs)
+	{
+		g->ReGenTextures(m_ComputeShaderManager);
+	}
 	UpdateLines();
 	UpdateGraphs();
 	UIElement::ResizeWindow(width, height);

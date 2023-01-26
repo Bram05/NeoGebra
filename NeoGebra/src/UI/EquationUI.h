@@ -22,12 +22,14 @@ public:
 protected:
 	void RenderPass(Renderer* r) override;
 	std::vector<std::shared_ptr<Text>> m_Texts;
+	std::vector<std::shared_ptr<Text>> m_ModelTexts;
 
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
 	int m_LinesIndexBegin, m_PointsIndexBegin, m_LineDefInputField, m_PointDefInputField;
 	int m_ModelBeginIndex, m_ModelEndIndex;
 	int m_UpdateGraphsButton;
+	int m_ButtonValue{0};
 
 	void TabButtonClicked(int value);
 	friend void TabButtonClickedStatic(void*,int);

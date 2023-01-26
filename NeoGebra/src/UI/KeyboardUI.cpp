@@ -13,7 +13,7 @@ static void insertKey(void* c)
 }
 
 // The list of all unicode numbers of the characters in the keyboard
-std::vector<AdvancedString> textList{ 0x2200, 0x2203, 0x2208, 0x03B1, 0x03B2, 0x03B3, 0x03B4, 0x03B5, 0x03B6, 0x03B7, 0x03B8, 0x03B9, 0x03BA, 0x03BB, 0x03BC, 0x03BD, 0x03BE, 0x03BF, 0x03C0, 0x03C1, 0x03C2, 0x03C3, 0x03C4, 0x03C5, 0x03C6, 0x03C7, 0x03C8, 0x03C9 };
+std::vector<AdvancedString> textList{ 0x2200, 0x2203, 0x2208, 0x03B1, 0x03B2, 0x03B3, 0x03B8, 0x03C0 };
 
 KeyboardUI::KeyboardUI(float leftX, float rightX, float topY, float bottomY)
 	: UIElement(leftX, rightX, topY, bottomY, "KeyboardUI")
@@ -28,7 +28,7 @@ KeyboardUI::KeyboardUI(float leftX, float rightX, float topY, float bottomY)
 
 	float x = leftX + indent;
 	float y = topY - 0.01f;
-	for (int i = 1; i < textList.size(); i++) {
+	for (int i = 1; i <= textList.size(); i++) {
 		m_SubUIElements.push_back({ std::make_shared<ButtonUI>(x, x + buttonWidth, y, y - buttonWidth, insertKey, &textList[i-1], textList[i-1]) });
 		if (i % 4 == 0) {
 			x = leftX + indent;

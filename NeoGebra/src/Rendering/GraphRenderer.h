@@ -25,6 +25,9 @@ public:
 	const std::vector<unsigned int>& GetCompShader1() const { return m_FirstComputeShaders; }
 	const std::vector<unsigned int>& GetTextures() const { return m_Textures; }
 	std::shared_ptr<OrAnd> GetOrAnd() const { return m_OrAnd; }
+	unsigned int GetOutputTexture() const { return m_OutputTexture; }
+
+	void ReGenTextures(const GraphComputeShaderManager& manager);
 
 	RGBColour getColour() const { return m_Colour; };
 	void setColour(const RGBColour& colour) { m_Colour = colour; }
@@ -35,9 +38,9 @@ private:
 	GLuint m_Vao;
 	GLuint m_Vb;
 	GLuint m_Ib;
-	std::vector<unsigned int> m_IntermediateTextures;
 	std::vector<unsigned int> m_FirstComputeShaders;
 	std::vector<unsigned int> m_Textures;
+	unsigned int m_OutputTexture;
 	std::shared_ptr<OrAnd> m_OrAnd;
 	friend GraphRenderer;
 };

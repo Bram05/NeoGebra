@@ -11,7 +11,7 @@
 class TextInputField : public UIElement
 {
 public:
-	TextInputField(float leftX, float rightX, float topY, float bottomY, void(*enterCallback)(void*) = nullptr, void* obj = nullptr);
+	TextInputField(float leftX, float rightX, float topY, float bottomY, void(*enterCallback)(void*) = nullptr, void* obj = nullptr, const AdvancedString& defaultText = AdvancedString(""));
 	virtual ~TextInputField();
 
 	const AdvancedString& GetText() const { return m_Text->GetText(); }

@@ -7,7 +7,7 @@
 
 #include "Application.h"
 
-TextInputField::TextInputField(float leftX, float rightX, float topY, float bottomY, void(*enterCallback)(void*), void* obj)
+TextInputField::TextInputField(float leftX, float rightX, float topY, float bottomY, void(*enterCallback)(void*), void* obj, const AdvancedString& defaultText)
 	: UIElement(leftX, rightX, topY, bottomY, "TextInputField"), m_Text(), m_EnterCallback{enterCallback}, m_Obj{obj}
 {
 	m_Lines.push_back(std::make_shared<Line>(Point(leftX, topY), Point(leftX, bottomY)));
@@ -16,7 +16,7 @@ TextInputField::TextInputField(float leftX, float rightX, float topY, float bott
 	m_Lines.push_back(std::make_shared<Line>(Point(rightX, topY), Point(leftX, topY)));
 	auto [width, height] = Application::Get()->GetWindow()->GetSize();
 	m_EditingLine = std::make_shared<Line>(Point(m_LeftX + 0.01f, m_BottomY + 0.045f), Point(m_LeftX + 0.01f, m_BottomY + 0.05f + (float)60 / height));
-	m_Text = std::make_shared<Text>(AdvancedString(""), leftX + 0.01f, rightX - 0.01f, bottomY + 0.05f, 55.0f, false);
+	m_Text = std::make_shared<Text>(defaultText, leftX + 0.01f, rightX - 0.01f, bottomY + 0.05f, 40.0f, false);
 }
 
 TextInputField::~TextInputField()

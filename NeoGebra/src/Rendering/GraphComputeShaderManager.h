@@ -15,7 +15,7 @@ public:
 	void RunComputeShaders(Graph* graph, float midCoordX, float midCoordY, float unitLengthPixels) const;
 	unsigned int CreateTexture() const;
 
-	void SetGraphSize(float width, float height);
+	void SetGraphSize(int width, int height);
 
 	void SetUniform(unsigned int loc, const std::array<float, 4>& vec) const;
 
