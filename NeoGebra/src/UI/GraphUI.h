@@ -6,7 +6,7 @@
 #include "Rendering/GraphRenderer.h"
 #include "Rendering/GraphComputeShaderManager.h"
 #include "Maths/Model.h"
-
+#include "Rendering/TextRenderer.h"
 // The middle part of the screen in which graphs are displayed
 class GraphUI : public UIElement
 {
@@ -27,6 +27,8 @@ protected:
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
 	std::vector<std::shared_ptr<Graph>> m_Graphs;
+	std::vector<std::shared_ptr<Text>> m_Texts;
+	
 	GraphComputeShaderManager m_ComputeShaderManager;
 
 	float m_MidCoordX, m_MidCoordY, m_UnitLengthPixels;
@@ -35,4 +37,5 @@ private:
 
 	void UpdateLines();
 	void UpdateGraphs();
+	void UpdateCoordinates();
 };
