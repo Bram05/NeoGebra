@@ -14,6 +14,7 @@ public:
 	~MenuUI();
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
+
 protected:
 	void RenderPass(Renderer* r) override;
 };

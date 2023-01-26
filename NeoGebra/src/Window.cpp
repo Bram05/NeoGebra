@@ -30,7 +30,7 @@ Window::Window(const WindowCreationOptions& options)
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 #ifdef DEBUG
-		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true); 
 #endif
 	}
 	++s_NumWindowsCreated;
@@ -43,6 +43,7 @@ Window::Window(const WindowCreationOptions& options)
 		Util::ExitDueToFailure();
 	}
 	glfwMakeContextCurrent(m_Window);
+	glfwSwapInterval(1);//V-Sync , op AMD was er geen fps cap. met dit nu wel
 
 	glfwSetWindowUserPointer(m_Window, this);
 

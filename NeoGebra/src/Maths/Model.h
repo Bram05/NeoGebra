@@ -8,10 +8,7 @@ class NEElement;
 class NEPoint;
 class NELine;
 
-enum NEType
-{
-	notype, point, line
-};
+// Moved NEType to Equation.h
 
 struct RGBColour
 {
@@ -68,6 +65,8 @@ public:
 * Use operator>> to test incidence (point >> line).
 */
 class Model : public std::enable_shared_from_this<Model> {
+	VarMap m_Variables;
+	SolvedVarMap m_SolvedVariables;
 	std::vector<NEElement> m_Elements;
 
 	Equation m_PointDef;
@@ -75,11 +74,18 @@ class Model : public std::enable_shared_from_this<Model> {
 	Equation m_IncidenceConstr;
 	Equation m_BetweennessConstr;
 
+	Equation m_DistanceDef;
+
+	Equation m_CustomScrollX = Equation({});
+	Equation m_CustomScrollY = Equation({});
+	bool m_UseCustomScroll = false;
+
 	unsigned int m_PointIdentifiers;
 	unsigned int m_LineIdentifiers;
 
 	std::vector<NEElement> m_ExtraEquations;
 
+	void solveVariables(const NEElement* e);
 public:
 	/**
 	* Create new model by providing the necessary constraints.
@@ -92,18 +98,23 @@ public:
 	* @param lineEqualConstr A string with the condition for two lines to be called equal.
 	* @param incidenceConstr A string with the condition for a point to lie on a line, tested using operator>>.
 	*/
-	Model(unsigned int pointIdentifiers,
+	Model(VarMap& variables,
+		unsigned int pointIdentifiers,
 		const Equation& pointDef,
 		unsigned int lineIdentifiers,
 		const Equation& lineDef,
 		const Equation& incidenceConstr,
-		const Equation& betweennessConstr = Equation( {}, {} ));
+		const Equation& distanceDef = Equation({}),
+		const Equation& betweennessConstr = Equation( {} ));
 
 	/// Copy an existing Model object. 
 	Model(const Model& g);
 
 	void addExtraEquation(Equation& eq, const RGBColour& colour = RGBColour(125, 125, 125, 255));
 	std::vector<NEElement>& getExtraEquations() { return m_ExtraEquations; }
+
+	void setCustomScroll(const Equation& customScrollX, const Equation& customScrollY) { m_CustomScrollX = customScrollX; m_CustomScrollY = customScrollY;}
+	void toggleCustomScroll(bool state) { m_UseCustomScroll = state; }
 
 	std::vector<NEElement>& getElements() { return m_Elements; }
 	unsigned int GetNumPointIdentifiers() const { return m_PointIdentifiers; }
@@ -117,6 +128,7 @@ public:
 
 	friend bool operator==(const NEElement& lhs, const NEElement& rhs);
 	friend bool operator>>(const NEPoint& p, const NELine& l);
+	friend float distance(const NEPoint& p1, const NEPoint& p2);
 	friend bool isBetween(const NEPoint& p1, const NEPoint& p2, const NEPoint& p3);
 	friend NEElement;
 	friend NEPoint;
@@ -130,4 +142,5 @@ bool operator!=(const RGBColour& c1, const RGBColour& c2);
 
 /// Incidence check: Checks if point p lies on line l. 
 bool operator>>(const NEPoint& p, const NELine& l);
+float distance(const NEPoint& p1, const NEPoint& p2);
 bool isBetween(const NEPoint& p1, const NEPoint& p2, const NEPoint& p3);
