@@ -6,6 +6,7 @@
 #include "Util.h"
 
 #include <GLFW/glfw3.h> // I don't like this
+// Who asked tho?
 
 Application* Application::s_Instance = nullptr;
 
@@ -51,14 +52,23 @@ Application::Application()
 	Util::Timer::Initialize("times.txt");
 	std::atexit(Util::Timer::Terminate);
 	Util::Timer t("Creating Application");
+
+	VarMap P2variables;
+	P2variables.second.push_back({ AdvancedString("d2"), std::make_shared<Equation>(std::vector<AdvancedString>{AdvancedString("l")}, AdvancedString("l0^2+l1^2")) });
+	P2variables.second.push_back({ AdvancedString("sub"), std::make_shared<Equation>(std::vector<AdvancedString>{AdvancedString("l")}, AdvancedString("~(l.d2) + ~(l.d2-1)")) });
+	P2variables.second.push_back({ AdvancedString("r"), std::make_shared<Equation>(std::vector<AdvancedString>{AdvancedString("l")}, AdvancedString("1 / (-2*l.sub) + 0.5 * l.sub")) });
+
 	Equation P2pointDef{ {AdvancedString("p")}, AdvancedString("x = p0 & y = p1 & p0^2 + p1^2 < 1") };
-	Equation P2lineDef{ {AdvancedString("l")}, AdvancedString("(x-l0)^2 + (y-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2 & l0^2 + l1^2 > 1 & x^2 + y^2 < 1") };
-	Equation P2incidence{ {AdvancedString("p"), AdvancedString("l")}, AdvancedString("(p0-l0)^2 + (p1-l1)^2 = (1 / (-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1)) + 0.5*(2~(l0^2+l1^2)) + 0.5* 2~((2~(l0^2+l1^2))^2-1))^2") };
+	Equation P2lineDef{ {AdvancedString("l")}, AdvancedString("(x-l0)^2 + (y-l1)^2 = l.r^2 & l0^2 + l1^2 > 1 & x^2 + y^2 < 1") };
+	Equation P2incidence{ {AdvancedString("p"), AdvancedString("l")}, AdvancedString("(p0-l0)^2 + (p1-l1)^2 = l.r^2") };
 	//Equation P2incidence{ {"p", "l"}, "lieoncircle(p0, p1, circle(l0, l1, ...))" };
 	Equation P2distanceDef{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("acosh(1+(2*((p0-q0)^2 + (p1-q1)^2))/((1-(p0^2+p1^2))(1-(q0^2+q1^2))))") };
-	Equation P2betweenness{ {AdvancedString("p"), AdvancedString("q"), AdvancedString("r")}, AdvancedString("((p0 - r0)^2 + (p1 - r1)^2 > (p0 - q0)^2 + (p1 - q1)^2) & ((p0 - r0)^2 + (p1 - r1)^2 > (r0 - q0)^2 + (r1 - q1)^2)") };
+	//Equation P2betweenness{ {AdvancedString("p"), AdvancedString("q"), AdvancedString("r")}, AdvancedString("((p0 - r0)^2 + (p1 - r1)^2 > (p0 - q0)^2 + (p1 - q1)^2) & ((p0 - r0)^2 + (p1 - r1)^2 > (r0 - q0)^2 + (r1 - q1)^2)") };
 
-	m_Model = std::make_shared<Model>(2, P2pointDef, 2, P2lineDef, P2incidence, P2distanceDef, P2betweenness);
+	//Equation P2customScrollPointX{ {AdvancedString("dx"), AdvancedString("dy")}, AdvancedString("tanh(0.5dx)") };
+	//Equation P2customScrollPointY{ {AdvancedString("dx"), AdvancedString("dy")}, AdvancedString("tanh(0.5dy)")};
+
+	m_Model = std::make_shared<Model>(P2variables, 2, P2pointDef, 2, P2lineDef, P2incidence, P2distanceDef);
 
 	Equation circle(AdvancedString("x^2+y^2=1"));
 	m_Model->addExtraEquation(circle);
@@ -66,6 +76,9 @@ Application::Application()
 	std::shared_ptr<NEPoint> p1(new NEPoint({ 0.625f,  0.4145780988f }, m_Model, { 255, 0, 0, 255 }));
 	std::shared_ptr<NEPoint> p2(new NEPoint({ 0.625f,  -0.4145780988f }, m_Model, { 255, 0, 0, 255 }));
 	std::shared_ptr<NEPoint> p3(new NEPoint({ 0.5f,  0.0f }, m_Model, { 255, 0, 0, 255 }));
+	std::shared_ptr<NEPoint> p4(new NEPoint({ 0.8434959408f,  0.4145780988f }, m_Model, { 255, 0, 0, 255 }));
+	std::shared_ptr<NEPoint> o(new NEPoint({ 0.0f,  0.0f }, m_Model, { 255, 0, 0, 255 }));
+	std::cout << distance(*p1, *p4);
 
 	Application::s_Instance = this;
 	m_Window = new Window(WindowCreationOptions(1080, 720, "NeoGeobra", MouseClickCallback, TextCallback, MouseMovedCallback, KeyCallback));
