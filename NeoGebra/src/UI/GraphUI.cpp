@@ -71,7 +71,7 @@ void GraphUI::WasClicked(float x, float y) {
 }
 
 void GraphUI::DraggedUpdate(float x, float y) {
-	Util::Timer t("DraggedUpdate");
+	//Util::Timer t("DraggedUpdate");
 	m_MidCoordX = m_MidCoordXBeforeDrag - (Util::ConvertToPixelCoordinate(x, true) - Util::ConvertToPixelCoordinate(m_XBeforeDrag, true)) / m_UnitLengthPixels;
 	m_MidCoordY = m_MidCoordYBeforeDrag - (Util::ConvertToPixelCoordinate(y, false) - Util::ConvertToPixelCoordinate(m_YBeforeDrag, false)) / m_UnitLengthPixels;
 	UpdateLines();

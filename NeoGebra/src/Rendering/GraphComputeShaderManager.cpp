@@ -19,7 +19,6 @@ GraphComputeShaderManager::GraphComputeShaderManager(const std::string& name, fl
 	m_Width = Util::ConvertToPixelValue(width, true);
 	m_Height = Util::ConvertToPixelValue(height, false);
 	m_CompShader2 = CreateOtherComputeShader(m_Name + "2");
-	m_CompShader3 = CreateOtherComputeShader(m_Name + "3");
 
 	glGenTextures(1, &m_IntermediateTexture);
 	glActiveTexture(GL_TEXTURE0);
@@ -42,6 +41,8 @@ void GraphComputeShaderManager::SetGraphSize(int width, int height)
 {
 	m_Width = width;
 	m_Height = height;
+	glDeleteTextures(1, &m_IntermediateTexture);
+	m_IntermediateTexture = CreateTexture();
 }
 
 void GraphComputeShaderManager::SetUniform(unsigned int loc, const std::array<float, 4>& vec) const
@@ -49,51 +50,30 @@ void GraphComputeShaderManager::SetUniform(unsigned int loc, const std::array<fl
 	glUniform4f(loc, vec[0], vec[1], vec[2], vec[3]);
 }
 
-static std::vector<unsigned int> CompileShadersRecursive(std::shared_ptr<OrAnd> currentObj, const std::filesystem::path& path)
+void GraphComputeShaderManager::CreateShader(Graph* graph, const std::string& name) const
 {
-	if (currentObj->isEnd)
-	{
-		return { CompileShader(true, path, currentObj->content)};
-	}
-	std::vector<unsigned int> ret = CompileShadersRecursive(currentObj->s1, path);
-	std::vector<unsigned int> ret2 = CompileShadersRecursive(currentObj->s2, path);
-	ret.insert(ret.end(), ret2.begin(), ret2.end());
-	return ret;
-}
-
-std::pair<std::vector<unsigned int>, std::vector<unsigned int>> GraphComputeShaderManager::CreateFirstCompShaders(const std::string& name, std::shared_ptr<OrAnd> equations) const
-{
-	std::vector<unsigned int> programs;
-	std::vector<unsigned int> textures;
+	graph->m_CompShader1 = glCreateProgram();
+	graph->m_Texture = CreateTexture();
 
 	std::filesystem::path path = AssetsFolder / "shaders" / name;
-	path += ".comp";
-	std::vector<unsigned int> cs = CompileShadersRecursive(equations, path);
-	programs.reserve(cs.size());
-	textures.reserve(cs.size());
-	for (unsigned int shader : cs)
+	path += "1.comp";
+	unsigned int shader = CompileShader(true, path, graph->getElement().getShader());
+	glAttachShader(graph->m_CompShader1, shader);
+	glLinkProgram(graph->m_CompShader1);
+	int result;
+	glGetProgramiv(graph->m_CompShader1, GL_LINK_STATUS, &result);
+	if (result == GL_FALSE)
 	{
-		programs.push_back(glCreateProgram());
-		glAttachShader(programs.back(), shader);
-		glLinkProgram(programs.back());
-		int result;
-		glGetProgramiv(programs.back(), GL_LINK_STATUS, &result);
-		if (result == GL_FALSE)
-		{
-			int length;
-			glGetProgramiv(programs.back(), GL_INFO_LOG_LENGTH, &length);
+		int length;
+		glGetProgramiv(graph->m_CompShader1, GL_INFO_LOG_LENGTH, &length);
 
-			char* log = new char[length];
-			glGetProgramInfoLog(programs.back(), length, &length, log);
-			std::cerr << "Failed to link shader " << path << ": " << log << '\n';
-			Util::ExitDueToFailure();
-		}
-		glDetachShader(programs.back(), shader);
-		glDeleteShader(shader);
-
-		textures.push_back(CreateTexture());
+		char* log = new char[length];
+		glGetProgramInfoLog(graph->m_CompShader1, length, &length, log);
+		std::cerr << "Failed to link shader " << path << ": " << log << '\n';
+		Util::ExitDueToFailure();
 	}
-	return {programs, textures};
+	glDetachShader(graph->m_CompShader1, shader);
+	glDeleteShader(shader);
 }
 
 static unsigned int CompileShader(bool isFirst, const std::filesystem::path& path, const std::string& insertText)
@@ -136,38 +116,6 @@ static unsigned int CompileShader(bool isFirst, const std::filesystem::path& pat
 	return shader;
 }
 
-static unsigned int counter = 0;
-
-unsigned int GraphComputeShaderManager::RunRecursive(Graph* graph, std::shared_ptr<OrAnd> currentObj, float midCoordX, float midCoordY, float unitLengthPixels) const
-{
-	if (currentObj->isEnd)
-	{
-		glBindImageTexture(0, graph->GetTextures()[counter], 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
-		glUseProgram(graph->GetCompShader1()[counter]);
-		// Left Right Top Bottom
-		SetUniform(1, std::array<float, 4>{ midCoordX - 0.5f * m_Width / unitLengthPixels,
-			midCoordX + 0.5f * m_Width / unitLengthPixels,
-			midCoordY + 0.5f * m_Height / unitLengthPixels,
-			midCoordY - 0.5f * m_Height / unitLengthPixels });
-		glDispatchCompute(m_Width, m_Height, 1);
-		glMemoryBarrier(GL_ALL_BARRIER_BITS);
-		return counter++;
-	}
-	else
-	{
-		unsigned int first = RunRecursive(graph, currentObj->s1, midCoordX, midCoordY, unitLengthPixels);
-		unsigned int second = RunRecursive(graph, currentObj->s2, midCoordX, midCoordY, unitLengthPixels);
-
-		glUseProgram(m_CompShader2);
-		glBindImageTexture(0, graph->GetTextures()[first], 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
-		glBindImageTexture(1, graph->GetTextures()[second], 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
-		glUniform1i(0, !currentObj->isOr);
-		glDispatchCompute(m_Width, m_Height, 1);
-		glMemoryBarrier(GL_ALL_BARRIER_BITS);
-		return first;
-	}
-}
-
 unsigned int GraphComputeShaderManager::CreateOtherComputeShader(const std::string& name) const
 {
 	unsigned int program = glCreateProgram();
@@ -196,37 +144,23 @@ unsigned int GraphComputeShaderManager::CreateOtherComputeShader(const std::stri
 
 void GraphComputeShaderManager::RunComputeShaders(Graph* graph, float midCoordX, float midCoordY, float unitLengthPixels) const
 {
-	counter = 0;
-	//glBindImageTexture(0, m_IntermediateTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	//Util::Timer t("Running compute shader");
+	glBindImageTexture(0, m_IntermediateTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	glBindImageTexture(1, graph->m_Texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
 
-	/*//Run 1st shader
-	for (unsigned int i{ 0 }; i < graph->GetCompShader1().size(); ++i)
-	{
-		//glBindImageTexture(i % m_MaxNumberOfTextureUnits, m_IntermediateTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
-		glUseProgram(graph->GetCompShader1()[i]);
-		// Left Right Top Bottom
-		SetUniform(1, std::array<float, 4>{ midCoordX - 0.5f * m_Width / unitLengthPixels,
-			midCoordX + 0.5f * m_Width / unitLengthPixels,
-			midCoordY + 0.5f * m_Height / unitLengthPixels,
-			midCoordY - 0.5f * m_Height / unitLengthPixels });
-		glDispatchCompute(m_Width, m_Height, 1);
-		glMemoryBarrier(GL_ALL_BARRIER_BITS);
+	//Run 1st shader
+	glUseProgram(graph->m_CompShader1);
+	// Left Right Top Bottom
+	SetUniform(1, std::array<float, 4>{ midCoordX - 0.5f * m_Width / unitLengthPixels,
+		midCoordX + 0.5f * m_Width / unitLengthPixels,
+		midCoordY + 0.5f * m_Height / unitLengthPixels,
+		midCoordY - 0.5f * m_Height / unitLengthPixels });
+	glUniform2f(0, m_Width, m_Height);
+	glDispatchCompute(std::ceil(m_Width/32.0f), std::ceil(m_Height/32.0f), 1);
+	glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
-		glUseProgram(m_CompShader2);
-		glBindImageTexture(1, graph->GetTextures()[i], 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
-		glMemoryBarrier(GL_ALL_BARRIER_BITS);
-	}*/
-
-	unsigned int output = RunRecursive(graph, graph->GetOrAnd(), midCoordX, midCoordY, unitLengthPixels);
-	if (output != 0)
-	{
-		std::cerr << "Output should have been 0! error!";
-		Util::ExitDueToFailure();
-	}
-	glUseProgram(m_CompShader3);
-	glBindImageTexture(0, graph->GetTextures()[0], 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
-	glBindImageTexture(1, graph->GetOutputTexture(), 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
-	glDispatchCompute(m_Width, m_Height, 1);
+	glUseProgram(m_CompShader2);
+	glDispatchCompute(std::ceil(m_Width/32.0f), std::ceil(m_Height/32.0f), 1);
 	glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }
 

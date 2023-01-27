@@ -8,9 +8,7 @@ Graph::Graph(NEElement& el, const GraphComputeShaderManager& manager, float left
 	: m_El{ el },
 	m_Colour{ colour }
 {
-	m_OutputTexture = manager.CreateTexture();
-	m_OrAnd = m_El.getShader();
-	std::tie(m_FirstComputeShaders, m_Textures) = manager.CreateFirstCompShaders("graphShader1", m_OrAnd);
+	manager.CreateShader(this, "graphShader");
 	// It is not needed to run the compute shader, because this will be done from GraphUI
 
 	float buffer[16] = {
@@ -45,22 +43,13 @@ Graph::~Graph()
 	glDeleteBuffers(1, &m_Vb);
 	glDeleteBuffers(1, &m_Ib);
 	glDeleteVertexArrays(1, &m_Vao);
-	for (unsigned int s : m_FirstComputeShaders)
-		glDeleteProgram(s);
-	for (unsigned int t : m_Textures)
-		glDeleteTextures(1, &t);
-	glDeleteTextures(1, &m_OutputTexture);
+	glDeleteTextures(1, &m_Texture);
 }
 
 void Graph::ReGenTextures(const GraphComputeShaderManager& manager)
 {
-	glDeleteTextures(1, &m_OutputTexture);
-	m_OutputTexture = manager.CreateTexture();
-	for (unsigned int& i : m_Textures)
-	{
-		glDeleteTextures(1, &i);
-		i = manager.CreateTexture();
-	}
+	glDeleteTextures(1, &m_Texture);
+	m_Texture = manager.CreateTexture();
 }
 
 GraphRenderer::GraphRenderer()
@@ -101,7 +90,7 @@ void GraphRenderer::RenderQueue()
 		std::shared_ptr<Graph> graph{ m_RenderQueue.front() };
 		m_RenderQueue.pop();
 
-		m_Shader.SetTexture(graph->m_OutputTexture);
+		m_Shader.SetTexture(graph->m_Texture);
 		RGBColour c = graph->m_Colour;
 		m_Shader.SetUniform("u_Colour", std::array<float, 4>{ c.norm_r, c.norm_g, c.norm_b, c.norm_a });
 		switch (graph->getElement().getType())

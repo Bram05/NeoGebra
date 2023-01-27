@@ -103,8 +103,8 @@ public:
 	equationResult getSolution(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
 
 	std::string toSmtLib(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
-	std::shared_ptr<OrAnd> toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, bool useCustomScroll, const Equation& customScrollX, const Equation& customScrollY) const;
-	std::shared_ptr<OrAnd> toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const { return toShader(identifiers, ids, false, AdvancedString(), AdvancedString()); }
+	std::string toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, bool useCustomScroll, const Equation& customScrollX, const Equation& customScrollY) const;
+	std::string toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const { return toShader(identifiers, ids, false, AdvancedString(), AdvancedString()); }
 	float getResult(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
 	bool isTrue(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
 };

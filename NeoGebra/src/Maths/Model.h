@@ -34,7 +34,7 @@ public:
 	const std::vector<float>& getIdentifiers() const { return NEElement::m_Identifiers; }
 	const Equation& getDef() const { return NEElement::m_Def; }
 	std::shared_ptr<Model> getModel() const { return NEElement::m_Model; }
-	std::shared_ptr<OrAnd> getShader();
+	std::string getShader();
 	int getID() const { return m_ID; }
 	NEType getType() const { return m_Type; }
 	RGBColour getColour() const { return m_Colour; }

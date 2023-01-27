@@ -26,9 +26,8 @@ NEElement::NEElement(const std::vector<float>& identifiers, const Equation& def,
 	m_Model->solveVariables(this);
 }
 
-std::shared_ptr<OrAnd> NEElement::getShader() {
-	std::shared_ptr<OrAnd> res = m_Def.toShader({ m_Identifiers }, { m_ID }, m_Model->m_UseCustomScroll, m_Model->m_CustomScrollX, m_Model->m_CustomScrollY);
-	return res;
+std::string NEElement::getShader() {
+	return m_Def.toShader({ m_Identifiers }, { m_ID }, m_Model->m_UseCustomScroll, m_Model->m_CustomScrollX, m_Model->m_CustomScrollY);
 }
 
 NEPoint::NEPoint(const std::vector<float>& identifiers, std::shared_ptr<Model> m, const RGBColour& colour, bool checkValidity)

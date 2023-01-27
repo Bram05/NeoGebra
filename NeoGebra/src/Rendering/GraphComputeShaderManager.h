@@ -10,7 +10,7 @@ public:
 	GraphComputeShaderManager(const std::string& name, float width, float height);
 	~GraphComputeShaderManager();
 
-	std::pair<std::vector<unsigned int>, std::vector<unsigned int>> CreateFirstCompShaders(const std::string& name, std::shared_ptr<OrAnd> equations) const;
+	void CreateShader(Graph* graph, const std::string& name) const;
 	unsigned int CreateOtherComputeShader(const std::string& name) const;
 	void RunComputeShaders(Graph* graph, float midCoordX, float midCoordY, float unitLengthPixels) const;
 	unsigned int CreateTexture() const;
@@ -21,7 +21,6 @@ public:
 
 private:
 	unsigned int m_CompShader2;
-	unsigned int m_CompShader3;
 	unsigned int m_IntermediateTexture;
 	int m_MaxNumberOfTextureUnits;
 	int m_Width, m_Height; // Stored in pixels

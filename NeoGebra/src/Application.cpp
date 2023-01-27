@@ -27,6 +27,7 @@ static void MouseClickCallback(int mouseButton, int action, int mods)
 
 static void MouseMovedCallback(int x, int y)
 {
+	//Util::Timer t("MouseMovedCallback");
 	float newX = Util::ConvertToOpenGLCoordinate(x, true);
 	float newY = -Util::ConvertToOpenGLCoordinate(y, false);
 	Application::Get()->GetWindowUI()->MouseMoved(newX, newY);
@@ -77,8 +78,8 @@ Application::Application()
 	std::shared_ptr<NEPoint> p2(new NEPoint({ 0.625f,  -0.4145780988f }, m_Model, { 255, 0, 0, 255 }));
 	std::shared_ptr<NEPoint> p3(new NEPoint({ 0.5f,  0.0f }, m_Model, { 255, 0, 0, 255 }));
 	std::shared_ptr<NEPoint> p4(new NEPoint({ 0.8434959408f,  0.4145780988f }, m_Model, { 255, 0, 0, 255 }));
-	//std::shared_ptr<NEPoint> o(new NEPoint({ 0.0f,  0.0f }, m_Model, { 255, 0, 0, 255 }));
-	std::cout << distance(*p1, *p4);
+	std::shared_ptr<NEPoint> o(new NEPoint({ 0.0f,  0.0f }, m_Model, { 255, 0, 0, 255 }));
+	//std::cout << distance(*p1, *p4);
 
 	Application::s_Instance = this;
 	m_Window = new Window(WindowCreationOptions(1080, 720, "NeoGeobra", MouseClickCallback, TextCallback, MouseMovedCallback, KeyCallback));

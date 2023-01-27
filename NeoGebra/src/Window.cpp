@@ -12,7 +12,7 @@
 int Window::s_NumWindowsCreated{ 0 };
 
 Window::Window(const WindowCreationOptions& options)
-	: m_Title{options.title}, m_MouseButtonCallback{ options.mouseButtonCallback }, m_TextCallback{ options.textCallback }, m_MouseMovedCallback{ options.mouseMovedCallback }, m_SpecialKeyCallback{ options.specialKeyCallback }
+	: m_Title{ options.title }, m_MouseButtonCallback{ options.mouseButtonCallback }, m_TextCallback{ options.textCallback }, m_MouseMovedCallback{ options.mouseMovedCallback }, m_SpecialKeyCallback{ options.specialKeyCallback }
 {
 	if (!s_NumWindowsCreated)
 	{
@@ -30,7 +30,7 @@ Window::Window(const WindowCreationOptions& options)
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
 #ifdef DEBUG
-		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true); 
+		glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
 #endif
 	}
 	++s_NumWindowsCreated;
@@ -43,7 +43,7 @@ Window::Window(const WindowCreationOptions& options)
 		Util::ExitDueToFailure();
 	}
 	glfwMakeContextCurrent(m_Window);
-	glfwSwapInterval(1);//V-Sync , op AMD was er geen fps cap. met dit nu wel
+	glfwSwapInterval(1); // Enable VSync
 
 	glfwSetWindowUserPointer(m_Window, this);
 
@@ -107,6 +107,11 @@ void Window::Close()
 void Window::Update()
 {
 	glfwPollEvents();
+
+	Util::Timer t("Finishing all OpenGL calls");
+	glFinish();
+	t.Stop();
+
 	glfwSwapBuffers(m_Window);
 }
 
