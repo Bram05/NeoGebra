@@ -6,9 +6,10 @@ class Window;
 
 typedef void(*MouseButtonCallbackType)(int, int, int);
 typedef void(*TextCallbackType)(unsigned int);
-typedef void(*ResizeCallbackType)(int, int, int, int);
+typedef void(*ResizeCallbackType)(int, int);
 typedef void(*MouseMovedCallbackType)(int, int);
-typedef void(*SpecialKeyCallback)(int, int, int, int);
+typedef void(*SpecialKeyCallbackType)(int, int, int, int);
+
 
 // The options for creating a window
 struct WindowCreationOptions
@@ -19,7 +20,8 @@ struct WindowCreationOptions
 	MouseButtonCallbackType mouseButtonCallback = nullptr;
 	TextCallbackType textCallback = nullptr;
 	MouseMovedCallbackType mouseMovedCallback = nullptr;
-	SpecialKeyCallback specialKeyCallback = nullptr;
+	SpecialKeyCallbackType specialKeyCallback = nullptr;
+	ResizeCallbackType resizeCallback = nullptr;
 };
 
 struct GLFWwindow;
@@ -37,6 +39,8 @@ public:
 	std::pair<int, int> GetSize() const;
 	std::pair<int, int> GetMouseLocation() const;
 	const char* GetClipboardContent() const;
+	void ToggleMaximized();
+	void Focus();
 
 	// Update the window (swap buffers and poll GLFW events)
 	void Update();
@@ -49,5 +53,6 @@ private:
 	MouseButtonCallbackType m_MouseButtonCallback;
 	TextCallbackType m_TextCallback;
 	MouseMovedCallbackType m_MouseMovedCallback;
-	SpecialKeyCallback m_SpecialKeyCallback;
+	SpecialKeyCallbackType m_SpecialKeyCallback;
+	ResizeCallbackType m_ResizeCallback;
 };

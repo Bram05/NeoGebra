@@ -28,7 +28,7 @@ private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
 	std::shared_ptr<Line> m_EditingLine;
 	std::shared_ptr<Text> m_Text;
-	int m_Editingindex{ 0 };
+	int m_Editingindex;
 	void(*m_EnterCallback)(void*);
 	void* m_Obj;
 

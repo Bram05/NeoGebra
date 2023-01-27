@@ -14,9 +14,12 @@ TextInputField::TextInputField(float leftX, float rightX, float topY, float bott
 	m_Lines.push_back(std::make_shared<Line>(Point(leftX, bottomY), Point(rightX, bottomY)));
 	m_Lines.push_back(std::make_shared<Line>(Point(rightX, bottomY), Point(rightX, topY)));
 	m_Lines.push_back(std::make_shared<Line>(Point(rightX, topY), Point(leftX, topY)));
-	auto [width, height] = Application::Get()->GetWindow()->GetSize();
-	m_EditingLine = std::make_shared<Line>(Point(m_LeftX + 0.01f, m_BottomY + 0.045f), Point(m_LeftX + 0.01f, m_BottomY + 0.05f + (float)60 / height));
-	m_Text = std::make_shared<Text>(defaultText, leftX + 0.01f, rightX - 0.01f, bottomY + 0.05f, 40.0f, false);
+	m_Text = std::make_shared<Text>(defaultText, leftX + 0.01f, rightX - 0.01f, bottomY + 0.045f /*0.18f * (topY - bottomY)*/, 40.0f, false);
+	//auto [width, height] = Application::Get()->GetWindow()->GetSize();
+	m_Editingindex = defaultText.size();
+	m_EditingLine = std::make_shared<Line>(Point(0,0), Point(0,0));
+	UpdateEditingLine();
+	//m_EditingLine= std::make_shared<Line>(Point(m_LeftX + 0.01f, m_BottomY + 0.045f), Point(m_LeftX + 0.01f, m_BottomY + 0.05f + (float)60 / height));
 }
 
 TextInputField::~TextInputField()
@@ -27,7 +30,7 @@ void TextInputField::IsSelected()
 {
 	for (std::shared_ptr<Line>& l : m_Lines)
 	{
-		l->SetColour({ 0.0f, 1.0f, 0.0f, 1.0f });
+		l->SetColour({ 0.0f, 1.0f, 0.6f, 1.0f });
 	}
 }
 
@@ -125,7 +128,7 @@ void TextInputField::NotSelectedAnymore()
 {
 	for (std::shared_ptr<Line>& l : m_Lines)
 	{
-		l->SetColour({ 1.0f, 0.0f, 0.0f, 1.0f });
+		l->SetColour({ 0.0f, 0.0f, 0.0f, 1.0f });
 	}
 }
 
@@ -157,7 +160,7 @@ void TextInputField::UpdateEditingLine()
 	{
 		x += font->GetCharacterInfo(text[i]).xAdvance * m_Text->GetScale() / width;
 	}
-	m_EditingLine->SetLocation(Point(x, m_BottomY + 0.045f), Point(x, m_BottomY + 0.05f + (float)55 / height));
+	m_EditingLine->SetLocation(Point(x, m_BottomY + 0.039f), Point(x, m_BottomY + 0.025f + (float)55 / height));
 }
 
 void TextInputField::UpdateEditingIndex(int newIndex, bool isRemoved)

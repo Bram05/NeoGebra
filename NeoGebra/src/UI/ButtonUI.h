@@ -9,8 +9,8 @@
 class ButtonUI : public UIElement
 {
 public:
-	ButtonUI(float leftX, float rightX, float topY, float bottomY, void(*func)(void*), void* obj, const std::string& text);
-	ButtonUI(float leftX, float rightX, float topY, float bottomY, void(*func)(void*), void* obj, const AdvancedString& text);
+	ButtonUI(float leftX, float rightX, float topY, float bottomY, void(*func)(void*), void* obj, const std::string& text, const std::array<float, 4>& backgroundColour = { 0.0f,1.0f,1.0f,1.0f }, const std::array<float, 4>& hoveredColour = { 0.5f,0.5f,0.5f, 1.0f });
+	ButtonUI(float leftX, float rightX, float topY, float bottomY, void(*func)(void*), void* obj, const AdvancedString& text, const std::array<float, 4>& backgroundColour = { 0.0f,1.0f,1.0f,1.0f }, const std::array<float, 4>& hoveredColour = { 0.5f,0.5f,0.5f, 1.0f });
 	~ButtonUI();
 
 	virtual void RenderPass(Renderer* r) override;
@@ -21,6 +21,8 @@ protected:
 	virtual void NotHoveredAnymore() override;
 private:
 	std::shared_ptr<Square> m_Background;
+	std::array<float, 4> m_NormalBackgroundColour;
+	std::array<float, 4> m_HoveredBackgroundColour;
 	std::vector<std::shared_ptr<Text>> m_Texts;
 	void(*m_Action)(void*);
 	void* m_Obj;

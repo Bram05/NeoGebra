@@ -45,7 +45,16 @@ static void KeyCallback(int key, int scancode, int action, int mods)
 		PrintInfo(std::cout << "\nEscape key pressed, closing application\n" << std::flush);
 		Application::Get()->GetWindow()->Close();
 	}
-	Application::Get()->GetWindowUI()->SpecialKeyInput(key, scancode, action, mods);
+	else if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
+		Application::Get()->GetWindow()->ToggleMaximized();
+	else
+		Application::Get()->GetWindowUI()->SpecialKeyInput(key, scancode, action, mods);
+}
+
+static void ResizeCallback(int width, int height)
+{
+	Application::Get()->GetWindowUI()->ResizeWindow(width, height);
+	Application::Get()->GetRenderer()->Resize(width, height);
 }
 
 Application::Application()
@@ -78,11 +87,11 @@ Application::Application()
 	std::shared_ptr<NEPoint> p2(new NEPoint({ 0.625f,  -0.4145780988f }, m_Model, { 255, 0, 0, 255 }));
 	std::shared_ptr<NEPoint> p3(new NEPoint({ 0.5f,  0.0f }, m_Model, { 255, 0, 0, 255 }));
 	std::shared_ptr<NEPoint> p4(new NEPoint({ 0.8434959408f,  0.4145780988f }, m_Model, { 255, 0, 0, 255 }));
-	std::shared_ptr<NEPoint> o(new NEPoint({ 0.0f,  0.0f }, m_Model, { 255, 0, 0, 255 }));
+	//std::shared_ptr<NEPoint> o(new NEPoint({ 0.0f,  0.0f }, m_Model, { 255, 0, 0, 255 }));
 	//std::cout << distance(*p1, *p4);
 
 	Application::s_Instance = this;
-	m_Window = new Window(WindowCreationOptions(1080, 720, "NeoGeobra", MouseClickCallback, TextCallback, MouseMovedCallback, KeyCallback));
+	m_Window = new Window(WindowCreationOptions(1080, 720, "NeoGeobra", MouseClickCallback, TextCallback, MouseMovedCallback, KeyCallback, ResizeCallback));
 	m_Renderer = new Renderer;
 	m_WindowUI = new WindowUI;
 	PrintInfo(std::cout << "Created application\n\n");
