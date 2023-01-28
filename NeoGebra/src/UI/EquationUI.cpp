@@ -8,6 +8,7 @@
 #include "TabUI.h"
 #include "TextInputFieldWithDesc.h"
 #include "Window.h"
+#include "Constants.h"
 
 static void TabButtonClickedStatic(void* obj, int value)
 {
@@ -24,11 +25,11 @@ static void UpdateModelStatic(void* obj)
 	((EquationUI*)obj)->UpdateModel();
 }
 
-Window* g_PointVariableWindow{ nullptr };
+//Window* g_PointVariableWindow{ nullptr };
 
 static void ManagePointVariableWindow()
 {
-	g_PointVariableWindow = new Window({ 400,400,"Point Variables" });
+	/*g_PointVariableWindow = new Window({400,400,"Point Variables"});
 	while (!g_PointVariableWindow->ShouldClose())
 	{
 		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
@@ -37,49 +38,128 @@ static void ManagePointVariableWindow()
 		g_PointVariableWindow->Update();
 	}
 	delete g_PointVariableWindow;
-	g_PointVariableWindow = nullptr;
+	g_PointVariableWindow = nullptr;*/
 }
 
-Window* g_LineVariableWindow{ nullptr };
-
-static void ManageLineVariableWindow()
+struct VariableWindow
 {
-	g_LineVariableWindow = new Window({ 400,400,"Line Variables" });
-	while (!g_LineVariableWindow->ShouldClose())
+	Window* window{ nullptr };
+	Renderer* renderer{ nullptr };
+	VariableWindowUI* UI{ nullptr };
+};
+
+VariableWindow g_LineWindow;
+VariableWindow g_PointWindow;
+
+void ResizeCallback(VariableWindow window, int width, int height)
+{
+	window.UI->ResizeWindow(width, height);
+	window.renderer->Resize(width, height);
+	window.UI->RenderPass(window.renderer);
+	window.renderer->RenderQueues();
+	window.window->Update();
+}
+static void PointResizeCallback(int width, int height) { ResizeCallback(g_PointWindow, width, height); }
+static void LineResizeCallback(int width, int height) { ResizeCallback(g_LineWindow, width, height); }
+
+static void MouseClickCallback(VariableWindow window, int mouseButton, int action, int mods)
+{
+	if (mouseButton == MouseButton::left && action == Action::pressed)
+	{
+		auto [x, y] = window.window->GetMouseLocation();
+		auto [width, height] = window.window->GetSize();
+		float newX = 2 * (float)x / width - 1.0f;
+		float newY = -(2 * (float)y / height - 1.0f);
+		window.UI->MouseClicked(newX, newY);
+	}
+	if (mouseButton == MouseButton::left && action == Action::released)
+	{
+		window.UI->MouseReleased();
+	}
+}
+static void PointMouseClickCallback(int mousebutton, int action, int mods) { MouseClickCallback(g_PointWindow, mousebutton, action, mods); }
+static void LineMouseClickCallback(int mousebutton, int action, int mods) { MouseClickCallback(g_LineWindow, mousebutton, action, mods); }
+
+/*
+static void MouseMovedCallback(int x, int y)
+{
+	//Util::Timer t("MouseMovedCallback");
+	float newX = Util::ConvertToOpenGLCoordinate(x, true);
+	float newY = -Util::ConvertToOpenGLCoordinate(y, false);
+	Application::Get()->GetWindowUI()->MouseMoved(newX, newY);
+}
+
+static void TextCallback(unsigned int codepoint)
+{
+	Application::Get()->GetWindowUI()->TextInput(codepoint);
+}
+
+static void KeyCallback(int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_ESCAPE)
+	{
+		PrintInfo(std::cout << "\nEscape key pressed, closing application\n" << std::flush);
+		Application::Get()->GetWindow()->Close();
+	}
+	else if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
+		Application::Get()->GetWindow()->ToggleMaximized();
+	else
+		Application::Get()->GetWindowUI()->SpecialKeyInput(key, scancode, action, mods);
+}*/
+
+
+static void ManageLineVariableWindow(EquationUI* base)
+{
+	WindowCreationOptions options{ 800, 400, "Line Variables" };
+	options.resizeCallback = LineResizeCallback;
+	options.mouseButtonCallback = LineMouseClickCallback;
+	g_LineWindow.window = new Window(options);
+
+	// TODO: by doing this, we are reloading the font which is inefficient, but it needs a texture which has to be created on this thread
+	g_LineWindow.renderer = new Renderer;
+	g_LineWindow.UI = new VariableWindowUI(&base->m_PointVariables);
+
+	while (!g_LineWindow.window->ShouldClose())
 	{
 		glClearColor(0.5f, 0.0f, 0.5f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		g_LineVariableWindow->Update();
+		g_LineWindow.UI->RenderPass(g_LineWindow.renderer);
+		g_LineWindow.renderer->RenderQueues();
+
+		g_LineWindow.window->Update();
 	}
-	delete g_LineVariableWindow;
-	g_LineVariableWindow = nullptr;
+	delete g_LineWindow.renderer;
+	g_LineWindow.renderer = nullptr;
+	delete g_LineWindow.window;
+	g_LineWindow.window = nullptr;
 }
 
 static void DisplayPointVariables(void* obj)
 {
-	if (!g_PointVariableWindow)
+	if (!g_LineWindow.window)
 	{
 		std::thread(ManagePointVariableWindow).detach();
 	}
 	else
-		g_PointVariableWindow->Focus();
+		g_LineWindow.window->Focus();
 }
 
 static void DisplayLineVariables(void* obj)
 {
-	if (!g_LineVariableWindow)
+	if (!g_LineWindow.window)
 	{
-		std::thread(ManageLineVariableWindow).detach();
+		std::thread(ManageLineVariableWindow, (EquationUI*)obj).detach();
 	}
 	else
-		g_PointVariableWindow->Focus();
+		g_LineWindow.window->Focus();
 }
 constexpr int NumInputFields{ 5 }, DefaultPointSize{ 10 }, DefaultLineWidth{ 3 };
 
 EquationUI::EquationUI(float leftX, float rightX, float topY, float bottomY)
 	: UIElement(leftX, rightX, topY, bottomY, "EquationUI")
 {
+	m_PointVariables.second.push_back({ AdvancedString("d"), std::make_shared<Equation>(std::vector<AdvancedString>{AdvancedString("p")}, AdvancedString("p0^2+p1^2")) });
 	m_Lines.push_back(std::make_shared<Line>(Point(leftX, topY), Point(leftX, bottomY))); // Left size
 	m_Lines.push_back(std::make_shared<Line>(Point(leftX, topY), Point(rightX, topY))); // top
 	m_Lines.push_back(std::make_shared<Line>(Point(rightX, bottomY), Point(rightX, topY))); // right

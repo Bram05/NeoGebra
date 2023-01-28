@@ -12,10 +12,10 @@ class WindowUI
 {
 public:
 	WindowUI();
-	~WindowUI();
+	virtual ~WindowUI() {}
 
 	// Call the renderpass on all the contained UI elements
-	void RenderPass(Renderer* r);
+	virtual void RenderPass(Renderer* r);
 
 	// To be called on certain events. WindowUI will then pass these to the correct UIElement
 	std::shared_ptr<UIElement> MouseClicked(float x, float y);
@@ -24,19 +24,13 @@ public:
 	void TextInput(unsigned int codepoint);
 	void SpecialKeyInput(int key, int scancode, int action, int mods);
 	void ResizeWindow(int width, int height);
-	void UpdateGraphUI();
-	void SetFPSCounter(float fps);
 	void InsertKey(int codepoint);
-	void DisplayError(const AdvancedString& error);
-	void DisplayError(const std::string& error) { DisplayError(AdvancedString(error)); }
-	GraphUI* GetGraphUI();
-
-private:
+	
+protected:
 	bool m_MouseDown = false;
 	std::vector<std::shared_ptr<UIElement>> m_UIElements;
 	std::shared_ptr<UIElement> m_CurrentlyHoveredElement{ nullptr };
 	std::shared_ptr<UIElement> m_SelectedElement{ nullptr };
-	int m_GraphUIIndex, m_FPSCounterIndex;
 
 	// Recursive function to find the element that is at this position.
 	// This function will the element that is furtherst in the tree that is under this position

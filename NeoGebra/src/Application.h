@@ -5,7 +5,7 @@
 #include "Window.h"
 #include "Rendering/Renderer.h"
 
-#include "UI/WindowUI.h"
+#include "UI/MainWindowUI.h"
 
 // Number of seconds before the average fps is calculated and the counters are reset
 constexpr double g_NumSecondsForFpsAverage = 0.5;
@@ -26,7 +26,7 @@ public:
 	// Some getters and setters
 	Window* GetWindow() { return m_Window; }
 	Renderer* GetRenderer() { return m_Renderer; }
-	WindowUI* GetWindowUI() { return m_WindowUI; }
+	MainWindowUI* GetWindowUI() { return m_WindowUI; }
 	std::shared_ptr<Model> GetModel() { return m_Model; }
 	void SetModel(unsigned int pointIdentifiers,
 		const Equation& pointDef,
@@ -46,7 +46,7 @@ private:
 	static Application* s_Instance;
 	Window* m_Window;
 	Renderer* m_Renderer;
-	WindowUI* m_WindowUI;
+	MainWindowUI* m_WindowUI;
 	std::shared_ptr<Model> m_Model;
 
 	double m_LastFrameTime{ 0.0 };

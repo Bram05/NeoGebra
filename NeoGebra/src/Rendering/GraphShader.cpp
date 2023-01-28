@@ -3,7 +3,6 @@
 #include "GraphShader.h"
 
 #include "Constants.h"
-#include "Application.h"
 #include "Util.h"
 
 static enum ShaderType

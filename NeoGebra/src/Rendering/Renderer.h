@@ -14,10 +14,8 @@ class Application;
 // It doesn't render anything but dispatches it to underlying renderers
 class Renderer
 {
-private:
-	Renderer();
-
 public:
+	Renderer();
 	// Begins the rendering
 	// This method calls the underlying renderers to render their queues
 	void RenderQueues();
@@ -36,11 +34,13 @@ public:
 	GraphRenderer* GetGraphRenderer() const { return m_GraphRenderer; }
 
 	~Renderer();
-	friend Application;
+	//friend Application;
 
 private:
 	LineRenderer* m_LineRenderer;
 	SquareRenderer* m_SquareRenderer;
 	GraphRenderer* m_GraphRenderer;
 	TextRenderer* m_TextRenderer;
+
+	static bool s_GLADInitialized;
 };

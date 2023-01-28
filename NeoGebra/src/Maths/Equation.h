@@ -17,6 +17,7 @@ class Equation;
 typedef std::pair<std::vector<std::pair < AdvancedString, std::shared_ptr<Equation> >>, std::vector<std::pair < AdvancedString, std::shared_ptr<Equation> >> > VarMap;
 typedef std::map < std::pair<NEType, AdvancedString>, std::map<int, float> > SolvedVarMap;
 
+// This should be removed, but it breaks stuff and I don't want to bother changing those since they're apparently not needed
 struct OrAnd { bool isEnd; std::string content; bool isOr; std::shared_ptr<OrAnd> s1; std::shared_ptr<OrAnd> s2; };
 
 struct equationResult { bool sat; z3::model* m; };

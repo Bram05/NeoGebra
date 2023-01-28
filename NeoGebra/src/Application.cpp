@@ -6,7 +6,6 @@
 #include "Util.h"
 
 #include <GLFW/glfw3.h> // I don't like this
-// Who asked tho?
 
 Application* Application::s_Instance = nullptr;
 
@@ -55,6 +54,9 @@ static void ResizeCallback(int width, int height)
 {
 	Application::Get()->GetWindowUI()->ResizeWindow(width, height);
 	Application::Get()->GetRenderer()->Resize(width, height);
+	Application::Get()->GetWindowUI()->RenderPass(Application::Get()->GetRenderer());
+	Application::Get()->GetRenderer()->RenderQueues();
+	Application::Get()->GetWindow()->Update();
 }
 
 Application::Application()
@@ -93,7 +95,7 @@ Application::Application()
 	Application::s_Instance = this;
 	m_Window = new Window(WindowCreationOptions(1080, 720, "NeoGeobra", MouseClickCallback, TextCallback, MouseMovedCallback, KeyCallback, ResizeCallback));
 	m_Renderer = new Renderer;
-	m_WindowUI = new WindowUI;
+	m_WindowUI = new MainWindowUI;
 	PrintInfo(std::cout << "Created application\n\n");
 }
 

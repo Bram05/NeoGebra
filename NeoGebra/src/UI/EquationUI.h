@@ -6,6 +6,7 @@
 #include "Rendering/LineRenderer.h"
 #include "Rendering/TextRenderer.h"
 #include "TextInputField.h"
+#include "VariableWindowUI.h"
 
 static void TabButtonClickedStatic(void*,int);
 
@@ -18,6 +19,8 @@ public:
 
 	void UpdateGraphs();
 	void UpdateModel();
+
+	VarMap m_PointVariables;
 
 protected:
 	void RenderPass(Renderer* r) override;
