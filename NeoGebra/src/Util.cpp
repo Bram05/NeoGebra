@@ -94,6 +94,11 @@ namespace Util
 
 	double Timer::Stop()
 	{
+		if (!m_Running)
+		{
+			std::cerr << "Error: attempting to stop an already stopped timer!\n";
+			Util::ExitDueToFailure();
+		}
 		std::chrono::time_point<std::chrono::steady_clock> end{ std::chrono::steady_clock::now() };
 		std::chrono::duration<double> dur = end - m_Begin;
 		s_OutputStream << m_Name << std::setw(s_MaxNameLength - m_Name.size()) << " took: " << dur.count() << "s\t or " << dur.count() * 1000 << "ms\n";

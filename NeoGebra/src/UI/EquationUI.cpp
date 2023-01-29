@@ -7,6 +7,11 @@
 #include "KeyboardUI.h"
 #include "TabUI.h"
 #include "TextInputFieldWithDesc.h"
+#include "Window.h"
+#include "Constants.h"
+#include <GLFW/glfw3.h>
+#include "Util.h"
+#include "ExtrasWindowUI.h"
 
 static void TabButtonClickedStatic(void* obj, int value)
 {
@@ -23,11 +28,194 @@ static void UpdateModelStatic(void* obj)
 	((EquationUI*)obj)->UpdateModel();
 }
 
-constexpr int NumInputFields{ 5 };
+struct SubWindow
+{
+	Window* window{ nullptr };
+	Renderer* renderer{ nullptr };
+	WindowUI* UI{ nullptr };
+};
+
+SubWindow g_LineWindow;
+SubWindow g_PointWindow;
+SubWindow g_ExtrasWindow;
+
+void ResizeCallback(SubWindow window, int width, int height)
+{
+	window.UI->ResizeWindow(width, height);
+	window.renderer->Resize(width, height);
+	window.UI->RenderPass(window.renderer);
+	window.renderer->RenderQueues();
+	window.window->Update();
+}
+static void PointResizeCallback(int width, int height) { ResizeCallback(g_PointWindow, width, height); }
+static void LineResizeCallback(int width, int height) { ResizeCallback(g_LineWindow, width, height); }
+static void ExtrasResizeCallback(int width, int height) { ResizeCallback(g_ExtrasWindow, width, height); }
+
+static void MouseClickCallback(SubWindow window, int mouseButton, int action, int mods)
+{
+	if (mouseButton == MouseButton::left && action == Action::pressed)
+	{
+		auto [x, y] = window.window->GetMouseLocation();
+		auto [width, height] = window.window->GetSize();
+		float newX = 2 * (float)x / width - 1.0f;
+		float newY = -(2 * (float)y / height - 1.0f);
+		window.UI->MouseClicked(newX, newY);
+	}
+	if (mouseButton == MouseButton::left && action == Action::released)
+	{
+		window.UI->MouseReleased();
+	}
+}
+static void PointMouseClickCallback(int mousebutton, int action, int mods) { MouseClickCallback(g_PointWindow, mousebutton, action, mods); }
+static void LineMouseClickCallback(int mousebutton, int action, int mods) { MouseClickCallback(g_LineWindow, mousebutton, action, mods); }
+static void ExtrasMouseClickCallback(int mousebutton, int action, int mods) { MouseClickCallback(g_ExtrasWindow, mousebutton, action, mods); }
+
+static void MouseMovedCallback(SubWindow window, int x, int y)
+{
+	//Util::Timer t("MouseMovedCallback");
+	auto [width, height] = window.window->GetSize();
+	float newX = 2 * (float)x / width - 1.0f;
+	float newY = -(2 * (float)y / height - 1.0f);
+	window.UI->MouseMoved(newX, newY);
+}
+static void PointMouseMovedCallback(int x, int y) { MouseMovedCallback(g_PointWindow, x, y); }
+static void LineMouseMovedCallback(int x, int y) { MouseMovedCallback(g_LineWindow, x, y); }
+static void ExtrasMouseMovedCallback(int x, int y) { MouseMovedCallback(g_ExtrasWindow, x, y); }
+
+static void TextCallback(SubWindow window, unsigned int codepoint)
+{
+	window.UI->TextInput(codepoint);
+}
+static void PointTextCallback(unsigned int codepoint) { TextCallback(g_PointWindow, codepoint); }
+static void LineTextCallback(unsigned int codepoint) { TextCallback(g_LineWindow, codepoint); }
+static void ExtrasTextCallback(unsigned int codepoint) { TextCallback(g_ExtrasWindow, codepoint); }
+
+static void KeyCallback(SubWindow window, int key, int scancode, int action, int mods)
+{
+	if (key == GLFW_KEY_ESCAPE)
+	{
+		PrintInfo(std::cout << "\nEscape key pressed, closing this window\n" << std::flush);
+		window.window->Close();
+	}
+	else if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
+		window.window->ToggleMaximized();
+	else
+		window.UI->SpecialKeyInput(key, scancode, action, mods);
+}
+static void PointKeyCallback(int key, int scancode, int action, int mods) { KeyCallback(g_PointWindow, key, scancode, action, mods); }
+static void LineKeyCallback(int key, int scancode, int action, int mods) { KeyCallback(g_LineWindow, key, scancode, action, mods); }
+static void ExtrasKeyCallback(int key, int scancode, int action, int mods) { KeyCallback(g_ExtrasWindow, key, scancode, action, mods); }
+
+static void ManagePointVariableWindow(EquationUI* base)
+{
+	// Technically Window creation and destruction must happen on the main thread, but this seems to work
+	g_PointWindow.window = new Window(WindowCreationOptions(800, 400, "Point Variables", PointMouseClickCallback, PointTextCallback, PointMouseMovedCallback, PointKeyCallback, PointResizeCallback));
+
+	// TODO: by doing this, we are reloading the font which is inefficient, but it needs a texture which has to be created on this thread
+	g_PointWindow.renderer = new Renderer;
+	g_PointWindow.UI = new VariableWindowUI(&base->m_PointVariables, g_PointWindow.window, { AdvancedString("p") });
+
+	while (!g_PointWindow.window->ShouldClose())
+	{
+		glClearColor(0.5f, 0.0f, 0.5f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		g_PointWindow.UI->RenderPass(g_PointWindow.renderer);
+		g_PointWindow.renderer->RenderQueues();
+
+		g_PointWindow.window->Update();
+	}
+	delete g_PointWindow.renderer;
+	g_PointWindow.renderer = nullptr;
+	delete g_PointWindow.window;
+	g_PointWindow.window = nullptr;
+}
+
+static void ManageLineVariableWindow(EquationUI* base)
+{
+	// Technically Window creation and destruction must happen on the main thread, but this seems to work
+	g_LineWindow.window = new Window(WindowCreationOptions(800, 400, "Line Variables", LineMouseClickCallback, LineTextCallback, LineMouseMovedCallback, LineKeyCallback, LineResizeCallback));
+
+	// TODO: by doing this, we are reloading the font which is inefficient, but it needs a texture which has to be created on this thread
+	g_LineWindow.renderer = new Renderer;
+	g_LineWindow.UI = new VariableWindowUI(&base->m_LineVariables, g_LineWindow.window, { AdvancedString("l") });
+
+	while (!g_LineWindow.window->ShouldClose())
+	{
+		glClearColor(0.5f, 0.0f, 0.5f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		g_LineWindow.UI->RenderPass(g_LineWindow.renderer);
+		g_LineWindow.renderer->RenderQueues();
+
+		g_LineWindow.window->Update();
+	}
+	delete g_LineWindow.renderer;
+	g_LineWindow.renderer = nullptr;
+	delete g_LineWindow.window;
+	g_LineWindow.window = nullptr;
+}
+
+static void ManageExtrasWindow(EquationUI* base)
+{
+	// Technically Window creation and destruction must happen on the main thread, but this seems to work
+	g_ExtrasWindow.window = new Window(WindowCreationOptions(800, 400, "Extra Equations", ExtrasMouseClickCallback, ExtrasTextCallback, ExtrasMouseMovedCallback, ExtrasKeyCallback, ExtrasResizeCallback));
+
+	// TODO: by doing this, we are reloading the font which is inefficient, but it needs a texture which has to be created on this thread
+	g_ExtrasWindow.renderer = new Renderer;
+	g_ExtrasWindow.UI = new ExtrasWindowUI(&base->m_ExtraEquations, g_ExtrasWindow.window);
+
+	while (!g_ExtrasWindow.window->ShouldClose())
+	{
+		glClearColor(0.5f, 0.0f, 0.5f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		g_ExtrasWindow.UI->RenderPass(g_ExtrasWindow.renderer);
+		g_ExtrasWindow.renderer->RenderQueues();
+
+		g_ExtrasWindow.window->Update();
+	}
+	delete g_ExtrasWindow.renderer;
+	g_ExtrasWindow.renderer = nullptr;
+	delete g_ExtrasWindow.window;
+	g_ExtrasWindow.window = nullptr;
+}
+
+static void DisplayPointVariables(void* obj)
+{
+	if (!g_LineWindow.window)
+	{
+		std::thread(ManagePointVariableWindow, (EquationUI*)obj).detach();
+	}
+	else
+		g_LineWindow.window->Focus();
+}
+
+static void DisplayLineVariables(void* obj)
+{
+	if (!g_LineWindow.window)
+	{
+		std::thread(ManageLineVariableWindow, (EquationUI*)obj).detach();
+	}
+	else
+		g_LineWindow.window->Focus();
+}
+
+static void DisplayExtrasVariables(void* obj)
+{
+	if (!g_ExtrasWindow.window)
+	{
+		std::thread(ManageExtrasWindow, (EquationUI*)obj).detach();
+	}
+	else
+		g_ExtrasWindow.window->Focus();
+}
+constexpr int NumInputFields{ 5 }, DefaultPointSize{ 10 }, DefaultLineWidth{ 3 };
 
 EquationUI::EquationUI(float leftX, float rightX, float topY, float bottomY)
 	: UIElement(leftX, rightX, topY, bottomY, "EquationUI")
 {
+	m_PointVariables.second.push_back({ AdvancedString("d"), std::make_shared<Equation>(std::vector<AdvancedString>{AdvancedString("p")}, AdvancedString("p0^2+p1^2")) });
 	m_Lines.push_back(std::make_shared<Line>(Point(leftX, topY), Point(leftX, bottomY))); // Left size
 	m_Lines.push_back(std::make_shared<Line>(Point(leftX, topY), Point(rightX, topY))); // top
 	m_Lines.push_back(std::make_shared<Line>(Point(rightX, bottomY), Point(rightX, topY))); // right
@@ -44,23 +232,78 @@ EquationUI::EquationUI(float leftX, float rightX, float topY, float bottomY)
 		m_SubUIElements.emplace_back(std::make_shared<TextInputField>(leftX, rightX, topY - 0.2f - i * 0.15f, topY - 0.35f - i * 0.15f, UpdateGraphsStatic, this), false);
 	}
 
-	m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX, rightX, topY - 0.2f, topY - 0.4f, "Number of point identifiers: ", 0.2f, UpdateModelStatic, this), false);
-	m_ModelBeginIndex = m_SubUIElements.size() - 1;
-	m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX, rightX, topY - 0.4f, topY - 0.6f, "Point definition: ", 0.2f, UpdateModelStatic, this), false);
+	Application::Get()->GetRenderer()->GetGraphRenderer()->setPointSize(DefaultPointSize);
+	Application::Get()->GetRenderer()->GetGraphRenderer()->setLineThickness(DefaultLineWidth);
+
+	float currentHeight = topY - 0.2f;
+
+	m_ModelBeginIndex = m_SubUIElements.size();
+	// Point
+	m_SubUIElements.emplace_back(std::make_shared<ButtonUI>(rightX - 0.35f, rightX - 0.25f, currentHeight, currentHeight - 0.1f, DisplayPointVariables, this, "Variables", std::array<float, 4>{0.8f, 0.8f, 0.8f, 1.0f}, std::array<float, 4>{0.6f, 0.6f, 0.6f, 1.0f}), false);
+	m_SubUIElements.emplace_back(std::make_shared<TextInputField>(rightX - 0.20f, rightX - 0.14f, currentHeight, currentHeight - 0.1f, UpdateModelStatic, this, AdvancedString("p")), false);
+	m_SubUIElements.emplace_back(std::make_shared<TextInputField>(rightX - 0.13f, rightX - 0.07f, currentHeight, currentHeight - 0.1f, UpdateModelStatic, this, AdvancedString(std::to_string(DefaultPointSize))), false);
+	m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX + 0.01f, rightX - 0.004f, currentHeight, currentHeight - 0.1f, "Point", (m_RightX - m_LeftX - 0.068f), UpdateModelStatic, this), false);
+	m_SubUIElements.emplace_back(std::make_shared<TextInputField>(leftX + 0.01f, rightX - 0.01f, currentHeight - 0.11f, currentHeight - 0.18f, UpdateModelStatic, this), false);
 	m_PointDefInputField = m_SubUIElements.size() - 1;
-	m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX, rightX, topY - 0.6f, topY - 0.8f, "Number of line identifiers: ", 0.2f, UpdateModelStatic, this), false);
-	m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX, rightX, topY - 0.8f, topY - 1.0f, "Line definition: ", 0.2f, UpdateModelStatic, this), false);
+
+	currentHeight -= 0.22f;
+
+	// Line
+	m_SubUIElements.emplace_back(std::make_shared<ButtonUI>(rightX - 0.35f, rightX - 0.25f, currentHeight, currentHeight - 0.1f, DisplayLineVariables, this, "Variables", std::array<float, 4>{0.8f, 0.8f, 0.8f, 1.0f}, std::array<float, 4>{0.6f, 0.6f, 0.6f, 1.0f}), false);
+	m_SubUIElements.emplace_back(std::make_shared<TextInputField>(rightX - 0.20f, rightX - 0.14f, currentHeight, currentHeight - 0.1f, UpdateModelStatic, this, AdvancedString("l")), false);
+	m_SubUIElements.emplace_back(std::make_shared<TextInputField>(rightX - 0.13f, rightX - 0.07f, currentHeight, currentHeight - 0.1f, UpdateModelStatic, this, AdvancedString(std::to_string(DefaultLineWidth))), false);
+	m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX + 0.01f, rightX - 0.004f, currentHeight, currentHeight - 0.1f, "Line", (m_RightX - m_LeftX - 0.068f), UpdateModelStatic, this), false);
+	m_SubUIElements.emplace_back(std::make_shared<TextInputField>(leftX + 0.01f, rightX - 0.01f, currentHeight - 0.11f, currentHeight - 0.18f, UpdateModelStatic, this), false);
 	m_LineDefInputField = m_SubUIElements.size() - 1;
-	m_SubUIElements.emplace_back(std::make_shared<ButtonUI>(leftX + 0.02f, rightX - 0.02f, bottomY + 0.85f, bottomY + 0.72f, UpdateModelStatic, this, "Update model"), false);
+
+	currentHeight -= 0.22f;
+
+	// Incidence
+	m_ModelTexts.push_back(std::make_shared<Text>("Incidence", leftX + 0.01f, rightX - 0.01f, currentHeight - 0.05f, 40.0f));
+	m_SubUIElements.emplace_back(std::make_shared<TextInputField>(leftX + 0.01f, rightX - 0.01f, currentHeight - 0.07f, currentHeight - 0.14f, UpdateModelStatic, this), false);
+
+	currentHeight -= 0.18f;
+
+	// Betweenness
+	m_ModelTexts.push_back(std::make_shared<Text>("Betweenness", leftX + 0.01f, rightX - 0.01f, currentHeight - 0.05f, 40.0f));
+	m_SubUIElements.emplace_back(std::make_shared<TextInputField>(leftX + 0.01f, rightX - 0.01f, currentHeight - 0.07f, currentHeight - 0.14f, UpdateModelStatic, this), false);
+
+	currentHeight -= 0.18f;
+
+	// Congruence
+	m_ModelTexts.push_back(std::make_shared<Text>("Congruence", leftX + 0.01f, rightX - 0.01f, currentHeight - 0.05f, 40.0f));
+	m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX + 0.01f, rightX - 0.01f, currentHeight - 0.07f, currentHeight - 0.17, "d = ", 0.05f, UpdateModelStatic, this, 40.0f), false);
+
+	currentHeight -= 0.19f;
+
+	// New Line
+	m_ModelTexts.push_back(std::make_shared<Text>("Line From Two Points (may not be required)", leftX + 0.01f, rightX - 0.01f, currentHeight - 0.05f, 40.0f));
+	m_SubUIElements.emplace_back(std::make_shared<TextInputField>(leftX + 0.01f, rightX - 0.01f, currentHeight - 0.07f, currentHeight - 0.17, UpdateModelStatic, this), false);
+
+	m_SubUIElements.emplace_back(std::make_shared<ButtonUI>(leftX + 0.01f, leftX + 0.11f, bottomY + 0.36f, bottomY + 0.27f, DisplayExtrasVariables, this, "Extra Equations", std::array<float, 4>{0.8f, 0.8f, 0.8f, 1.0f}, std::array<float, 4>{0.6f, 0.6f, 0.6f, 1.0f}), false);
+	m_SubUIElements.emplace_back(std::make_shared<ButtonUI>(leftX + 0.15f, rightX - 0.05f, bottomY + 0.36f, bottomY + 0.27f, UpdateModelStatic, this, "Update model"), false);
 	m_ModelEndIndex = m_SubUIElements.size() - 1;
-	m_SubUIElements.emplace_back(std::make_shared<KeyboardUI>(leftX, rightX, bottomY + 0.7f, bottomY));
-	m_SubUIElements.emplace_back(std::make_shared<TabUI>(leftX, rightX, topY, topY - 0.2f, 0, &TabButtonClickedStatic, this));
-	m_SubUIElements.emplace_back(std::make_shared<ButtonUI>(leftX + 0.02f, rightX - 0.02f, bottomY + 0.85f, bottomY + 0.72f, UpdateGraphsStatic, this, "Update graphs"));
+
+	m_SubUIElements.emplace_back(std::make_shared<KeyboardUI>(leftX, rightX, bottomY + 0.24f, bottomY));
+	m_SubUIElements.emplace_back(std::make_shared<TabUI>(leftX, rightX, topY, topY - 0.2f, m_ButtonValue, &TabButtonClickedStatic, this));
+	m_SubUIElements.emplace_back(std::make_shared<ButtonUI>(leftX + 0.02f, rightX - 0.02f, bottomY + 0.4f, bottomY + 0.27f, UpdateGraphsStatic, this, "Update graphs"));
 	m_UpdateGraphsButton = m_SubUIElements.size() - 1;
+
+	TabButtonClicked(m_ButtonValue);
 }
 
 EquationUI::~EquationUI()
 {
+	// TODO: look into why the extra windows aren't properly destructed after glfwTerminate()
+	/*
+	if (g_LineWindow.window)
+		g_LineWindow.window->Close();
+
+	if (g_PointWindow.window)
+		g_PointWindow.window->Close();
+
+	if(g_ExtrasWindow.window)
+		g_ExtrasWindow.window->Close();*/
 }
 
 void EquationUI::TabButtonClicked(int value)
@@ -78,8 +321,8 @@ void EquationUI::TabButtonClicked(int value)
 		m_SubUIElements[i].shouldRender = value == 2;
 	}
 	m_SubUIElements[m_UpdateGraphsButton].shouldRender = value == 0 || value == 1;
+	m_ButtonValue = value;
 }
-
 
 void EquationUI::RenderPass(Renderer* r)
 {
@@ -90,6 +333,11 @@ void EquationUI::RenderPass(Renderer* r)
 	for (std::shared_ptr<Text>& text : m_Texts)
 	{
 		r->AddToRenderQueue(text);
+	}
+	if (m_ButtonValue == 2)
+	{
+		for (std::shared_ptr<Text>& text : m_ModelTexts)
+			r->AddToRenderQueue(text);
 	}
 	UIElement::RenderPass(r);
 }
@@ -115,7 +363,7 @@ std::vector<float> EquationUI::ParseInput(const AdvancedString& input)
 void EquationUI::UpdateGraphs()
 {
 	Application::Get()->GetWindowUI()->GetGraphUI()->DeleteGraphs();
-	Application::Get()->GetModel()->getElements().clear();
+	//Application::Get()->GetModel()->getElements().clear();
 	for (int i{ m_PointsIndexBegin }; i < m_PointsIndexBegin + NumInputFields; ++i)
 	{
 		const AdvancedString& text{ ((TextInputField*)(m_SubUIElements[i].element.get()))->GetText() };
@@ -174,14 +422,36 @@ void EquationUI::UpdateGraphs()
 
 void EquationUI::UpdateModel()
 {
-	const AdvancedString& pointDef{ ((TextInputFieldWithDesc*)(m_SubUIElements[m_PointDefInputField].element.get()))->GetText() };
-	const AdvancedString& lineDef{ ((TextInputFieldWithDesc*)(m_SubUIElements[m_LineDefInputField].element.get()))->GetText() };
-	int numPointsIdents{ std::stoi(((TextInputFieldWithDesc*)(m_SubUIElements[m_ModelBeginIndex].element.get()))->GetText().toString()) };
-	int numLineIdents{ std::stoi(((TextInputFieldWithDesc*)(m_SubUIElements[m_ModelBeginIndex+2].element.get()))->GetText().toString()) };
-	Equation pointDefEq({ AdvancedString("p") }, pointDef);
-	Equation lineDefEq({ {AdvancedString("l") } }, lineDef);
-	std::shared_ptr<Model> model{ Application::Get()->GetModel() };
-	Application::Get()->SetModel(numPointsIdents, pointDefEq, numLineIdents, lineDefEq, model->GetIncidenceConstr(), model->GetBetweennessConstr());
+	const AdvancedString& pointDef{ ((TextInputField*)(m_SubUIElements[m_PointDefInputField].element.get()))->GetText() };
+	const AdvancedString& lineDef{ ((TextInputField*)(m_SubUIElements[m_LineDefInputField].element.get()))->GetText() };
+	int numPointsIdents{ std::stoi(((TextInputFieldWithDesc*)(m_SubUIElements[m_PointDefInputField - 1].element.get()))->GetText().toString()) };
+	int numLineIdents{ std::stoi(((TextInputFieldWithDesc*)(m_SubUIElements[m_LineDefInputField - 1].element.get()))->GetText().toString()) };
+	const AdvancedString& pointId{ ((TextInputField*)(m_SubUIElements[m_PointDefInputField - 3].element.get()))->GetText() };
+	const AdvancedString& lineId{ ((TextInputField*)(m_SubUIElements[m_LineDefInputField - 3].element.get()))->GetText() };
+	const AdvancedString& incidenceDef{ ((TextInputField*)(m_SubUIElements[m_LineDefInputField + 2].element.get()))->GetText() };
+	const AdvancedString& betweennessDef{ ((TextInputField*)(m_SubUIElements[m_LineDefInputField + 4].element.get()))->GetText() };
+	const AdvancedString& congruenceDef{ ((TextInputField*)(m_SubUIElements[m_LineDefInputField + 6].element.get()))->GetText() };
+
+	Equation pointDefEq({ pointId }, pointDef);
+	Equation lineDefEq({ { lineId } }, lineDef);
+	Equation incidenceDefEq{ {pointId, lineId}, incidenceDef };
+	//Equation betweennessDefEq{ {pointId}, betweennessDef };
+	//Equation congruenceDefEq{{}}
+	//std::shared_ptr<Model> model{ Application::Get()->GetModel() };
+
+	VarMap completeMap = m_PointVariables;
+	completeMap.second.insert(completeMap.second.end(), m_LineVariables.second.begin(), m_LineVariables.second.end());
+	Application::Get()->SetModel(completeMap, numPointsIdents, pointDefEq, numLineIdents, lineDefEq, incidenceDefEq);
+	for (auto& eq : m_ExtraEquations)
+	{
+		Application::Get()->GetModel()->addExtraEquation(eq);
+	}
 	Application::Get()->GetWindowUI()->GetGraphUI()->DeleteGraphs();
+
+	int pointSize = std::stoi(((TextInputField*)m_SubUIElements[m_PointDefInputField - 2].element.get())->GetText().toString());
+	int lineWidth = std::stoi(((TextInputField*)m_SubUIElements[m_LineDefInputField - 2].element.get())->GetText().toString());
+	Application::Get()->GetRenderer()->GetGraphRenderer()->setLineThickness(lineWidth);
+	Application::Get()->GetRenderer()->GetGraphRenderer()->setPointSize(pointSize);
+
 	UpdateGraphs();
 }

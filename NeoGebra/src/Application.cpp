@@ -6,7 +6,6 @@
 #include "Util.h"
 
 #include <GLFW/glfw3.h> // I don't like this
-// Who asked tho?
 
 Application* Application::s_Instance = nullptr;
 
@@ -27,6 +26,7 @@ static void MouseClickCallback(int mouseButton, int action, int mods)
 
 static void MouseMovedCallback(int x, int y)
 {
+	//Util::Timer t("MouseMovedCallback");
 	float newX = Util::ConvertToOpenGLCoordinate(x, true);
 	float newY = -Util::ConvertToOpenGLCoordinate(y, false);
 	Application::Get()->GetWindowUI()->MouseMoved(newX, newY);
@@ -44,7 +44,19 @@ static void KeyCallback(int key, int scancode, int action, int mods)
 		PrintInfo(std::cout << "\nEscape key pressed, closing application\n" << std::flush);
 		Application::Get()->GetWindow()->Close();
 	}
-	Application::Get()->GetWindowUI()->SpecialKeyInput(key, scancode, action, mods);
+	else if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
+		Application::Get()->GetWindow()->ToggleMaximized();
+	else
+		Application::Get()->GetWindowUI()->SpecialKeyInput(key, scancode, action, mods);
+}
+
+static void ResizeCallback(int width, int height)
+{
+	Application::Get()->GetWindowUI()->ResizeWindow(width, height);
+	Application::Get()->GetRenderer()->Resize(width, height);
+	Application::Get()->GetWindowUI()->RenderPass(Application::Get()->GetRenderer());
+	Application::Get()->GetRenderer()->RenderQueues();
+	Application::Get()->GetWindow()->Update();
 }
 
 Application::Application()
@@ -95,9 +107,10 @@ Application::Application()
 	std::cout << idsl[0] << ' ' << idsl[1] << std::endl;
 
 	Application::s_Instance = this;
-	m_Window = new Window(WindowCreationOptions(1080, 720, "NeoGeobra", MouseClickCallback, TextCallback, MouseMovedCallback, KeyCallback));
+	m_Window = new Window(WindowCreationOptions(1080, 720, "NeoGeobra", MouseClickCallback, TextCallback, MouseMovedCallback, KeyCallback, ResizeCallback));
 	m_Renderer = new Renderer;
-	m_WindowUI = new WindowUI;
+	m_WindowUI = new MainWindowUI;
+	m_Window->ToggleMaximized();
 	PrintInfo(std::cout << "Created application\n\n");
 }
 

@@ -18,6 +18,7 @@ class Model;
 typedef std::pair<std::vector<std::pair < AdvancedString, std::shared_ptr<Equation> >>, std::vector<std::pair < AdvancedString, std::shared_ptr<Equation> >> > VarMap;
 typedef std::map < std::pair<NEType, AdvancedString>, std::map<int, double> > SolvedVarMap;
 
+// This should be removed, but it breaks stuff and I don't want to bother changing those since they're apparently not needed
 typedef std::vector<Equation> EquationVector;
 
 struct OrAnd { bool isEnd; std::string content; bool isOr; std::shared_ptr<OrAnd> s1; std::shared_ptr<OrAnd> s2; };
@@ -28,7 +29,7 @@ struct AdvancedString {
 	std::vector<unsigned int> content;
 	AdvancedString() {}
 	explicit AdvancedString(const std::string& str) { for (const char c : str) { content.push_back(c); } }
-	AdvancedString(const std::vector<unsigned int>& v) : content(v) {}
+	explicit AdvancedString(const std::vector<unsigned int>& v) : content(v) {}
 	AdvancedString(unsigned int c) : content({c}) {}
 	AdvancedString(const AdvancedString& s) : content(s.content) {}
 	size_t size() const { return content.size(); }
@@ -106,13 +107,11 @@ public:
 	bool getSolution(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, std::vector<std::string>& resNames, z3::context* cPtr = nullptr, z3::solver* solverPtr = nullptr, const std::vector<std::pair<std::string, std::string>>& extraSqrts = {}, const std::string& extraSMT = {}) const;
 	Equation diff(const AdvancedString& remainingVar) const;
 
-	double getResult(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
+	float getResult(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
 	bool isTrue(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
-	std::string toSmtLib(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, std::vector<std::string>& resNames, const std::vector<std::pair<std::string, std::string>>& extraSqrts = {}, const std::string& extraSMT = {}) const;
+	std::string toSmtLib(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
 	OrAnd toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const { return toShader(identifiers, ids, false, AdvancedString(), AdvancedString()); }
 	OrAnd toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, bool useCustomScroll, const Equation& customScrollX, const Equation& customScrollY) const;
-	
-	friend Model;
 };
 
 Equation operator+(const Equation& e1, const Equation& e2);

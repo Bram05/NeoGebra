@@ -11,6 +11,7 @@
 #include "Util.h"
 
 static bool s_PrintedMessageThisFrame = false;
+bool Renderer::s_GLADInitialized = false;
 
 static void APIENTRY debugMessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar* message, const void*)
 {
@@ -63,20 +64,24 @@ static void APIENTRY debugMessageCallback(GLenum source, GLenum type, GLuint id,
 
 Renderer::Renderer()
 {
-	int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-	if (status == 0)
+	if (!s_GLADInitialized)
 	{
-		std::cerr << "Glad failed to initialize. Please make sure your graphics drivers support at least OpenGL 4.5\n";
-		Util::ExitDueToFailure();
+		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		if (status == 0)
+		{
+			std::cerr << "Glad failed to initialize. Please make sure your graphics drivers support at least OpenGL 4.5\n";
+			Util::ExitDueToFailure();
+		}
+		PrintInfo(std::cout << "Loaded GL version " << glGetString(GL_VERSION) << '\n');
+		s_GLADInitialized = true;
 	}
-	PrintInfo(std::cout << "Loaded GL version " << glGetString(GL_VERSION) << '\n');
 
 #ifdef DEBUG
 	int flags;
 	glGetIntegerv(GL_CONTEXT_FLAGS, &flags);
 	if (!(flags & GL_CONTEXT_FLAG_DEBUG_BIT))
 	{
-		std::cerr << "Failed to create OpenGL debug context. No error messages will be created from OpenGL!\n";
+		std::cerr << "Failed to create OpenGL debug context. No error messages will be created from OpenGL for this window!\n";
 	}
 	else
 	{
@@ -103,7 +108,7 @@ Renderer::~Renderer()
 	delete m_GraphRenderer;
 	delete m_TextRenderer;
 	// I couldn't find cleanup calls for glad
-	PrintInfo(std::cout << "Destroyed all renderers\n");
+	PrintInfo(std::cout << "Destroyed a renderer\n");
 }
 
 void Renderer::RenderQueues()
@@ -111,10 +116,13 @@ void Renderer::RenderQueues()
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT);
 
+	int size[4];
+	glGetIntegerv(GL_VIEWPORT, size);
+
 	m_SquareRenderer->RenderQueue();
 	m_LineRenderer->RenderQueue();
 	m_GraphRenderer->RenderQueue();
-	m_TextRenderer->RenderQueue();
+	m_TextRenderer->RenderQueue(size[2], size[3]);
 #ifdef DEBUG
 	// Prevent spamming messages each frame by turning the messages off after a frame in which one was printed
 	if (s_PrintedMessageThisFrame)
@@ -127,9 +135,6 @@ void Renderer::RenderQueues()
 void Renderer::Resize(int width, int height)
 {
 	glViewport(0, 0, width, height);
-	Application::Get()->GetWindowUI()->RenderPass(this);
-	RenderQueues();
-	Application::Get()->GetWindow()->Update();
 }
 
 void Renderer::AddToRenderQueue(const std::shared_ptr<Line>& line)

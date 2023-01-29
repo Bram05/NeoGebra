@@ -4,6 +4,7 @@
 
 #include "UIElement.h"
 #include "Rendering/LineRenderer.h"
+#include "ButtonUI.h"
 
 // TODO: this needs to be implemented
 class PostulateVerifierResultUI : public UIElement
@@ -11,6 +12,8 @@ class PostulateVerifierResultUI : public UIElement
 public:
 	PostulateVerifierResultUI(float leftX, float rightX, float topY, float bottomY);
 	~PostulateVerifierResultUI();
+
+	void VerifyPostulates();
 
 protected:
 	void RenderPass(Renderer* r) override;

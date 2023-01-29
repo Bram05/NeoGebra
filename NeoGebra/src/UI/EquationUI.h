@@ -6,6 +6,7 @@
 #include "Rendering/LineRenderer.h"
 #include "Rendering/TextRenderer.h"
 #include "TextInputField.h"
+#include "VariableWindowUI.h"
 
 static void TabButtonClickedStatic(void*,int);
 
@@ -19,15 +20,21 @@ public:
 	void UpdateGraphs();
 	void UpdateModel();
 
+	VarMap m_PointVariables;
+	VarMap m_LineVariables;
+	std::vector<Equation> m_ExtraEquations;
+
 protected:
 	void RenderPass(Renderer* r) override;
 	std::vector<std::shared_ptr<Text>> m_Texts;
+	std::vector<std::shared_ptr<Text>> m_ModelTexts;
 
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
 	int m_LinesIndexBegin, m_PointsIndexBegin, m_LineDefInputField, m_PointDefInputField;
 	int m_ModelBeginIndex, m_ModelEndIndex;
 	int m_UpdateGraphsButton;
+	int m_ButtonValue{2};
 
 	void TabButtonClicked(int value);
 	friend void TabButtonClickedStatic(void*,int);

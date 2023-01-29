@@ -4,13 +4,15 @@
 #include "Rendering/Renderer.h"
 #include "Application.h"
 
-ButtonUI::ButtonUI(float leftX, float rightX, float topY, float bottomY, void(*func)(void*), void* obj, const std::string& text)
-	: ButtonUI(leftX, rightX, topY, bottomY, func, obj, AdvancedString(text)) {}
+ButtonUI::ButtonUI(float leftX, float rightX, float topY, float bottomY, void(*func)(void*), void* obj, const std::string& text, const std::array<float, 4>& backgroundColour, const std::array<float, 4>& hoveredColour)
+	: ButtonUI(leftX, rightX, topY, bottomY, func, obj, AdvancedString(text), backgroundColour, hoveredColour) {}
 
-ButtonUI::ButtonUI(float leftX, float rightX, float topY, float bottomY, void(*func)(void*), void* obj, const AdvancedString& text)
+ButtonUI::ButtonUI(float leftX, float rightX, float topY, float bottomY, void(*func)(void*), void* obj, const AdvancedString& text, const std::array<float, 4>& backgroundColour, const std::array<float, 4>& hoveredColour)
 	: UIElement(leftX, rightX, topY, bottomY, "ButtonUI"),
-	m_Background(std::make_shared<Square>(leftX, rightX, topY, bottomY, std::array{ 0.0f, 0.6f, 1.0f, 1.0f })),
-	m_Obj(obj)
+	m_Background(std::make_shared<Square>(leftX, rightX, topY, bottomY, backgroundColour)),
+	m_Obj(obj),
+	m_NormalBackgroundColour(backgroundColour),
+	m_HoveredBackgroundColour(hoveredColour)
 {
 	m_Action = func;
 	m_Texts.push_back(std::make_shared<Text>(text, leftX + 0.005f, rightX, bottomY + 0.04f, 36.0f));
@@ -38,10 +40,10 @@ void ButtonUI::WasClicked(float x, float y)
 
 void ButtonUI::IsHovered(float x, float y)
 {
-	m_Background->m_Colour = { 0.2f, 0.8f, 1.0f, 1.0f };
+	m_Background->m_Colour = m_HoveredBackgroundColour;
 }
 
 void ButtonUI::NotHoveredAnymore()
 {
-	m_Background->m_Colour = { 0.0f, 0.6f, 1.0f, 1.0f };
+	m_Background->m_Colour = m_NormalBackgroundColour;
 }

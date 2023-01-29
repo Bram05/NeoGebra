@@ -12,7 +12,7 @@
 int Window::s_NumWindowsCreated{ 0 };
 
 Window::Window(const WindowCreationOptions& options)
-	: m_Title{options.title}, m_MouseButtonCallback{ options.mouseButtonCallback }, m_TextCallback{ options.textCallback }, m_MouseMovedCallback{ options.mouseMovedCallback }, m_SpecialKeyCallback{ options.specialKeyCallback }
+	: m_Title{ options.title }, m_MouseButtonCallback{ options.mouseButtonCallback }, m_TextCallback{ options.textCallback }, m_MouseMovedCallback{ options.mouseMovedCallback }, m_SpecialKeyCallback{ options.specialKeyCallback }, m_ResizeCallback{ options.resizeCallback }
 {
 	if (!s_NumWindowsCreated)
 	{
@@ -43,6 +43,7 @@ Window::Window(const WindowCreationOptions& options)
 		Util::ExitDueToFailure();
 	}
 	glfwMakeContextCurrent(m_Window);
+	glfwSwapInterval(1); // Enable VSync
 
 	glfwSetWindowUserPointer(m_Window, this);
 
@@ -59,8 +60,9 @@ Window::Window(const WindowCreationOptions& options)
 		});
 
 	glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height) {
-		Application::Get()->GetWindowUI()->ResizeWindow(width, height);
-	Application::Get()->GetRenderer()->Resize(width, height);
+		Window* handledWindow = (Window*)glfwGetWindowUserPointer(window);
+	if (handledWindow->m_ResizeCallback)
+		handledWindow->m_ResizeCallback(width, height);
 		});
 
 	glfwSetCursorPosCallback(m_Window, [](GLFWwindow* window, double x, double y) {
@@ -106,6 +108,11 @@ void Window::Close()
 void Window::Update()
 {
 	glfwPollEvents();
+
+	Util::Timer t("Finishing all OpenGL calls");
+	glFinish();
+	t.Stop();
+
 	glfwSwapBuffers(m_Window);
 }
 
@@ -126,4 +133,17 @@ std::pair<int, int> Window::GetMouseLocation() const
 const char* Window::GetClipboardContent() const
 {
 	return glfwGetClipboardString(NULL);
+}
+
+void Window::ToggleMaximized()
+{
+	if (glfwGetWindowAttrib(m_Window, GLFW_MAXIMIZED))
+		glfwRestoreWindow(m_Window);
+	else
+		glfwMaximizeWindow(m_Window);
+}
+
+void Window::Focus()
+{
+	glfwFocusWindow(m_Window);
 }

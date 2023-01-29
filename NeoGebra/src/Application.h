@@ -5,7 +5,7 @@
 #include "Window.h"
 #include "Rendering/Renderer.h"
 
-#include "UI/WindowUI.h"
+#include "UI/MainWindowUI.h"
 
 // Number of seconds before the average fps is calculated and the counters are reset
 constexpr double g_NumSecondsForFpsAverage = 0.5;
@@ -26,17 +26,16 @@ public:
 	// Some getters and setters
 	Window* GetWindow() { return m_Window; }
 	Renderer* GetRenderer() { return m_Renderer; }
-	WindowUI* GetWindowUI() { return m_WindowUI; }
+	MainWindowUI* GetWindowUI() { return m_WindowUI; }
 	std::shared_ptr<Model> GetModel() { return m_Model; }
-	void SetModel(unsigned int pointIdentifiers,
+	void SetModel(VarMap& varMap, unsigned int pointIdentifiers,
 		const Equation& pointDef,
 		unsigned int lineIdentifiers,
 		const Equation& lineDef,
 		const Equation& incidenceConstr,
 		const Equation& betweennessConstr = { {}, {} })
 	{
-		VarMap m;
-		m_Model = std::make_shared<Model>(m, pointIdentifiers, pointDef, lineIdentifiers, lineDef, incidenceConstr, betweennessConstr);
+		m_Model = std::make_shared<Model>(varMap, pointIdentifiers, pointDef, lineIdentifiers, lineDef, incidenceConstr, betweennessConstr);
 	}	
 
 	// To prevent multiple application being created the constructor is private and only main is able to create one
@@ -46,7 +45,7 @@ private:
 	static Application* s_Instance;
 	Window* m_Window;
 	Renderer* m_Renderer;
-	WindowUI* m_WindowUI;
+	MainWindowUI* m_WindowUI;
 	std::shared_ptr<Model> m_Model;
 
 	double m_LastFrameTime{ 0.0 };

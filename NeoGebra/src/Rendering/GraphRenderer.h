@@ -22,20 +22,19 @@ public:
 	~Graph();
 
 	// Getters and setters
-	unsigned int GetCompShader1() const { return m_CompShader1; }
-	unsigned int GetTexture() const { return m_Texture; }
+	void ReGenTextures(const GraphComputeShaderManager& manager);
 
 	RGBColour getColour() const { return m_Colour; };
 	void setColour(const RGBColour& colour) { m_Colour = colour; }
 	NEElement& getElement() const { return m_El; };
+	unsigned int m_CompShader1;
+	unsigned int m_Texture;
 private:
 	RGBColour m_Colour;
 	NEElement& m_El;
 	GLuint m_Vao;
 	GLuint m_Vb;
 	GLuint m_Ib;
-	unsigned int m_CompShader1 = NULL;
-	unsigned int m_Texture;
 	friend GraphRenderer;
 };
 

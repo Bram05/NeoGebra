@@ -6,13 +6,9 @@
 
 Graph::Graph(NEElement& el, const GraphComputeShaderManager& manager, float leftX, float rightX, float topY, float bottomY, float midCoordX, float midCoordY, float unitLengthPixels, const RGBColour& colour)
 	: m_El{ el },
-	m_Colour{ colour },
-	m_Texture{ manager.CreateTexture() }
+	m_Colour{ colour }
 {
-	//Vraag Jeroen voor uitleg
-	OrAnd shader = m_El.getShader();
-	m_CompShader1 = manager.CreateCompShader("graphShader1", shader.content);
-
+	manager.CreateShader(this, "graphShader");
 	// It is not needed to run the compute shader, because this will be done from GraphUI
 
 	float buffer[16] = {
@@ -47,15 +43,18 @@ Graph::~Graph()
 	glDeleteBuffers(1, &m_Vb);
 	glDeleteBuffers(1, &m_Ib);
 	glDeleteVertexArrays(1, &m_Vao);
-	glDeleteProgram(m_CompShader1);
 	glDeleteTextures(1, &m_Texture);
+}
+
+void Graph::ReGenTextures(const GraphComputeShaderManager& manager)
+{
+	glDeleteTextures(1, &m_Texture);
+	m_Texture = manager.CreateTexture();
 }
 
 GraphRenderer::GraphRenderer()
 	: m_Shader("graphShader")
 {
-	setLineThickness(3); // Make sure these number are valid, because otherwise it will crash, because we can't display errors yet, since WindowUI is not fully constructed yet and not set in Application
-	setPointSize(10);
 }
 
 GraphRenderer::~GraphRenderer()

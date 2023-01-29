@@ -43,15 +43,13 @@ void TextRenderer::AddToRenderQueue(const std::shared_ptr<Text>& m_Text)
 	m_RenderQueue.push(m_Text);
 }
 
-void TextRenderer::RenderQueue()
+void TextRenderer::RenderQueue(int width, int height)
 {
 	m_TextShader.Bind();
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, m_Font->GetBitmap());
 	glBindVertexArray(m_Vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_Vb); // Vertex buffers are not kept in the vertex array object and are not required for rendering. We do need it here so we need to explicitly bind it
-	std::shared_ptr<Font> font = Application::Get()->GetRenderer()->GetFont();
-	auto [width, height] = Application::Get()->GetWindow()->GetSize();
 	while (m_RenderQueue.size() != 0)
 	{
 		std::shared_ptr<Text> t = m_RenderQueue.front();
@@ -59,7 +57,7 @@ void TextRenderer::RenderQueue()
 
 		m_TextShader.SetUniform("u_Colour", t->m_Colour);
 
-		float scale = (float)t->m_Size / font->GetSize();
+		float scale = (float)t->m_Size / m_Font->GetSize();
 		float currentX = t->m_LeftX;
 		float currentY = t->m_Baseline;
 		int begin = t->m_RenderAllText ? 0 : t->m_RenderBegin;
@@ -67,24 +65,24 @@ void TextRenderer::RenderQueue()
 		for (int i{ begin }; i < end; ++i)
 		{
 			unsigned int c = t->m_Text[i];
-			const CharacterInfo& info{ font->GetCharacterInfo(c) };
+			const CharacterInfo& info{ m_Font->GetCharacterInfo(c) };
 
 			float charLeftX = currentX + (float)info.xOffset / width * scale;
 			float charRightX = charLeftX + (float)info.width / width * scale;
 			if (charRightX > t->m_RightX)
 			{
 				currentX = t->m_LeftX;
-				currentY -= (float)font->GetLineHeight() / height * scale;
+				currentY -= (float)m_Font->GetLineHeight() / height * scale;
 				charLeftX = currentX + (float)info.xOffset / width * scale;
 				charRightX = charLeftX + (float)info.width / width * scale;
 			}
-			float charTopY = currentY + (float)font->GetBase() / height * scale - (float)info.yOffset / height * scale;
+			float charTopY = currentY + (float)m_Font->GetBase() / height * scale - (float)info.yOffset / height * scale;
 			float charBottomY = charTopY - (float)info.height / height * scale;
 
-			float texLeftX = (float)info.x / font->GetWidth();
-			float texRightX = texLeftX + (float)info.width / font->GetWidth();
-			float texTopY = 1 - ((float)info.y / font->GetHeight());
-			float texBottomY = texTopY - (float)info.height / font->GetHeight();
+			float texLeftX = (float)info.x / m_Font->GetWidth();
+			float texRightX = texLeftX + (float)info.width / m_Font->GetWidth();
+			float texTopY = 1 - ((float)info.y / m_Font->GetHeight());
+			float texBottomY = texTopY - (float)info.height / m_Font->GetHeight();
 
 			float data[16] = {
 				charLeftX,  charBottomY,	texLeftX,  texBottomY,
@@ -205,7 +203,7 @@ Font::Font(const std::string& fontName)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, imageType, width, height, 0, imageType, GL_UNSIGNED_BYTE, data);
-	//glGenerateMipmap(GL_TEXTURE_2D);
+	glGenerateMipmap(GL_TEXTURE_2D);
 
 	stbi_image_free(data);
 }
@@ -241,7 +239,6 @@ Text::Text(const AdvancedString& letters, float leftX, float rightX, float baseL
 	: m_RenderAllText{ renderAllText }, m_Text{ letters }, m_LeftX{ leftX }, m_RightX{ rightX }, m_Baseline{ baseLine }, m_Size{ size }, m_RenderBegin{ 0 }, m_RenderEnd{ (int)letters.size() }, m_Colour{ colour }
 {
 	std::shared_ptr<Font> font = Application::Get()->GetRenderer()->GetFont();
-	auto [width, height] = Application::Get()->GetWindow()->GetSize();
 
 	float scale = (float)m_Size / font->GetSize();
 	m_Scale = scale;

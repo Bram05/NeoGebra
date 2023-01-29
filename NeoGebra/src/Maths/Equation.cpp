@@ -321,16 +321,15 @@ std::string Equation::toSmtLib(const std::vector<std::vector<float>>& identifier
 	return "(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))" + out;
 }
 
-OrAnd Equation::toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, bool useCustomScroll, const Equation& customScrollX, const Equation& customScrollY) const {
+std::string Equation::toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, bool useCustomScroll, const Equation& customScrollX, const Equation& customScrollY) const {
 	std::map<AdvancedString, float> vars = linkNumberedVars(identifiers);
 	AdvancedString formula = m_EquationString;
 	if (useCustomScroll) {
 		replaceVarName(formula, AdvancedString("x"), AdvancedString("(x"));
 	}
 	//ToDo change
-	//OrAnd res = *recCombineShaders(formula, vars, ids);
-	OrAnd res(true, recToShader(formula, vars, ids), false, nullptr, nullptr);
-	return res;
+	//std::shared_ptr<OrAnd> res = recCombineShaders(m_EquationString, vars, ids);
+	return recToShader(m_EquationString, vars, ids);
 }
 
 std::shared_ptr<OrAnd> Equation::recCombineShaders(const AdvancedString& s, std::map<AdvancedString, float>& vars, std::vector<int> ids) const {
@@ -508,6 +507,12 @@ std::string Equation::recToShader(const AdvancedString& s, const std::map<Advanc
 	// No operator found, can be: number, negative, brackets, abs, sqrt, not, t, f
 	if (operIndex == -1) {
 		if (isNumber(s)) { return std::to_string(s.toFloat()); }
+		if (s[0] != '-') {
+			if (vars.count(s)) { return std::to_string(vars.at(s)); }
+			if (s[0] == '(' and s.back() == ')') { return "(" + recToShader(s.substr(1, s.length() - 2), vars, ids) + ")"; }
+			if (s[0] == '[' and s.back() == ']') { return ("abs(" + recToShader(s.substr(1, s.length() - 2), vars, ids) + ')'); }
+			if (s[0] == '!') { return ("((" + recToShader(s.substr(1, s.length() - 1), vars, ids) + " == 0.0) ? 1/0.0 : 0.0)"); } //Have to look into potential problems
+		}
 		if (s[0] == '-') {
 			return "-(" + recToShader(s.substr(1, s.length() - 2), vars, ids) + ")";
 		}
@@ -555,9 +560,9 @@ std::string Equation::recToShader(const AdvancedString& s, const std::map<Advanc
 
 	switch (s[operIndex]) {
 	//ToDo remove
-	case '|': return "min(" + recToShader(s1, vars, ids) + ", " + recToShader(s2, vars, ids) + ")";
-	case '&': return "abs(" + recToShader(s1, vars, ids) + ") + abs(" + recToShader(s2, vars, ids) + ")";
-	case '!': return "((" + recToShader(s1, vars, ids) + " - " + recToShader(s2, vars, ids) + " == 0.0) ? 1/0.0 : 0.0)"; //Have to look into potential problems
+	case '|': return "min(abs(" + recToShader(s1, vars, ids) + "), abs(" + recToShader(s2, vars, ids) + "))";
+	case '&': return "max(abs(" + recToShader(s1, vars, ids) + "), abs(" + recToShader(s2, vars, ids) + "))";
+	case '!': return "((" + recToShader(s1, vars, ids) + " - " + recToShader(s2, vars, ids) + " == 0.0) ? -1 : 1.0)"; //Have to look into potential problems
 	case '>':
 		if (!orEquals) { return "((" + recToShader(s1, vars, ids) + " > " + recToShader(s2, vars, ids) + ") ? 0.0 : 1/0.0)"; }
 		else { return "((" + recToShader(s1, vars, ids) + " >= " + recToShader(s2, vars, ids) + ") ? 0.0 : 1/0.0)"; }

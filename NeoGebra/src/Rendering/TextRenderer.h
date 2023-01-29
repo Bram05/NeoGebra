@@ -89,7 +89,7 @@ public:
 	~TextRenderer();
 
 	void AddToRenderQueue(const std::shared_ptr<Text>& m_Text);
-	void RenderQueue();
+	void RenderQueue(int width, int height);
 
 	std::shared_ptr<Font> GetFont() { return m_Font; }
 

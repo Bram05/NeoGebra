@@ -2,8 +2,6 @@
 // https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
 #include "LineRenderer.h"
 
-#include "Application.h"
-
 LineRenderer::LineRenderer()
 	: m_Shader("lineShader")
 {
