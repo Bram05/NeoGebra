@@ -13,7 +13,12 @@ NEElement::NEElement(const std::vector<float>& identifiers, const Equation& def,
 	: m_Identifiers{ identifiers }, m_Def{ def }, m_Type{ type }, m_Model{ model }, m_Colour{ colour }
 {
 	if (checkValidity) {
-		if (identifiers.size() != identNum or !def.getSolution({ identifiers }, { m_ID }).sat) {
+		std::vector<std::string> resNames;
+		for (int i = 0; i < identNum; ++i) {
+			resNames.push_back(def.m_NumberedVarNames[0].toString() + std::to_string(i));
+		}
+
+		if (identifiers.size() != identNum or !def.getSolution({ identifiers }, { m_ID }, resNames)) {
 			throw std::invalid_argument("Invalid element");
 		}
 	}
@@ -44,22 +49,33 @@ Model::Model(VarMap& variables,
 	const Equation& lineDef,
 	const Equation& incidenceConstr,
 	const Equation& distanceDef,
-	const Equation& betweennessConstr)
+	const Equation& betweennessConstr,
+	const EquationVector& lineFromPoints,
+	const EquationVector& pointFromLines)
 	:
-	m_Variables{variables},
+	m_Variables{ variables },
 	m_PointIdentifiers{ pointIdentifiers },
 	m_PointDef{ pointDef },
 	m_LineIdentifiers{ lineIdentifiers },
 	m_LineDef{ lineDef },
 	m_IncidenceConstr{ incidenceConstr },
 	m_DistanceDef{ distanceDef },
-	m_BetweennessConstr{ betweennessConstr } 
+	m_BetweennessConstr{ betweennessConstr },
+	m_LineFromPoints{ lineFromPoints },
+	m_PointFromLines{ pointFromLines }
 {
 	m_PointDef.linkVars(&m_SolvedVariables, {point});
 	m_LineDef.linkVars(&m_SolvedVariables, {line});
 	m_IncidenceConstr.linkVars(&m_SolvedVariables, {point, line });
 	m_DistanceDef.linkVars(&m_SolvedVariables, {point, point });
 	m_BetweennessConstr.linkVars(&m_SolvedVariables, {point, point, point});
+	for (Equation& e : m_LineFromPoints) {
+		e.linkVars(&m_SolvedVariables, {point, point});
+	}
+	for (Equation& e : m_PointFromLines) {
+		e.linkVars(&m_SolvedVariables, { line, line });
+	}
+
 	for (std::pair < AdvancedString, std::shared_ptr<Equation>> p : m_Variables.first) {
 		p.second->linkVars(&m_SolvedVariables, {point});
 	}
@@ -76,13 +92,21 @@ Model::Model(const Model& m) :
 	m_LineDef{ m.m_LineDef },
 	m_IncidenceConstr{ m.m_IncidenceConstr },
 	m_DistanceDef{ m.m_DistanceDef },
-	m_BetweennessConstr{ m.m_BetweennessConstr } 
+	m_BetweennessConstr{ m.m_BetweennessConstr },
+	m_LineFromPoints{ m.m_LineFromPoints },
+	m_PointFromLines{ m.m_PointFromLines }
 {
 	m_PointDef.linkVars(&m_SolvedVariables, {point});
 	m_LineDef.linkVars(&m_SolvedVariables, {line});
 	m_IncidenceConstr.linkVars(&m_SolvedVariables, {point, line});
 	m_DistanceDef.linkVars(&m_SolvedVariables, {point, point});
 	m_BetweennessConstr.linkVars(&m_SolvedVariables, {point, point, point});
+	for (Equation& e : m_LineFromPoints) {
+		e.linkVars(&m_SolvedVariables, { point, point });
+	}
+	for (Equation& e : m_PointFromLines) {
+		e.linkVars(&m_SolvedVariables, { line, line });
+	}
 }
 
 void Model::solveVariables(const NEElement* e) {
@@ -98,23 +122,87 @@ void Model::addExtraEquation(Equation& eq, const RGBColour& colour) {
 	m_Elements.push_back(NEElement(std::vector<float>{}, eq, 0, notype, shared_from_this(), colour, false));
 }
 
-NELine Model::newLine(NEPoint p1, NEPoint p2) {
-	Equation halfEq = m_IncidenceConstr;
-	halfEq.m_NumberedVarNames.erase(std::next(halfEq.m_NumberedVarNames.begin()));
-	Equation eq = halfEq + halfEq;
-	Equation tmp = { {}, AdvancedString("l1 = 0") };
-	eq = eq + tmp;
-	eq.m_EquationString = AdvancedString("((pa0-l0)^2+(pa1-l1)^2=(1/(-2*(2~(l0^2+l1^2))-2*2~((2~(l0^2+l1^2))^2-1))+0.5*(2~(l0^2+l1^2))+0.5*2~((2~(l0^2+l1^2))^2-1))^2)&(l1=0)");
-	equationResult res = eq.getSolution({ p1.getIdentifiers(), p2.getIdentifiers() }, { p1.getID(), p2.getID() });
-	if (!res.sat) {
-		throw std::invalid_argument("I-1 failed");
+NELine Model::lineFromPoints(const NEPoint& p1, const NEPoint& p2) {
+	// If user defined equation is available, use it
+	if (m_LineFromPoints.size() == m_LineIdentifiers) {
+		std::vector<float> identifiers;
+		for (int i = 0; i < m_LineIdentifiers; ++i) {
+			identifiers.push_back(m_LineFromPoints[i].getResult({p1.getIdentifiers(), p2.getIdentifiers()}, { p1.getID(), p1.getID()}));
+		}
+		return NELine(identifiers, shared_from_this());
 	}
-	for (int i = 0; i < res.m->num_consts(); ++i) {
-		z3::func_decl f = res.m->get_const_decl(i);
-		std::cout << f.name() << std::endl;
+	return NELine(generateXFromY(p1, p2), shared_from_this());
+}
+
+NEPoint Model::pointFromLines(const NELine& l1, const NELine& l2) {
+	// If user defined equation is available, use it
+	if (m_PointFromLines.size() == m_PointIdentifiers) {
+		std::vector<float> identifiers;
+		for (int i = 0; i < m_PointIdentifiers; ++i) {
+			identifiers.push_back(m_PointFromLines[i].getResult({ l1.getIdentifiers(), l2.getIdentifiers() }, { l1.getID(), l1.getID() }));
+		}
+		return NEPoint(identifiers, shared_from_this());
+	}
+	return NEPoint(generateXFromY(l1, l2), shared_from_this());
+}
+
+std::vector<float> Model::generateXFromY(const NEElement& e1, const NEElement& e2)
+{
+	// Generate extra code for z3
+	Equation eq = m_IncidenceConstr.diff(m_IncidenceConstr.m_NumberedVarNames[e1.getType() == line ? 0 : 1]);
+	std::string extraSMT{};
+	std::set<std::string> tmp;
+	std::vector<std::pair<std::string, std::string>> sqrts;
+	std::map<AdvancedString, float> tmp2;
+	std::vector<std::pair < AdvancedString, std::shared_ptr<Equation> >> m = e1.getType() == line ? m_Variables.first : m_Variables.second;
+	Equation& def = e1.getType() == line ? m_PointDef : m_LineDef;
+	int definedSqrts = 0;
+	extraSMT = "(assert " + def.recToSmtLib(def.m_EquationString, tmp2, tmp, sqrts, {}, true) + ")";
+	for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
+		std::string def = sqrts[i].first;
+		std::string pow = sqrts[i].second;
+		extraSMT = "(declare-const sqrt" + std::to_string(i) + " Real)(assert (>= sqrt" + std::to_string(i) + " 0))(assert (= (^ sqrt" + std::to_string(i) + " " + pow + ") " + def + "))" + extraSMT;
+	}
+	extraSMT = "(declare-const x Real)(declare-const y Real)" + extraSMT;
+	definedSqrts = sqrts.size();
+	for (int i = m.size() - 1; i >= 0; --i) {
+		extraSMT = "(define-fun " + m_IncidenceConstr.m_NumberedVarNames[e1.getType() == line ? 0 : 1].toString() + "." + m[i].first.toString() + " () Real " + m[i].second->recToSmtLib(m[i].second->m_EquationString, tmp2, tmp, sqrts, {}, true) + ")" + extraSMT;
+		for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
+			std::string def = sqrts[i].first;
+			std::string pow = sqrts[i].second;
+			extraSMT = "(declare-const sqrt" + std::to_string(i) + " Real)(assert (>= sqrt" + std::to_string(i) + " 0))(assert (= (^ sqrt" + std::to_string(i) + " " + pow + ") " + def + "))" + extraSMT;
+		}
+		definedSqrts = sqrts.size();
 	}
 
-	return { { 1.25, 0 }, p1.getModel() };
+	std::vector<std::string> resNames;
+	for (int i = 0; i < (e1.getType() == line ? m_PointIdentifiers : m_LineIdentifiers); ++i) {
+		resNames.push_back(def.m_NumberedVarNames[0].toString() + std::to_string(i));
+	}
+
+	//solve equation
+	z3::context c;
+	z3::solver solver(c);
+	bool sat = eq.getSolution({ e1.getIdentifiers(), e2.getIdentifiers() }, { e1.getID(), e2.getID() }, resNames, &c, &solver, sqrts, extraSMT);
+	if (!sat) {
+		throw std::invalid_argument("I-1 failed");
+	}
+
+	//Get output from z3
+	z3::model model = solver.get_model();
+	std::vector<float> identifiers(e1.getType() == line ? m_PointIdentifiers : m_LineIdentifiers);
+	std::string varName = def.m_NumberedVarNames[0].toString();
+	for (int i = 0; i < model.num_consts(); ++i) {
+		z3::func_decl f = model.get_const_decl(i);
+		if (varName == f.name().str().substr(0, varName.size()) && f.name().str().substr(varName.size(), f.name().str().size() - varName.size()).find_first_not_of("0123456789") == std::string::npos) {
+			z3::expr fVal = model.get_const_interp(f);
+			identifiers[std::stoi(f.name().str().substr(varName.size(), f.name().str().size() - varName.size()))] = fVal.as_double();
+		}
+	}
+	//std::cout << "test" << std::endl;
+	//std::cout << solver << '\n';
+	//std::cout << model;
+	return identifiers;
 }
 
 bool operator==(const NEElement& lhs, const NEElement& rhs) {
@@ -134,8 +222,13 @@ bool operator==(const NEElement& lhs, const NEElement& rhs) {
 	// If (x, y) exists for one element that doesn't exist for the other, the elements are not the same
 	Equation constr1 = lhs.getDef() + !lhs.getDef();
 	Equation constr2 = !lhs.getDef() + lhs.getDef();
-	if (constr1.getSolution({ lhs.getIdentifiers(), rhs.getIdentifiers() }, { lhs.getID(), rhs.getID() }).sat or
-		constr2.getSolution({ lhs.getIdentifiers(), rhs.getIdentifiers() }, { lhs.getID(), rhs.getID() }).sat) {
+	std::vector<std::string> resNames;
+	for (int i = 0; i < (lhs.getType() == line ? lhs.getModel()->m_PointIdentifiers : lhs.getModel()->m_LineIdentifiers); ++i) {
+		resNames.push_back(constr1.m_NumberedVarNames[0].toString() + std::to_string(i));
+		resNames.push_back(constr1.m_NumberedVarNames[1].toString() + std::to_string(i));
+	}
+	if (constr1.getSolution({ lhs.getIdentifiers(), rhs.getIdentifiers() }, { lhs.getID(), rhs.getID() }, resNames) or
+		constr2.getSolution({ lhs.getIdentifiers(), rhs.getIdentifiers() }, { lhs.getID(), rhs.getID() }, resNames)) {
 		return false;
 	}
 	else {
@@ -170,7 +263,7 @@ bool isBetween(const NEPoint& p1, const NEPoint& p2, const NEPoint& p3) {
 		return false;
 	}
 
-	NELine l = p1.getModel()->newLine(p1, p2);
+	//NELine l = p1.getModel()->newLine(p1, p2);
 	// ToDo: fix line from two point
 
 	//Custom condition

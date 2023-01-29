@@ -76,6 +76,9 @@ class Model : public std::enable_shared_from_this<Model> {
 
 	Equation m_DistanceDef;
 
+	EquationVector m_LineFromPoints;
+	EquationVector m_PointFromLines;
+
 	Equation m_CustomScrollX = Equation({});
 	Equation m_CustomScrollY = Equation({});
 	bool m_UseCustomScroll = false;
@@ -86,6 +89,8 @@ class Model : public std::enable_shared_from_this<Model> {
 	std::vector<NEElement> m_ExtraEquations;
 
 	void solveVariables(const NEElement* e);
+
+	std::vector<float> generateXFromY(const NEElement& e1, const NEElement& e2);
 public:
 	/**
 	* Create new model by providing the necessary constraints.
@@ -105,7 +110,9 @@ public:
 		const Equation& lineDef,
 		const Equation& incidenceConstr,
 		const Equation& distanceDef = Equation({}),
-		const Equation& betweennessConstr = Equation( {} ));
+		const Equation& betweennessConstr = Equation({}),
+		const EquationVector& lineFromPoints = EquationVector{},
+		const EquationVector& pointFromLines = EquationVector{});
 
 	/// Copy an existing Model object. 
 	Model(const Model& g);
@@ -124,7 +131,8 @@ public:
 	const Equation& GetIncidenceConstr() const { return m_IncidenceConstr; }
 	const Equation& GetBetweennessConstr() const { return m_BetweennessConstr; }
 
-	NELine newLine(NEPoint p1, NEPoint p2);
+	NELine lineFromPoints(const NEPoint& l1, const NEPoint& l2);
+	NEPoint pointFromLines(const NELine& l1, const NELine& l2);
 
 	friend bool operator==(const NEElement& lhs, const NEElement& rhs);
 	friend bool operator>>(const NEPoint& p, const NELine& l);

@@ -13,13 +13,14 @@ enum NEType
 
 struct AdvancedString;
 class Equation;
+class Model;
 
 typedef std::pair<std::vector<std::pair < AdvancedString, std::shared_ptr<Equation> >>, std::vector<std::pair < AdvancedString, std::shared_ptr<Equation> >> > VarMap;
-typedef std::map < std::pair<NEType, AdvancedString>, std::map<int, float> > SolvedVarMap;
+typedef std::map < std::pair<NEType, AdvancedString>, std::map<int, double> > SolvedVarMap;
+
+typedef std::vector<Equation> EquationVector;
 
 struct OrAnd { bool isEnd; std::string content; bool isOr; std::shared_ptr<OrAnd> s1; std::shared_ptr<OrAnd> s2; };
-
-struct equationResult { bool sat; z3::model* m; };
 
 // String with extra characters, such as square roots and pi
 // Some constructors are marked explicit to prevent objects unwantingly convert to advanced strings
@@ -35,6 +36,7 @@ struct AdvancedString {
 	bool empty() const { return content.empty(); }
 	std::vector<unsigned int>::const_iterator begin() const { return content.begin(); }
 	std::vector<unsigned int>::const_iterator end() const { return content.end(); }
+	std::vector<unsigned int>::const_iterator erase(std::vector<unsigned int>::const_iterator pos) { return content.erase(pos); }
 	std::vector<unsigned int>::const_iterator erase(std::vector<unsigned int>::const_iterator b, std::vector<unsigned int>::const_iterator e) { return content.erase(b, e); }
 	std::vector<unsigned int>::const_iterator insert(std::vector<unsigned int>::const_iterator a, const unsigned int c) { return content.insert(a, c); }
 	std::vector<unsigned int>::const_iterator insert(std::vector<unsigned int>::const_iterator a, const std::string& s) { return content.insert(a, s.begin(), s.end()); }
@@ -54,14 +56,15 @@ void replaceAll(AdvancedString& str, const AdvancedString& from, const AdvancedS
 class Equation
 {
 private:
-	float	   recGetResult(const AdvancedString& s, const std::map<AdvancedString, float>& vars, std::vector<int> ids) const;
+	double	   recGetResult(const AdvancedString& s, const std::map<AdvancedString, float>& vars, std::vector<int> ids) const;
 	std::string recToSmtLib(const AdvancedString& s, const std::map<AdvancedString, float>& vars, std::set<std::string>& toDefine, std::vector<std::pair<std::string, std::string>>& sqrts, std::vector<int> ids, bool isFirstLayer = false) const;
 	std::string recToShader(const AdvancedString& s, const std::map<AdvancedString, float>& vars, std::vector<int> ids) const;
 	int		getNextOperator(const AdvancedString& s, bool& orEquals) const;
 
+	AdvancedString recDiff(const AdvancedString& s1, const AdvancedString& s2) const;
 	std::shared_ptr<OrAnd> recCombineShaders(const AdvancedString& s, std::map<AdvancedString, float>& vars, std::vector<int> ids) const;
 
-	std::pair<bool, float> getVariable(const AdvancedString& key, std::vector<int> ids) const;
+	std::pair<bool, double> getVariable(const AdvancedString& key, std::vector<int> ids) const;
 
 	/**
 	* Extracts variable names stored at the beginning of the equation.
@@ -100,13 +103,16 @@ public:
 	* @param vars Map containing varnames and their values.
 	* @return Returns float with 1 or 0 (true or false).
 	*/
-	equationResult getSolution(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
+	bool getSolution(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, std::vector<std::string>& resNames, z3::context* cPtr = nullptr, z3::solver* solverPtr = nullptr, const std::vector<std::pair<std::string, std::string>>& extraSqrts = {}, const std::string& extraSMT = {}) const;
+	Equation diff(const AdvancedString& remainingVar) const;
 
-	float getResult(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
+	double getResult(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
 	bool isTrue(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
-	std::string toSmtLib(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
+	std::string toSmtLib(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, std::vector<std::string>& resNames, const std::vector<std::pair<std::string, std::string>>& extraSqrts = {}, const std::string& extraSMT = {}) const;
 	OrAnd toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const { return toShader(identifiers, ids, false, AdvancedString(), AdvancedString()); }
 	OrAnd toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, bool useCustomScroll, const Equation& customScrollX, const Equation& customScrollY) const;
+	
+	friend Model;
 };
 
 Equation operator+(const Equation& e1, const Equation& e2);
