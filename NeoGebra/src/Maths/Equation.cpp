@@ -323,31 +323,7 @@ std::string Equation::toSmtLib(const std::vector<std::vector<float>>& identifier
 
 std::string Equation::toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, bool useCustomScroll, const Equation& customScrollX, const Equation& customScrollY) const {
 	std::map<AdvancedString, float> vars = linkNumberedVars(identifiers);
-	AdvancedString formula = m_EquationString;
-	if (useCustomScroll) {
-		replaceVarName(formula, AdvancedString("x"), AdvancedString("(x"));
-	}
-	//ToDo change
-	//std::shared_ptr<OrAnd> res = recCombineShaders(m_EquationString, vars, ids);
 	return recToShader(m_EquationString, vars, ids);
-}
-
-std::shared_ptr<OrAnd> Equation::recCombineShaders(const AdvancedString& s, std::map<AdvancedString, float>& vars, std::vector<int> ids) const {
-	bool tmp;
-	AdvancedString newS = s;
-	int operIndex = getNextOperator(newS, tmp);
-	while (operIndex == -1 && newS[0] == '(' && newS.back() == ')') { newS = newS.substr(1, newS.size() - 2); operIndex = getNextOperator(newS, tmp); }
-	AdvancedString s1 = newS.substr(0, operIndex);
-	AdvancedString s2 = newS.substr(operIndex + 1, newS.length() - operIndex - 1);
-	if (newS[operIndex] == '|') {
-		return std::make_shared<OrAnd>(false, "", true, recCombineShaders(s1, vars, ids), recCombineShaders(s2, vars, ids));
-	}
-	else if (newS[operIndex] == '&') {
-		return std::make_shared<OrAnd>(false, "", false, recCombineShaders(s1, vars, ids), recCombineShaders(s2, vars, ids));
-	}
-	else {
-		return std::make_shared<OrAnd>(true, recToShader(newS, vars, ids), false, nullptr, nullptr);
-	}
 }
 
 double Equation::recGetResult(const AdvancedString& s, const std::map<AdvancedString, float>& vars, std::vector<int> ids) const {
@@ -559,7 +535,6 @@ std::string Equation::recToShader(const AdvancedString& s, const std::map<Advanc
 	AdvancedString s2 = s.substr(operIndex + 1, s.length() - operIndex - 1);
 
 	switch (s[operIndex]) {
-	//ToDo remove
 	case '|': return "min(abs(" + recToShader(s1, vars, ids) + "), abs(" + recToShader(s2, vars, ids) + "))";
 	case '&': return "max(abs(" + recToShader(s1, vars, ids) + "), abs(" + recToShader(s2, vars, ids) + "))";
 	case '!': return "((" + recToShader(s1, vars, ids) + " - " + recToShader(s2, vars, ids) + " == 0.0) ? -1 : 1.0)"; //Have to look into potential problems

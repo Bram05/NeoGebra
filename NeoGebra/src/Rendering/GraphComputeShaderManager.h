@@ -25,6 +25,4 @@ private:
 	int m_MaxNumberOfTextureUnits;
 	int m_Width, m_Height; // Stored in pixels
 	std::string m_Name;
-
-	unsigned int RunRecursive(Graph* graph, std::shared_ptr<OrAnd> currentObj, float midCoordX, float midCoordY, float unitLengthPixels) const;
 };

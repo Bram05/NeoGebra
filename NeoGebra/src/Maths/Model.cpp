@@ -23,12 +23,14 @@ NEElement::NEElement(const std::vector<float>& identifiers, const Equation& def,
 		}
 	}
 
-	if (m_Model->m_Elements.size() > 0) {
-		m_ID = m_Model->m_Elements.back().getID() + 1;
+	if (m_Type != notype) {
+		if (m_Model->m_Elements.size() > 0) {
+			m_ID = m_Model->m_Elements.back().getID() + 1;
+		}
+		else { m_ID = 0; }
+		m_Model->m_Elements.push_back(*this);
+		m_Model->solveVariables(this);
 	}
-	else { m_ID = 0; }
-	m_Model->m_Elements.push_back(*this);
-	m_Model->solveVariables(this);
 }
 
 std::string NEElement::getShader() {
