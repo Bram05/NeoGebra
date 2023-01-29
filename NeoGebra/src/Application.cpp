@@ -96,6 +96,7 @@ Application::Application()
 	m_Window = new Window(WindowCreationOptions(1080, 720, "NeoGeobra", MouseClickCallback, TextCallback, MouseMovedCallback, KeyCallback, ResizeCallback));
 	m_Renderer = new Renderer;
 	m_WindowUI = new MainWindowUI;
+	m_Window->ToggleMaximized();
 	PrintInfo(std::cout << "Created application\n\n");
 }
 

@@ -21,6 +21,7 @@ public:
 	void UpdateModel();
 
 	VarMap m_PointVariables;
+	VarMap m_LineVariables;
 
 protected:
 	void RenderPass(Renderer* r) override;

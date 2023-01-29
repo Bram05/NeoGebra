@@ -28,15 +28,14 @@ public:
 	Renderer* GetRenderer() { return m_Renderer; }
 	MainWindowUI* GetWindowUI() { return m_WindowUI; }
 	std::shared_ptr<Model> GetModel() { return m_Model; }
-	void SetModel(unsigned int pointIdentifiers,
+	void SetModel(VarMap& varMap, unsigned int pointIdentifiers,
 		const Equation& pointDef,
 		unsigned int lineIdentifiers,
 		const Equation& lineDef,
 		const Equation& incidenceConstr,
 		const Equation& betweennessConstr = { {}, {} })
 	{
-		VarMap m;
-		m_Model = std::make_shared<Model>(m, pointIdentifiers, pointDef, lineIdentifiers, lineDef, incidenceConstr, betweennessConstr);
+		m_Model = std::make_shared<Model>(varMap, pointIdentifiers, pointDef, lineIdentifiers, lineDef, incidenceConstr, betweennessConstr);
 	}	
 
 	// To prevent multiple application being created the constructor is private and only main is able to create one

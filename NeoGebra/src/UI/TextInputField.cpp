@@ -7,17 +7,19 @@
 
 #include "Application.h"
 
-TextInputField::TextInputField(float leftX, float rightX, float topY, float bottomY, void(*enterCallback)(void*), void* obj, const AdvancedString& defaultText)
-	: UIElement(leftX, rightX, topY, bottomY, "TextInputField"), m_Text(), m_EnterCallback{enterCallback}, m_Obj{obj}
+TextInputField::TextInputField(float leftX, float rightX, float topY, float bottomY, void(*enterCallback)(void*), void* obj, const AdvancedString& defaultText, float lineThickness, Window* window)
+	: UIElement(leftX, rightX, topY, bottomY, "TextInputField"), m_Text(), m_EnterCallback{ enterCallback }, m_Obj{ obj }, m_Window{ window }
 {
-	m_Lines.push_back(std::make_shared<Line>(Point(leftX, topY), Point(leftX, bottomY)));
-	m_Lines.push_back(std::make_shared<Line>(Point(leftX, bottomY), Point(rightX, bottomY)));
-	m_Lines.push_back(std::make_shared<Line>(Point(rightX, bottomY), Point(rightX, topY)));
-	m_Lines.push_back(std::make_shared<Line>(Point(rightX, topY), Point(leftX, topY)));
+	if (!m_Window)
+		m_Window = Application::Get()->GetWindow();
+	m_Lines.push_back(std::make_shared<Line>(Point(leftX, topY), Point(leftX, bottomY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}, lineThickness));
+	m_Lines.push_back(std::make_shared<Line>(Point(leftX, bottomY), Point(rightX, bottomY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}, lineThickness));
+	m_Lines.push_back(std::make_shared<Line>(Point(rightX, bottomY), Point(rightX, topY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}, lineThickness));
+	m_Lines.push_back(std::make_shared<Line>(Point(rightX, topY), Point(leftX, topY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}, lineThickness));
 	m_Text = std::make_shared<Text>(defaultText, leftX + 0.01f, rightX - 0.01f, bottomY + 0.045f /*0.18f * (topY - bottomY)*/, 40.0f, false);
 	//auto [width, height] = Application::Get()->GetWindow()->GetSize();
 	m_Editingindex = defaultText.size();
-	m_EditingLine = std::make_shared<Line>(Point(0,0), Point(0,0));
+	m_EditingLine = std::make_shared<Line>(Point(0, 0), Point(0, 0));
 	UpdateEditingLine();
 	//m_EditingLine= std::make_shared<Line>(Point(m_LeftX + 0.01f, m_BottomY + 0.045f), Point(m_LeftX + 0.01f, m_BottomY + 0.05f + (float)60 / height));
 }
@@ -106,8 +108,8 @@ void TextInputField::SpecialKeyInput(int key, int scancode, int action, int mods
 	case GLFW_KEY_V:
 		if (mods & GLFW_MOD_CONTROL)
 		{
-			const char* content{ Application::Get()->GetWindow()->GetClipboardContent() };
-			int i{0};
+			const char* content{ m_Window->GetClipboardContent() };
+			int i{ 0 };
 			while (content[i])
 			{
 				TextInput(content[i]);
@@ -151,7 +153,7 @@ void TextInputField::RenderPass(Renderer* r)
 
 void TextInputField::UpdateEditingLine()
 {
-	auto [width, height] = Application::Get()->GetWindow()->GetSize();
+	auto [width, height] = m_Window->GetSize();
 	auto font{ Application::Get()->GetRenderer()->GetFont() };
 	AdvancedString& text = m_Text->GetText();
 
@@ -165,7 +167,7 @@ void TextInputField::UpdateEditingLine()
 
 void TextInputField::UpdateEditingIndex(int newIndex, bool isRemoved)
 {
-	auto [width, height] = Application::Get()->GetWindow()->GetSize();
+	auto [width, height] = m_Window->GetSize();
 	int offset = (newIndex - m_Editingindex);
 	m_Editingindex = newIndex;
 	auto font{ Application::Get()->GetRenderer()->GetFont() };

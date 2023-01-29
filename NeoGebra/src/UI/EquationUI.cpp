@@ -9,6 +9,8 @@
 #include "TextInputFieldWithDesc.h"
 #include "Window.h"
 #include "Constants.h"
+#include <GLFW/glfw3.h>
+#include "Util.h"
 
 static void TabButtonClickedStatic(void* obj, int value)
 {
@@ -23,22 +25,6 @@ static void UpdateGraphsStatic(void* obj)
 static void UpdateModelStatic(void* obj)
 {
 	((EquationUI*)obj)->UpdateModel();
-}
-
-//Window* g_PointVariableWindow{ nullptr };
-
-static void ManagePointVariableWindow()
-{
-	/*g_PointVariableWindow = new Window({400,400,"Point Variables"});
-	while (!g_PointVariableWindow->ShouldClose())
-	{
-		glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		g_PointVariableWindow->Update();
-	}
-	delete g_PointVariableWindow;
-	g_PointVariableWindow = nullptr;*/
 }
 
 struct VariableWindow
@@ -80,44 +66,72 @@ static void MouseClickCallback(VariableWindow window, int mouseButton, int actio
 static void PointMouseClickCallback(int mousebutton, int action, int mods) { MouseClickCallback(g_PointWindow, mousebutton, action, mods); }
 static void LineMouseClickCallback(int mousebutton, int action, int mods) { MouseClickCallback(g_LineWindow, mousebutton, action, mods); }
 
-/*
-static void MouseMovedCallback(int x, int y)
+static void MouseMovedCallback(VariableWindow window, int x, int y)
 {
 	//Util::Timer t("MouseMovedCallback");
-	float newX = Util::ConvertToOpenGLCoordinate(x, true);
-	float newY = -Util::ConvertToOpenGLCoordinate(y, false);
-	Application::Get()->GetWindowUI()->MouseMoved(newX, newY);
+	auto [width, height] = window.window->GetSize();
+	float newX = 2 * (float)x / width - 1.0f;
+	float newY = -(2 * (float)y / height - 1.0f);
+	window.UI->MouseMoved(newX, newY);
 }
+static void PointMouseMovedCallback(int x, int y) { MouseMovedCallback(g_PointWindow, x, y); }
+static void LineMouseMovedCallback(int x, int y) { MouseMovedCallback(g_LineWindow, x, y); }
 
-static void TextCallback(unsigned int codepoint)
+static void TextCallback(VariableWindow window, unsigned int codepoint)
 {
-	Application::Get()->GetWindowUI()->TextInput(codepoint);
+	window.UI->TextInput(codepoint);
 }
+static void PointTextCallback(unsigned int codepoint) { TextCallback(g_PointWindow, codepoint); }
+static void LineTextCallback(unsigned int codepoint) { TextCallback(g_LineWindow, codepoint); }
 
-static void KeyCallback(int key, int scancode, int action, int mods)
+static void KeyCallback(VariableWindow window, int key, int scancode, int action, int mods)
 {
 	if (key == GLFW_KEY_ESCAPE)
 	{
-		PrintInfo(std::cout << "\nEscape key pressed, closing application\n" << std::flush);
-		Application::Get()->GetWindow()->Close();
+		PrintInfo(std::cout << "\nEscape key pressed, closing this window\n" << std::flush);
+		window.window->Close();
 	}
 	else if (key == GLFW_KEY_F11 && action == GLFW_PRESS)
-		Application::Get()->GetWindow()->ToggleMaximized();
+		window.window->ToggleMaximized();
 	else
-		Application::Get()->GetWindowUI()->SpecialKeyInput(key, scancode, action, mods);
-}*/
+		window.UI->SpecialKeyInput(key, scancode, action, mods);
+}
+static void PointKeyCallback(int key, int scancode, int action, int mods) { KeyCallback(g_PointWindow, key, scancode, action, mods); }
+static void LineKeyCallback(int key, int scancode, int action, int mods) { KeyCallback(g_LineWindow, key, scancode, action, mods); }
 
+static void ManagePointVariableWindow(EquationUI* base)
+{
+	// Technically Window creation and destruction must happen on the main thread, but this seems to work
+	g_PointWindow.window = new Window(WindowCreationOptions(800, 400, "Point Variables", PointMouseClickCallback, PointTextCallback, PointMouseMovedCallback, PointKeyCallback, PointResizeCallback));
+
+	// TODO: by doing this, we are reloading the font which is inefficient, but it needs a texture which has to be created on this thread
+	g_PointWindow.renderer = new Renderer;
+	g_PointWindow.UI = new VariableWindowUI(&base->m_PointVariables, g_PointWindow.window, { AdvancedString("p") });
+
+	while (!g_PointWindow.window->ShouldClose())
+	{
+		glClearColor(0.5f, 0.0f, 0.5f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
+		g_PointWindow.UI->RenderPass(g_PointWindow.renderer);
+		g_PointWindow.renderer->RenderQueues();
+
+		g_PointWindow.window->Update();
+	}
+	delete g_PointWindow.renderer;
+	g_PointWindow.renderer = nullptr;
+	delete g_PointWindow.window;
+	g_PointWindow.window = nullptr;
+}
 
 static void ManageLineVariableWindow(EquationUI* base)
 {
-	WindowCreationOptions options{ 800, 400, "Line Variables" };
-	options.resizeCallback = LineResizeCallback;
-	options.mouseButtonCallback = LineMouseClickCallback;
-	g_LineWindow.window = new Window(options);
+	// Technically Window creation and destruction must happen on the main thread, but this seems to work
+	g_LineWindow.window = new Window(WindowCreationOptions(800, 400, "Line Variables", LineMouseClickCallback, LineTextCallback, LineMouseMovedCallback, LineKeyCallback, LineResizeCallback));
 
 	// TODO: by doing this, we are reloading the font which is inefficient, but it needs a texture which has to be created on this thread
 	g_LineWindow.renderer = new Renderer;
-	g_LineWindow.UI = new VariableWindowUI(&base->m_PointVariables);
+	g_LineWindow.UI = new VariableWindowUI(&base->m_LineVariables, g_LineWindow.window, { AdvancedString("l") });
 
 	while (!g_LineWindow.window->ShouldClose())
 	{
@@ -139,7 +153,7 @@ static void DisplayPointVariables(void* obj)
 {
 	if (!g_LineWindow.window)
 	{
-		std::thread(ManagePointVariableWindow).detach();
+		std::thread(ManagePointVariableWindow, (EquationUI*)obj).detach();
 	}
 	else
 		g_LineWindow.window->Focus();
@@ -250,7 +264,6 @@ void EquationUI::TabButtonClicked(int value)
 	m_ButtonValue = value;
 }
 
-
 void EquationUI::RenderPass(Renderer* r)
 {
 	for (std::shared_ptr<Line>& line : m_Lines)
@@ -355,10 +368,14 @@ void EquationUI::UpdateModel()
 	int numLineIdents{ std::stoi(((TextInputFieldWithDesc*)(m_SubUIElements[m_LineDefInputField - 1].element.get()))->GetText().toString()) };
 	const AdvancedString& pointId{ ((TextInputField*)(m_SubUIElements[m_PointDefInputField - 3].element.get()))->GetText() };
 	const AdvancedString& lineId{ ((TextInputField*)(m_SubUIElements[m_LineDefInputField - 3].element.get()))->GetText() };
+
 	Equation pointDefEq({ pointId }, pointDef);
 	Equation lineDefEq({ { lineId } }, lineDef);
 	std::shared_ptr<Model> model{ Application::Get()->GetModel() };
-	Application::Get()->SetModel(numPointsIdents, pointDefEq, numLineIdents, lineDefEq, model->GetIncidenceConstr(), model->GetBetweennessConstr());
+
+	VarMap completeMap = m_PointVariables;
+	completeMap.second.insert(completeMap.second.end(), m_LineVariables.second.begin(), m_LineVariables.second.end());
+	Application::Get()->SetModel(completeMap, numPointsIdents, pointDefEq, numLineIdents, lineDefEq, model->GetIncidenceConstr(), model->GetBetweennessConstr());
 	Application::Get()->GetWindowUI()->GetGraphUI()->DeleteGraphs();
 
 	int pointSize = std::stoi(((TextInputField*)m_SubUIElements[m_PointDefInputField - 2].element.get())->GetText().toString());
