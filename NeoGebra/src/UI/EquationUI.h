@@ -20,8 +20,7 @@ public:
 	void UpdateGraphs();
 	void UpdateModel();
 
-	VarMap m_PointVariables;
-	VarMap m_LineVariables;
+	VarMap m_Variables;
 	std::vector<Equation> m_ExtraEquations;
 
 protected:

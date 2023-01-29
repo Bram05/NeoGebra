@@ -37,5 +37,6 @@ ExtrasWindowUI::ExtrasWindowUI(std::vector<Equation>* extraEquations, Window* wi
 		m_UIElements.emplace_back(std::make_shared<TextInputField>(-1.0f + 0.01f, 1.0f - 0.01f, currentHeight, currentHeight - 0.15f, UpdateExtraEquations, this, text, 0.005f, window));
 		currentHeight -= 0.18f;
 	}
-	m_UIElements.emplace_back(std::make_shared<ButtonUI>(-1.0f + 0.06f, 1.0f - 0.06f, currentHeight - 0.01f, currentHeight - 0.11f, UpdateExtraEquations, this, "Update Extra Equations"));
+	currentHeight -= 0.1f;
+	m_UIElements.emplace_back(std::make_shared<ButtonUI>(-1.0f + 0.2f, 0.0f, currentHeight - 0.01f, currentHeight - 0.20f, UpdateExtraEquations, this, "Update Extra Equations"));
 }
