@@ -50,7 +50,6 @@ void TextRenderer::RenderQueue(int width, int height)
 	glBindTexture(GL_TEXTURE_2D, m_Font->GetBitmap());
 	glBindVertexArray(m_Vao);
 	glBindBuffer(GL_ARRAY_BUFFER, m_Vb); // Vertex buffers are not kept in the vertex array object and are not required for rendering. We do need it here so we need to explicitly bind it
-	std::shared_ptr<Font> font = Application::Get()->GetRenderer()->GetFont();
 	while (m_RenderQueue.size() != 0)
 	{
 		std::shared_ptr<Text> t = m_RenderQueue.front();
@@ -58,7 +57,7 @@ void TextRenderer::RenderQueue(int width, int height)
 
 		m_TextShader.SetUniform("u_Colour", t->m_Colour);
 
-		float scale = (float)t->m_Size / font->GetSize();
+		float scale = (float)t->m_Size / m_Font->GetSize();
 		float currentX = t->m_LeftX;
 		float currentY = t->m_Baseline;
 		int begin = t->m_RenderAllText ? 0 : t->m_RenderBegin;
@@ -66,24 +65,24 @@ void TextRenderer::RenderQueue(int width, int height)
 		for (int i{ begin }; i < end; ++i)
 		{
 			unsigned int c = t->m_Text[i];
-			const CharacterInfo& info{ font->GetCharacterInfo(c) };
+			const CharacterInfo& info{ m_Font->GetCharacterInfo(c) };
 
 			float charLeftX = currentX + (float)info.xOffset / width * scale;
 			float charRightX = charLeftX + (float)info.width / width * scale;
 			if (charRightX > t->m_RightX)
 			{
 				currentX = t->m_LeftX;
-				currentY -= (float)font->GetLineHeight() / height * scale;
+				currentY -= (float)m_Font->GetLineHeight() / height * scale;
 				charLeftX = currentX + (float)info.xOffset / width * scale;
 				charRightX = charLeftX + (float)info.width / width * scale;
 			}
-			float charTopY = currentY + (float)font->GetBase() / height * scale - (float)info.yOffset / height * scale;
+			float charTopY = currentY + (float)m_Font->GetBase() / height * scale - (float)info.yOffset / height * scale;
 			float charBottomY = charTopY - (float)info.height / height * scale;
 
-			float texLeftX = (float)info.x / font->GetWidth();
-			float texRightX = texLeftX + (float)info.width / font->GetWidth();
-			float texTopY = 1 - ((float)info.y / font->GetHeight());
-			float texBottomY = texTopY - (float)info.height / font->GetHeight();
+			float texLeftX = (float)info.x / m_Font->GetWidth();
+			float texRightX = texLeftX + (float)info.width / m_Font->GetWidth();
+			float texTopY = 1 - ((float)info.y / m_Font->GetHeight());
+			float texBottomY = texTopY - (float)info.height / m_Font->GetHeight();
 
 			float data[16] = {
 				charLeftX,  charBottomY,	texLeftX,  texBottomY,

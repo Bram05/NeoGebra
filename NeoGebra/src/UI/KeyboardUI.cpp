@@ -9,11 +9,11 @@
 
 static void insertKey(void* c)
 {
-	Application::Get()->GetWindowUI()->InsertKey(*(int*)c);
+	Application::Get()->GetWindowUI()->InsertKey(*(unsigned int*)c);
 }
 
 // The list of all unicode numbers of the characters in the keyboard
-std::vector<AdvancedString> textList{ 0x2200, 0x2203, 0x2208, 0x03B1, 0x03B2, 0x03B3, 0x03B8, 0x03C0 };
+std::vector<unsigned int> textList{ 0x2200, 0x2203, 0x2208, 0x03B1, 0x03B2, 0x03B3, 0x03B8, 0x03C0 };
 
 KeyboardUI::KeyboardUI(float leftX, float rightX, float topY, float bottomY)
 	: UIElement(leftX, rightX, topY, bottomY, "KeyboardUI")

@@ -16,7 +16,7 @@ TextInputField::TextInputField(float leftX, float rightX, float topY, float bott
 	m_Lines.push_back(std::make_shared<Line>(Point(leftX, bottomY), Point(rightX, bottomY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}, lineThickness));
 	m_Lines.push_back(std::make_shared<Line>(Point(rightX, bottomY), Point(rightX, topY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}, lineThickness));
 	m_Lines.push_back(std::make_shared<Line>(Point(rightX, topY), Point(leftX, topY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}, lineThickness));
-	m_Text = std::make_shared<Text>(defaultText, leftX + 0.01f, rightX - 0.01f, bottomY + 0.045f /*0.18f * (topY - bottomY)*/, 40.0f, false);
+	m_Text = std::make_shared<Text>(defaultText, leftX + 0.01f, rightX - 0.01f, bottomY + 0.020f /*0.18f * (topY - bottomY)*/, 40.0f, false);
 	//auto [width, height] = Application::Get()->GetWindow()->GetSize();
 	m_Editingindex = defaultText.size();
 	m_EditingLine = std::make_shared<Line>(Point(0, 0), Point(0, 0));
@@ -162,7 +162,7 @@ void TextInputField::UpdateEditingLine()
 	{
 		x += font->GetCharacterInfo(text[i]).xAdvance * m_Text->GetScale() / width;
 	}
-	m_EditingLine->SetLocation(Point(x, m_BottomY + 0.039f), Point(x, m_BottomY + 0.025f + (float)55 / height));
+	m_EditingLine->SetLocation(Point(x, m_BottomY + 0.020f), Point(x, m_TopY - 0.020f));
 }
 
 void TextInputField::UpdateEditingIndex(int newIndex, bool isRemoved)

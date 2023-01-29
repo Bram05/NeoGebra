@@ -22,6 +22,7 @@ public:
 
 	VarMap m_PointVariables;
 	VarMap m_LineVariables;
+	std::vector<Equation> m_ExtraEquations;
 
 protected:
 	void RenderPass(Renderer* r) override;
@@ -33,7 +34,7 @@ private:
 	int m_LinesIndexBegin, m_PointsIndexBegin, m_LineDefInputField, m_PointDefInputField;
 	int m_ModelBeginIndex, m_ModelEndIndex;
 	int m_UpdateGraphsButton;
-	int m_ButtonValue{0};
+	int m_ButtonValue{2};
 
 	void TabButtonClicked(int value);
 	friend void TabButtonClickedStatic(void*,int);
