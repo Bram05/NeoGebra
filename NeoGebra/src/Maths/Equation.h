@@ -5,6 +5,7 @@
 #include <set>
 
 #define piConstant 3.14159265358979323846
+#define eConstant  2.71828182845904523536
 
 enum NEType
 {
@@ -105,7 +106,7 @@ public:
 
 	double getResult(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
 	bool isTrue(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
-	std::string toSmtLib(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, std::vector<std::string>& resNames, const std::vector<std::pair<std::string, std::string>>& extraSqrts = {}, const std::string& extraSMT = {}) const;
+	std::string toSmtLib(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, const std::vector<std::string>& resNames, const std::vector<std::pair<std::string, std::string>>& extraSqrts = {}, const std::string& extraSMT = {}) const;
 	std::string toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const { return toShader(identifiers, ids, false, AdvancedString(), AdvancedString()); }
 	std::string toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, bool useCustomScroll, const Equation& customScrollX, const Equation& customScrollY) const;
 

@@ -295,7 +295,7 @@ bool Equation::isTrue(const std::vector<std::vector<float>>& identifiers, std::v
 	return recGetResult(m_EquationString, vars, ids);
 }
 
-std::string Equation::toSmtLib(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, std::vector<std::string>& resNames, const std::vector<std::pair<std::string, std::string>>& extraSqrts, const std::string& extraSMT) const {
+std::string Equation::toSmtLib(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, const std::vector<std::string>& resNames, const std::vector<std::pair<std::string, std::string>>& extraSqrts, const std::string& extraSMT) const {
 	std::set<std::string> toDefine;
 	std::vector<std::pair<std::string, std::string>> sqrts;
 	sqrts.insert(sqrts.begin(), extraSqrts.begin(), extraSqrts.end());
@@ -340,6 +340,9 @@ double Equation::recGetResult(const AdvancedString& s, const std::map<AdvancedSt
 		if (s[0] == '(' and s.back() == ')') { return recGetResult(s.substr(1, s.length() - 2), vars, ids); }
 		if (s[0] == '[' and s.back() == ']') { return std::abs(recGetResult(s.substr(1, s.length() - 2), vars, ids)); }
 		if (s[0] == '!') { return !recGetResult(s.substr(1, s.length() - 1), vars, ids); }
+		if (s.size() > 4) {
+			if (s.substr(0, 3) == "ln(" and s.back() == ')') { return std::log(recGetResult(s.substr(4, s.length() - 4), vars, ids)); }
+		}
 		if (s.size() > 5) {
 			if (s.substr(0, 4) == "sin(" and s.back() == ')') { return std::sin(recGetResult(s.substr(4, s.length() - 5), vars, ids)); }
 			if (s.substr(0, 4) == "cos(" and s.back() == ')') { return std::cos(recGetResult(s.substr(4, s.length() - 5), vars, ids)); }
@@ -501,6 +504,9 @@ std::string Equation::recToShader(const AdvancedString& s, const std::map<Advanc
 		if (s[0] == '(' and s.back() == ')') { return "(" + recToShader(s.substr(1, s.length() - 2), vars, ids) + ")"; }
 		if (s[0] == '[' and s.back() == ']') { return ("abs(" + recToShader(s.substr(1, s.length() - 2), vars, ids) + ')'); }
 		if (s[0] == '!') { return ("((" + recToShader(s.substr(1, s.length() - 1), vars, ids) + " == 0.0) ? 1/0.0 : 0.0)"); } //Have to look into potential problems
+		if (s.size() > 4) {
+			if (s.substr(0, 3) == "ln(" and s.back() == ')') { return "log(" + recToShader(s.substr(4, s.length() - 4), vars, ids) + ")"; }
+		}
 		if (s.size() > 5) {
 			if (s.substr(0, 4) == "sin(" and s.back() == ')') { return "cos(" + recToShader(s.substr(4, s.length() - 5), vars, ids) + ")"; }
 			if (s.substr(0, 4) == "cos(" and s.back() == ')') { return "cos(" + recToShader(s.substr(4, s.length() - 5), vars, ids) + ")"; }
