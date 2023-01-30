@@ -79,17 +79,20 @@ Application::Application()
 	Equation P2distanceDef{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("acosh(1+(2*((p0-q0)^2 + (p1-q1)^2))/((1-(p0^2+p1^2))(1-(q0^2+q1^2))))") };
 	//Equation P2betweenness{ {AdvancedString("p"), AdvancedString("q"), AdvancedString("r")}, AdvancedString("((p0 - r0)^2 + (p1 - r1)^2 > (p0 - q0)^2 + (p1 - q1)^2) & ((p0 - r0)^2 + (p1 - r1)^2 > (r0 - q0)^2 + (r1 - q1)^2)") };
 
-	EquationVector P2lineFromPoints{
-		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(-sqrt((((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))-p0)^2+(((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))-p1)^2)+sqrt((((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))-p0)^2+(((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))-p1)^2+1))/(sqrt(((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))^2+((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))^2))*((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))") },
-		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(-sqrt((((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))-p0)^2+(((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))-p1)^2)+sqrt((((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))-p0)^2+(((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))-p1)^2+1))/(sqrt(((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))^2+((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))^2))*(-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0)") } };
+	EquationVector P2lineFromPoints{ // -p1^2// + ((p0 = q0) * q0)
+		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("10 != 10") }, //  + ((p0 = q0) * q0) // !(p0 = q0)) *  // /(-2p0+2q0) //  /
+		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(0 & p0 = q0) | (!(p0 = q0) & sqrt((p0 - (q0^2+q1^2-p0^2-p1^2)/(-2p0+2q0))^2 + p1^2))")}
+	};
 
 	//Equation P2customScrollPointX{ {AdvancedString("dx"), AdvancedString("dy")}, AdvancedString("tanh(0.5dx)") };
 	//Equation P2customScrollPointY{ {AdvancedString("dx"), AdvancedString("dy")}, AdvancedString("tanh(0.5dy)")};
 
 	m_Model = std::make_shared<Model>(P2variables, 2, P2pointDef, 2, P2lineDef, P2incidence, P2distanceDef, Equation{ {} });
 
-	P2lineFromPoints[1].m_NumberedVarNames = {};
-	P2lineFromPoints[1].toSmtLib({}, {}, {"p0", "q1", "q0", "q1" });
+
+	std::cout << P2lineFromPoints[0].getResult({ {1.0, 2.0}, {3.0, 4.0} });
+	//P2lineFromPoints[1].m_NumberedVarNames = {};
+	//P2lineFromPoints[1].toSmtLib({}, {}, {"p0", "q1", "q0", "q1" });
 
 	Equation circle(AdvancedString("x^2+y^2=1"));
 	m_Model->addExtraEquation(circle);

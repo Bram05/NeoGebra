@@ -1,9 +1,9 @@
 #include "Equation.h"
 #include "Application.h"
 
-#define OPERNUM 13
-const unsigned int calcOrder[OPERNUM] = { '|', '&', '!', '>', '<', '=', '+', '-', '*', '/', '^', 0x221A, 0x33D2};
-const unsigned int specialCharacters[] = { '|', '&', '!', '>', '<', '=', '+', '-', '*', '/', '^', 0x221A, 0x33D2, '(', ')'};
+#define OPERNUM 16
+const unsigned int calcOrder[OPERNUM] = { '|', '&', '!', '>', '<', 0x2265, 0x2264, 0x2260, '=', '+', '-', '*', '/', '^', 0x221A, 0x33D2};
+const unsigned int specialCharacters[] = { '|', '&', '!', '>', '<', 0x2265, 0x2264, 0x2260, '=', '+', '-', '*', '/', '^', 0x221A, 0x33D2, '(', ')'};
 
 /// Checks if a string contains a signed float. 
 bool isNumber(const AdvancedString& str)
@@ -69,6 +69,9 @@ void cleanUpEquation(AdvancedString& s) {
 	replaceAll(s, AdvancedString("~"), AdvancedString({ 0x221A }));
 	replaceAll(s, AdvancedString("log"), AdvancedString({ 0x33D2 }));
 	replaceAll(s, AdvancedString("sqrt("), AdvancedString(std::vector<unsigned int>{ 0x221A, '('}));
+	replaceAll(s, AdvancedString("!="), AdvancedString({ 0x2260 }));
+	replaceAll(s, AdvancedString(">="), AdvancedString({ 0x2265 }));
+	replaceAll(s, AdvancedString("<="), AdvancedString({ 0x2264 }));
 	unsigned int prev;
 	for (int i = 0; i < s.size(); i++) {
 		prev = i == 0 ? 0 : s[i - 1];
@@ -378,19 +381,22 @@ double Equation::recGetResult(const AdvancedString& s, const std::map<AdvancedSt
 	switch (s[operIndex]) {
 	case '|': return recGetResult(s1, vars, ids) or recGetResult(s2, vars, ids);
 	case '&': return recGetResult(s1, vars, ids) and recGetResult(s2, vars, ids);
-	case '!': return !floatCompare(recGetResult(s1, vars, ids), recGetResult(s2.substr(1, s2.length() - 1), vars, ids));
-	case '>':
-		if (!orEquals) { return recGetResult(s1, vars, ids) > recGetResult(s2, vars, ids); }
-		else { return recGetResult(s1, vars, ids) >= recGetResult(s2.substr(1, s2.length() - 1), vars, ids); }
-	case '<':
-		if (!orEquals) { return recGetResult(s1, vars, ids) < recGetResult(s2, vars, ids); }
-		else { return recGetResult(s1, vars, ids) <= recGetResult(s2.substr(1, s2.length() - 1), vars, ids); }
+	case 0x2260: return !floatCompare(recGetResult(s1, vars, ids), recGetResult(s2, vars, ids));
+	case '>': return recGetResult(s1, vars, ids) > recGetResult(s2, vars, ids);
+	case 0x2265: return recGetResult(s1, vars, ids) >= recGetResult(s2, vars, ids); 
+	case '<': return recGetResult(s1, vars, ids) < recGetResult(s2, vars, ids);
+	case 0x2264: return recGetResult(s1, vars, ids) <= recGetResult(s2, vars, ids);
 	case '=': return floatCompare(recGetResult(s1, vars, ids), recGetResult(s2, vars, ids));
 	case '+': return recGetResult(s1, vars, ids) + recGetResult(s2, vars, ids);
 	case '-': return recGetResult(s1, vars, ids) - recGetResult(s2, vars, ids);
 	case '*': return recGetResult(s1, vars, ids) * recGetResult(s2, vars, ids);
 	case '/': return recGetResult(s1, vars, ids) / recGetResult(s2, vars, ids);
-	case '^': return std::pow(recGetResult(s1, vars, ids), recGetResult(s2, vars, ids));
+	case '^': {
+		if (s1[0] == '-') {
+			return -std::pow(recGetResult(s1.substr(1,s1.size()-1), vars, ids), recGetResult(s2, vars, ids));
+		}
+		return std::pow(recGetResult(s1, vars, ids), recGetResult(s2, vars, ids));
+	}
 	case 0x221A: return std::pow(recGetResult(s2, vars, ids), 1 / recGetResult(s1, vars, ids));
 	case 0x33D2: return std::log(recGetResult(s2, vars, ids)) / std::log(recGetResult(s1, vars, ids));
 	default:  throw std::invalid_argument("Invalid operator");
@@ -568,7 +574,7 @@ int Equation::getNextOperator(const AdvancedString& s, bool& orEquals ) const {
 	int depth = 0;
 	int best = OPERNUM;
 	int operIndex = -1;
-	for (int i{}; i < s.length(); ++i) {
+	for (int i = s.length() - 1; i >= 0; --i) {
 		unsigned int c = s[i];
 		if (c == '(' or c == '[') { depth += 1; }
 		if (c == ')' or c == ']') { depth -= 1; }
@@ -577,13 +583,7 @@ int Equation::getNextOperator(const AdvancedString& s, bool& orEquals ) const {
 			const unsigned int* res = std::find(std::begin(calcOrder), std::begin(calcOrder) + best, c);
 			if (res != std::begin(calcOrder) + best) {
 				// If operator is '-', the program needs to check if there is another operator in front of it, such as 5*-3=-15
-				// If operator is '!', the program needs to check if the operator is "!="
-				if ((c != '-' or
-					(i > 0 and (std::find(std::begin(calcOrder), std::end(calcOrder), s[i - 1]) == std::end(calcOrder)))) and
-					(c != '!' or
-						(i < s.length() - 1 and s[i + 1] == '='))) {
-					if ((c == '>' or c == '<') and s[i + 1] == '=') { orEquals = true; }
-					else { orEquals = false; }
+				if (!(c == '-' && (i == 0 || (std::find(std::begin(calcOrder), std::end(calcOrder), s[i - 1]) == std::end(calcOrder))) )) {
 					best = std::distance(calcOrder, res);
 					operIndex = i;
 				}
