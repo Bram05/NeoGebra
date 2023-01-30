@@ -34,6 +34,8 @@ void replaceAll(AdvancedString& str, const AdvancedString& from, const AdvancedS
 		if (match) {
 			str.erase(str.begin()+i, str.begin()+i+from.size());
 			str.insert(str.begin() + i, to.begin(), to.end());
+			i -= from.length();
+			i += to.length();
 		}
 	}
 }

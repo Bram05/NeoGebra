@@ -88,8 +88,8 @@ Application::Application()
 
 	m_Model = std::make_shared<Model>(P2variables, 2, P2pointDef, 2, P2lineDef, P2incidence, P2distanceDef, Equation{ {} });
 
-	P2lineFromPoints[0].m_NumberedVarNames = {};
-	P2lineFromPoints[0].toSmtLib({}, {}, {"p0", "q1", "q0", "q1" });
+	P2lineFromPoints[1].m_NumberedVarNames = {};
+	P2lineFromPoints[1].toSmtLib({}, {}, {"p0", "q1", "q0", "q1" });
 
 	Equation circle(AdvancedString("x^2+y^2=1"));
 	m_Model->addExtraEquation(circle);
