@@ -26,7 +26,11 @@ public:
 protected:
 	void RenderPass(Renderer* r) override;
 	std::vector<std::shared_ptr<Text>> m_Texts;
+	std::shared_ptr<Text> m_PointText;
+	std::shared_ptr<Text> m_LineText;
 	std::vector<std::shared_ptr<Text>> m_ModelTexts;
+	std::vector<std::shared_ptr<NEPoint>> m_NEPoints;
+	std::vector<std::shared_ptr<NELine>> m_NELines;
 
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;

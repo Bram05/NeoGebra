@@ -28,7 +28,7 @@ NEElement::NEElement(const std::vector<float>& identifiers, const Equation& def,
 			m_ID = m_Model->m_Elements.back().getID() + 1;
 		}
 		else { m_ID = 0; }
-		m_Model->m_Elements.push_back(*this);
+		m_Model->m_Elements.push_back(std::move(*this));
 		m_Model->solveVariables(this);
 	}
 }
