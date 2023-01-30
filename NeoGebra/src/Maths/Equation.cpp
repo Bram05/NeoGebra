@@ -357,7 +357,7 @@ double Equation::recGetResult(const AdvancedString& s, const std::map<AdvancedSt
 		if (s[0] == '[' and s.back() == ']') { return std::abs(recGetResult(s.substr(1, s.length() - 2), vars, ids)); }
 		if (s[0] == '!') { return !recGetResult(s.substr(1, s.length() - 1), vars, ids); }
 		if (s.size() > 4) {
-			if (s.substr(0, 3) == "ln(" and s.back() == ')') { return std::log(recGetResult(s.substr(3, s.length() - 3), vars, ids)); }
+			if (s.substr(0, 3) == "ln(" and s.back() == ')') { return std::log(recGetResult(s.substr(3, s.length() - 4), vars, ids)); }
 		}
 		if (s.size() > 5) {
 			if (s.substr(0, 4) == "sin(" and s.back() == ')') { return std::sin(recGetResult(s.substr(4, s.length() - 5), vars, ids)); }
@@ -538,7 +538,7 @@ std::string Equation::recToShader(const AdvancedString& s, const std::map<Advanc
 		if (s[0] == '[' and s.back() == ']') { return ("abs(" + recToShader(s.substr(1, s.length() - 2), vars, ids) + ')'); }
 		if (s[0] == '!') { return ("((" + recToShader(s.substr(1, s.length() - 1), vars, ids) + " == 0.0) ? 1/0.0 : 0.0)"); } //Have to look into potential problems
 		if (s.size() > 4) {
-			if (s.substr(0, 3) == "ln(" and s.back() == ')') { return "log(" + recToShader(s.substr(3, s.length() - 3), vars, ids) + ")"; }
+			if (s.substr(0, 3) == "ln(" and s.back() == ')') { return "log(" + recToShader(s.substr(3, s.length() - 4), vars, ids) + ")"; }
 		}
 		if (s.size() > 5) {
 			if (s.substr(0, 4) == "sin(" and s.back() == ')') { return "cos(" + recToShader(s.substr(4, s.length() - 5), vars, ids) + ")"; }

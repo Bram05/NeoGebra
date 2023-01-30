@@ -162,9 +162,6 @@ Application::Application()
 	m_WindowUI = new MainWindowUI;
 	m_Window->ToggleMaximized();
 	PrintInfo(std::cout << "Created application\n\n");
-	try {
-		std::cout << P2lineFromPoints[0].getResult({ {3.0, 4.0} });
-	} catch (ErrorBoxException) {}
 }
 
 Application::~Application()
