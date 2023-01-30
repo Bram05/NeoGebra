@@ -80,7 +80,7 @@ Application::Application()
 	//Equation P2betweenness{ {AdvancedString("p"), AdvancedString("q"), AdvancedString("r")}, AdvancedString("((p0 - r0)^2 + (p1 - r1)^2 > (p0 - q0)^2 + (p1 - q1)^2) & ((p0 - r0)^2 + (p1 - r1)^2 > (r0 - q0)^2 + (r1 - q1)^2)") };
 
 	EquationVector P2lineFromPoints{ // -p1^2// + ((p0 = q0) * q0)
-		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("10 != 10") }, //  + ((p0 = q0) * q0) // !(p0 = q0)) *  // /(-2p0+2q0) //  /
+		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("5 / 2 - 1") }, //  + ((p0 = q0) * q0) // !(p0 = q0)) *  // /(-2p0+2q0) //  /
 		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(0 & p0 = q0) | (!(p0 = q0) & sqrt((p0 - (q0^2+q1^2-p0^2-p1^2)/(-2p0+2q0))^2 + p1^2))")}
 	};
 

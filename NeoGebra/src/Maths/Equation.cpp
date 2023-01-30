@@ -458,13 +458,11 @@ std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<Advanc
 		}
 		return "(and " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
 	}
-	case '!': return "(not (feq " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + "))";
-	case '>':
-		if (!orEquals) { return "(> " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")"; }
-		else { return "(>= " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2.substr(1, s2.length() - 1), vars, toDefine, sqrts, ids) + ")"; }
-	case '<':
-		if (!orEquals) { return "(< " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")"; }
-		else { return "(<= " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2.substr(1, s2.length() - 1), vars, toDefine, sqrts, ids) + ")"; }
+	case 0x2260: return "(not (feq " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + "))";
+	case '>': return "(> " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
+	case 0x2265: return "(>= " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2.substr(1, s2.length() - 1), vars, toDefine, sqrts, ids) + ")";
+	case '<': return "(< " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
+	case 0x2264: return "(<= " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2.substr(1, s2.length() - 1), vars, toDefine, sqrts, ids) + ")";
 	case '=': return "(feq " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
 	case '+': return "(+ " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
 	case '-': return "(- " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
@@ -551,13 +549,11 @@ std::string Equation::recToShader(const AdvancedString& s, const std::map<Advanc
 	switch (s[operIndex]) {
 	case '|': return "min(abs(" + recToShader(s1, vars, ids) + "), abs(" + recToShader(s2, vars, ids) + "))";
 	case '&': return "max(abs(" + recToShader(s1, vars, ids) + "), abs(" + recToShader(s2, vars, ids) + "))";
-	case '!': return "((" + recToShader(s1, vars, ids) + " - " + recToShader(s2, vars, ids) + " == 0.0) ? -1 : 1.0)"; //Have to look into potential problems
-	case '>':
-		if (!orEquals) { return "((" + recToShader(s1, vars, ids) + " > " + recToShader(s2, vars, ids) + ") ? 0.0 : 1/0.0)"; }
-		else { return "((" + recToShader(s1, vars, ids) + " >= " + recToShader(s2, vars, ids) + ") ? 0.0 : 1/0.0)"; }
-	case '<':
-		if (!orEquals) { return "((" + recToShader(s1, vars, ids) + " < " + recToShader(s2, vars, ids) + ") ? 0.0 : 1/0.0)"; }
-		else { return "((" + recToShader(s1, vars, ids) + " <= " + recToShader(s2, vars, ids) + ") ? 0.0 : 1/0.0)"; }
+	case 0x2260: return "((" + recToShader(s1, vars, ids) + " - " + recToShader(s2, vars, ids) + " == 0.0) ? -1 : 1.0)"; //Have to look into potential problems
+	case '>': return "((" + recToShader(s1, vars, ids) + " > " + recToShader(s2, vars, ids) + ") ? 0.0 : 1/0.0)";
+	case 0x2265: return "((" + recToShader(s1, vars, ids) + " >= " + recToShader(s2, vars, ids) + ") ? 0.0 : 1/0.0)";
+	case '<': return "((" + recToShader(s1, vars, ids) + " < " + recToShader(s2, vars, ids) + ") ? 0.0 : 1/0.0)";
+	case 0x2264: return "((" + recToShader(s1, vars, ids) + " <= " + recToShader(s2, vars, ids) + ") ? 0.0 : 1/0.0)";
 	case '=': return recToShader(s1, vars, ids) + " - (" + recToShader(s2, vars, ids) + ")";
 	case '+': return recToShader(s1, vars, ids) + " + " + recToShader(s2, vars, ids);
 	case '-': return recToShader(s1, vars, ids) + " - " + recToShader(s2, vars, ids);
@@ -583,7 +579,7 @@ int Equation::getNextOperator(const AdvancedString& s, bool& orEquals ) const {
 			const unsigned int* res = std::find(std::begin(calcOrder), std::begin(calcOrder) + best, c);
 			if (res != std::begin(calcOrder) + best) {
 				// If operator is '-', the program needs to check if there is another operator in front of it, such as 5*-3=-15
-				if (!(c == '-' && (i == 0 || (std::find(std::begin(calcOrder), std::end(calcOrder), s[i - 1]) == std::end(calcOrder))) )) {
+				if (!(c == '-' && (i == 0 || (std::find(std::begin(calcOrder), std::end(calcOrder), s[i - 1]) != std::end(calcOrder))) )) {
 					best = std::distance(calcOrder, res);
 					operIndex = i;
 				}
