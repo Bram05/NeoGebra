@@ -19,12 +19,12 @@ void UpdateVariables(void* obj)
 		TextInputField* decl = (TextInputField*)(ui->m_UIElements[i * 2 + 1].get());
 		if (name->GetText().empty() || decl->GetText().empty())
 			continue;
-		map->emplace_back(name->GetText(), std::make_shared<Equation>(ui->m_Identifiers, decl->GetText()));
+		map->emplace_back(name->GetText(), std::make_shared<Equation>(decl->GetText()));
 	}
 }
 
-VariableWindowUI::VariableWindowUI(VarMapPart* variables, Window* window, const std::vector<AdvancedString>& identifiers)
-	: m_VarMapPart{ variables }, m_Identifiers{ identifiers }
+VariableWindowUI::VariableWindowUI(VarMapPart* variables, Window* window)
+	: m_VarMapPart{ variables }
 {
 	float currentHeight{ 1.0f - 0.05f };
 

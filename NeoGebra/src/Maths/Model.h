@@ -130,8 +130,12 @@ public:
 	const Equation& GetLineDef() const { return m_LineDef; }
 	const Equation& GetIncidenceConstr() const { return m_IncidenceConstr; }
 	const Equation& GetBetweennessConstr() const { return m_BetweennessConstr; }
+	const Equation& GetDistanceDef() const { return m_DistanceDef; }
+	const EquationVector& GetLineFromPoints() const { return m_LineFromPoints; }
+	const EquationVector& GetPointFromLines() const { return m_PointFromLines; }
+	const VarMap& GetVarMap() const { return m_Variables; }
 
-	NELine lineFromPoints(const NEPoint& l1, const NEPoint& l2);
+	NELine lineFromPoints(const NEPoint& p1, const NEPoint& p2);
 	NEPoint pointFromLines(const NELine& l1, const NELine& l2);
 
 	friend bool operator==(const NEElement& lhs, const NEElement& rhs);

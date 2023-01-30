@@ -389,7 +389,14 @@ double Equation::recGetResult(const AdvancedString& s, const std::map<AdvancedSt
 	case '=': return floatCompare(recGetResult(s1, vars, ids), recGetResult(s2, vars, ids));
 	case '+': return recGetResult(s1, vars, ids) + recGetResult(s2, vars, ids);
 	case '-': return recGetResult(s1, vars, ids) - recGetResult(s2, vars, ids);
-	case '*': return recGetResult(s1, vars, ids) * recGetResult(s2, vars, ids);
+	case '*':
+	{
+		double res1 = recGetResult(s1, vars, ids);
+		double res2 = recGetResult(s2, vars, ids);
+		if (floatCompare(res1, 0.0f) || floatCompare(res2, 0.0f))
+			return 0.0;
+		return res1 * res2;
+	}
 	case '/': return recGetResult(s1, vars, ids) / recGetResult(s2, vars, ids);
 	case '^': {
 		if (s1[0] == '-') {
@@ -608,6 +615,11 @@ AdvancedString operator+(const std::string& s1, const AdvancedString& s2) {
 	AdvancedString res = s2;
 	res.content.insert(res.content.begin(), s1.begin(), s1.end());
 	return res;
+}
+
+void operator+=(AdvancedString& s1, const AdvancedString& s2)
+{
+	s1.content.insert(s1.content.end(), s2.content.begin(), s2.content.end());
 }
 
 bool operator==(const AdvancedString& s1, const AdvancedString& s2) {
