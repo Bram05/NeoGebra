@@ -409,15 +409,7 @@ void EquationUI::UpdateGraphs()
 
 		try {
 			std::vector<float> identifiers{ ParseInput(text) };
-			if (identifiers.size() != Application::Get()->GetModel()->GetNumLineIdentifiers())
-			{
-				std::string input;
-				for (int i : text)
-					input.push_back(i);
-				std::cerr << "Failed to create the line: " << input << " because it has " << identifiers.size() << " identifiers while the model needs " << Application::Get()->GetModel()->GetNumLineIdentifiers() << '\n';
-				continue;
-			}
-			new NELine(identifiers, Application::Get()->GetModel(), { 255, 255, 0, 255 }, false);
+			UserInput(new NELine(identifiers, Application::Get()->GetModel(), { 255, 255, 0, 255 }, false));
 		}
 		catch (const std::exception&)
 		{

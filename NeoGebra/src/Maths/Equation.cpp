@@ -50,7 +50,18 @@ bool floatCompare(float f1, float f2) {
 
 std::map<AdvancedString, float> Equation::linkNumberedVars(const std::vector<std::vector<float>>& identifiers) const {
 	if (m_NumberedVarNames.size() != identifiers.size() && m_NumberedVarNames.size() != 0) {
-		throw std::invalid_argument("Invalid identifiers");
+		std::string identifierString;
+		identifierString += "( ";
+		for (const std::vector<float>& ids : identifiers) {
+			identifierString += "( ";
+			for (float id : ids) {
+				identifierString += std::format("{:.2f}", id) + " ";
+			}
+			identifierString += ") ";
+		}
+		identifierString += ")";
+		Application::Get()->GetWindowUI()->DisplayError("Invalid identifiers: " + identifierString + ". There should be " + std::to_string(m_NumberedVarNames.size()) + " sets of identifiers");
+		throw ErrorBoxException();
 	}
 	
 	std::map<AdvancedString, float> m;
@@ -346,7 +357,7 @@ double Equation::recGetResult(const AdvancedString& s, const std::map<AdvancedSt
 		if (s[0] == '[' and s.back() == ']') { return std::abs(recGetResult(s.substr(1, s.length() - 2), vars, ids)); }
 		if (s[0] == '!') { return !recGetResult(s.substr(1, s.length() - 1), vars, ids); }
 		if (s.size() > 4) {
-			if (s.substr(0, 3) == "ln(" and s.back() == ')') { return std::log(recGetResult(s.substr(4, s.length() - 4), vars, ids)); }
+			if (s.substr(0, 3) == "ln(" and s.back() == ')') { return std::log(recGetResult(s.substr(3, s.length() - 3), vars, ids)); }
 		}
 		if (s.size() > 5) {
 			if (s.substr(0, 4) == "sin(" and s.back() == ')') { return std::sin(recGetResult(s.substr(4, s.length() - 5), vars, ids)); }
@@ -369,10 +380,12 @@ double Equation::recGetResult(const AdvancedString& s, const std::map<AdvancedSt
 		if (s == "t") { return true; }
 		if (s == "f") { return false; }
 		if (s[0] == 0x03C0) { return piConstant; }
+		if (s[0] == 'e') { return eConstant; }
 		bool succes; double val;
 		std::tie(succes, val) = getVariable(s, ids);
 		if (succes) { return val; }
-		throw std::invalid_argument("Invalid operator");
+		Application::Get()->GetWindowUI()->DisplayError("Invalid statement: " + s.toString());
+		throw ErrorBoxException();
 	}
 
 	AdvancedString s1 = s.substr(0, operIndex);
@@ -399,7 +412,10 @@ double Equation::recGetResult(const AdvancedString& s, const std::map<AdvancedSt
 	}
 	case 0x221A: return std::pow(recGetResult(s2, vars, ids), 1 / recGetResult(s1, vars, ids));
 	case 0x33D2: return std::log(recGetResult(s2, vars, ids)) / std::log(recGetResult(s1, vars, ids));
-	default:  throw std::invalid_argument("Invalid operator");
+	default: {
+		Application::Get()->GetWindowUI()->DisplayError("Next operator not found: " + s.toString());
+		throw ErrorBoxException();
+	}
 	}
 }
 
@@ -438,6 +454,7 @@ std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<Advanc
 		if (s == "t") { return "true"; }
 		if (s == "f") { return "false"; }
 		
+		if (s[0] == 'e') { return std::to_string(eConstant); }
 		if (s[0] == 0x03C0) { return std::to_string(piConstant); }
 		bool succes; float val;
 		std::tie(succes, val) = getVariable(s, ids);
@@ -481,7 +498,10 @@ std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<Advanc
 		}
 	}
 	//ToDo add log to z3
-	default:  throw std::invalid_argument("Invalid operator");
+	default: {
+		Application::Get()->GetWindowUI()->DisplayError("Next operator not found: " + s.toString());
+		throw ErrorBoxException();
+	}
 	}
 }
 
@@ -511,7 +531,7 @@ std::string Equation::recToShader(const AdvancedString& s, const std::map<Advanc
 		if (s[0] == '[' and s.back() == ']') { return ("abs(" + recToShader(s.substr(1, s.length() - 2), vars, ids) + ')'); }
 		if (s[0] == '!') { return ("((" + recToShader(s.substr(1, s.length() - 1), vars, ids) + " == 0.0) ? 1/0.0 : 0.0)"); } //Have to look into potential problems
 		if (s.size() > 4) {
-			if (s.substr(0, 3) == "ln(" and s.back() == ')') { return "log(" + recToShader(s.substr(4, s.length() - 4), vars, ids) + ")"; }
+			if (s.substr(0, 3) == "ln(" and s.back() == ')') { return "log(" + recToShader(s.substr(3, s.length() - 3), vars, ids) + ")"; }
 		}
 		if (s.size() > 5) {
 			if (s.substr(0, 4) == "sin(" and s.back() == ')') { return "cos(" + recToShader(s.substr(4, s.length() - 5), vars, ids) + ")"; }
@@ -533,6 +553,7 @@ std::string Equation::recToShader(const AdvancedString& s, const std::map<Advanc
 
 		if (s == "t") { return "true"; }
 		if (s == "f") { return "false"; }
+		if (s[0] == 'e') { return std::to_string(eConstant); }
 		if (s[0] == 0x03C0) { return std::to_string(piConstant); }
 		if (s == "x" or s == "y") { return "coords." + s.toString(); }
 		bool succes; float val;
@@ -540,7 +561,8 @@ std::string Equation::recToShader(const AdvancedString& s, const std::map<Advanc
 		if (succes && isinf(val)) { return "1.0f/0.0f"; }
 		if (succes && isnan(val)) { return "0.0f"; }
 		if (succes) { return std::to_string(val); }
-		throw std::invalid_argument("Invalid statement");
+		Application::Get()->GetWindowUI()->DisplayError("Invalid statement: " + s.toString());
+		throw ErrorBoxException();
 	}	
 
  	AdvancedString s1 = s.substr(0, operIndex);
@@ -562,7 +584,10 @@ std::string Equation::recToShader(const AdvancedString& s, const std::map<Advanc
 	case '^': return "customPow( " + recToShader(s1, vars, ids) + ", " + recToShader(s2, vars, ids) + ")"; 
 	case 0x221A: return "customPow( " + recToShader(s2, vars, ids) + ", (1.0 / " + recToShader(s1, vars, ids) + "))";
 	case 0x33D2: return "log( " + recToShader(s2, vars, ids) + " ) / log( " + recToShader(s1, vars, ids) + ")";
-	default:  throw std::invalid_argument("Invalid operator");
+	default: {
+		Application::Get()->GetWindowUI()->DisplayError("Next operator not found: " + s.toString());
+		throw ErrorBoxException();
+	}
 	}
 }
 
@@ -587,7 +612,10 @@ int Equation::getNextOperator(const AdvancedString& s, bool& orEquals ) const {
 		}
 	}
 
-	if (depth != 0) { throw std::invalid_argument("Invalid brackets"); }
+	if (depth != 0) {
+		Application::Get()->GetWindowUI()->DisplayError("Invalid brackets:  " + s.toString());
+		throw ErrorBoxException();
+	}
 
 	return operIndex;
 }

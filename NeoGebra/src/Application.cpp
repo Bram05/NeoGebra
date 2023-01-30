@@ -105,12 +105,12 @@ Application::Application()
 	std::shared_ptr<NEPoint> o(new NEPoint({ 0.0f,  0.0f }, m_Model, { 255, 0, 0, 255 }));
 	std::cout << distance(*p1, *p4) << std::endl;
 
-	std::vector<float> idsp = m_Model->pointFromLines(*l1, *l2).getIdentifiers();
-	std::cout << idsp[0] << ' ' << idsp[1] << std::endl;
-	NELine l = m_Model->lineFromPoints(*p1, *p2);
-	l.setColour({ 0, 0, 255, 255 });
-	std::vector<float> idsl = l.getIdentifiers();
-	std::cout << idsl[0] << ' ' << idsl[1] << std::endl;
+	//std::vector<float> idsp = m_Model->pointFromLines(*l1, *l2).getIdentifiers();
+	//std::cout << idsp[0] << ' ' << idsp[1] << std::endl;
+	//NELine l = m_Model->lineFromPoints(*p1, *p2);
+	//l.setColour({ 0, 0, 255, 255 });
+	//std::vector<float> idsl = l.getIdentifiers();
+	//std::cout << idsl[0] << ' ' << idsl[1] << std::endl;
 
 	Application::s_Instance = this;
 	m_Window = new Window(WindowCreationOptions(1080, 720, "NeoGeobra", MouseClickCallback, TextCallback, MouseMovedCallback, KeyCallback, ResizeCallback));
@@ -118,6 +118,9 @@ Application::Application()
 	m_WindowUI = new MainWindowUI;
 	m_Window->ToggleMaximized();
 	PrintInfo(std::cout << "Created application\n\n");
+	try {
+		std::cout << P2lineFromPoints[0].getResult({ {3.0, 4.0} });
+	} catch (ErrorBoxException) {}
 }
 
 Application::~Application()
@@ -170,6 +173,6 @@ void Application::UpdateFrameTimes()
 }
 
 Application* Application::Get()
-{
+	{
 	return s_Instance;
 }

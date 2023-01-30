@@ -1,4 +1,5 @@
 #include "Model.h"
+#include "Application.h"
 
 RGBColour::RGBColour() : RGBColour(0,0,0,0) {}
 
@@ -18,9 +19,18 @@ NEElement::NEElement(const std::vector<float>& identifiers, const Equation& def,
 			resNames.push_back(def.m_NumberedVarNames[0].toString() + std::to_string(i));
 		}
 
-		if (identifiers.size() != identNum or !def.getSolution({ identifiers }, { m_ID }, resNames)) {
-			throw std::invalid_argument("Invalid element");
+		//if (!def.getSolution({ identifiers }, { m_ID }, resNames))
+	}
+
+	if (identifiers.size() != identNum) {
+		std::string identifierString;
+		identifierString += "( ";
+		for (float id : identifiers) {
+			identifierString += std::format("{:.2f}", id) + " ";
 		}
+		identifierString += ")";
+		Application::Get()->GetWindowUI()->DisplayError("Invalid identifiers: " + identifierString + ". There should be " + std::to_string(identNum) + " identifiers");
+		throw ErrorBoxException();
 	}
 
 	if (m_Type != notype) {
@@ -186,7 +196,8 @@ std::vector<float> Model::generateXFromY(const NEElement& e1, const NEElement& e
 	z3::solver solver(c);
 	bool sat = eq.getSolution({ e1.getIdentifiers(), e2.getIdentifiers() }, { e1.getID(), e2.getID() }, resNames, &c, &solver, sqrts, extraSMT);
 	if (!sat) {
-		throw std::invalid_argument("I-1 failed");
+		Application::Get()->GetWindowUI()->DisplayError("Solution not found");
+		throw ErrorBoxException();
 	}
 
 	//Get output from z3
