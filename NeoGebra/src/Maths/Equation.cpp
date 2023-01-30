@@ -1,8 +1,8 @@
 #include "Equation.h"
 #include "Application.h"
 
-#define OPERNUM 16
-const unsigned int calcOrder[OPERNUM] = { '|', '&', '!', '>', '<', 0x2265, 0x2264, 0x2260, '=', '+', '-', '*', '/', '^', 0x221A, 0x33D2};
+#define OPERNUM 15
+const unsigned int calcOrder[OPERNUM] = { '|', '&', '>', '<', 0x2265, 0x2264, 0x2260, '=', '+', '-', '*', '/', '^', 0x221A, 0x33D2};
 const unsigned int specialCharacters[] = { '|', '&', '!', '>', '<', 0x2265, 0x2264, 0x2260, '=', '+', '-', '*', '/', '^', 0x221A, 0x33D2, '(', ')'};
 
 /// Checks if a string contains a signed float. 
