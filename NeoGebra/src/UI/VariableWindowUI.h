@@ -9,7 +9,7 @@ using VarMapPart=std::vector<std::pair<AdvancedString, std::shared_ptr<Equation>
 class VariableWindowUI : public WindowUI
 {
 public:
-	VariableWindowUI(VarMapPart* variables, Window* window, const std::vector<AdvancedString>& identifier);
+	VariableWindowUI(VarMapPart* variables, Window* window);
 
 	virtual void RenderPass(Renderer* r) override;
 
@@ -18,5 +18,4 @@ public:
 private:
 	VarMapPart* m_VarMapPart;
 	std::vector<std::shared_ptr<Text>> m_Texts;
-	std::vector<AdvancedString> m_Identifiers;
 };

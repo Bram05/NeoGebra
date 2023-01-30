@@ -16,10 +16,14 @@ TextInputField::TextInputField(float leftX, float rightX, float topY, float bott
 	m_Lines.push_back(std::make_shared<Line>(Point(leftX, bottomY), Point(rightX, bottomY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}, lineThickness));
 	m_Lines.push_back(std::make_shared<Line>(Point(rightX, bottomY), Point(rightX, topY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}, lineThickness));
 	m_Lines.push_back(std::make_shared<Line>(Point(rightX, topY), Point(leftX, topY), std::array<float, 4>{0.0f, 0.0f, 0.0f, 1.0f}, lineThickness));
-	m_Text = std::make_shared<Text>(defaultText, leftX + 0.01f, rightX - 0.01f, bottomY + 0.020f /*0.18f * (topY - bottomY)*/, 40.0f, false);
-	//auto [width, height] = Application::Get()->GetWindow()->GetSize();
-	m_Editingindex = defaultText.size();
+	m_Text = std::make_shared<Text>("", leftX + 0.01f, rightX - 0.01f, bottomY + 0.020f /*0.18f * (topY - bottomY)*/, 40.0f, false);
+	m_Editingindex = 0;
 	m_EditingLine = std::make_shared<Line>(Point(0, 0), Point(0, 0));
+	for (unsigned int c : defaultText)
+		TextInput(c);
+
+	//auto [width, height] = Application::Get()->GetWindow()->GetSize();
+	//m_Editingindex = defaultText.size();
 	UpdateEditingLine();
 	//m_EditingLine= std::make_shared<Line>(Point(m_LeftX + 0.01f, m_BottomY + 0.045f), Point(m_LeftX + 0.01f, m_BottomY + 0.05f + (float)60 / height));
 }
@@ -121,8 +125,9 @@ void TextInputField::SpecialKeyInput(int key, int scancode, int action, int mods
 	}
 }
 
-void TextInputField::ResizeWindow(int widht, int height)
+void TextInputField::ResizeWindow(int width, int height)
 {
+	UpdateEditingIndex(m_Editingindex, false, true);
 	UpdateEditingLine();
 }
 
@@ -165,16 +170,16 @@ void TextInputField::UpdateEditingLine()
 	m_EditingLine->SetLocation(Point(x, m_BottomY + 0.020f), Point(x, m_TopY - 0.020f));
 }
 
-void TextInputField::UpdateEditingIndex(int newIndex, bool isRemoved)
+void TextInputField::UpdateEditingIndex(int newIndex, bool isRemoved, bool wasResized)
 {
 	auto [width, height] = m_Window->GetSize();
 	int offset = (newIndex - m_Editingindex);
 	m_Editingindex = newIndex;
 	auto font{ Application::Get()->GetRenderer()->GetFont() };
-	if (offset >= 0) // Offset is 0 after delete is pressed
+	if (offset >= 0 || wasResized) // Offset is 0 after delete is pressed
 	{
 		// TODO hij gaat er nog wel eens overheen
-		if (m_Editingindex > m_Text->m_RenderEnd)
+		if (m_Editingindex > m_Text->m_RenderEnd | wasResized)
 		{
 			m_Text->m_RenderEnd = m_Editingindex; // maybe change this to += offset for a nicer effect when jumping around
 			m_Text->m_RenderBegin = m_Text->m_RenderEnd - 1;

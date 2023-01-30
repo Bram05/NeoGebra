@@ -10,7 +10,7 @@
 class TextInputFieldWithDesc : public UIElement
 {
 public:
-	TextInputFieldWithDesc(float leftX, float rightX, float topY, float bottomY, const std::string& text, float width, void(*enterCallback)(void*) = nullptr, void* obj = nullptr, float textSize = 43.0f);
+	TextInputFieldWithDesc(float leftX, float rightX, float topY, float bottomY, const std::string& text, float width, void(*enterCallback)(void*) = nullptr, void* obj = nullptr, float textSize = 43.0f, const AdvancedString& defaultText = AdvancedString(""));
 	~TextInputFieldWithDesc();
 
 	const AdvancedString& GetText() const { return ((TextInputField*)m_SubUIElements[0].element.get())->GetText(); }

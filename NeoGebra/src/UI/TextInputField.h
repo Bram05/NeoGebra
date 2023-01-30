@@ -36,5 +36,5 @@ private:
 
 	// Update the blinking line that indicates where the cursor is
 	void UpdateEditingLine();
-	void UpdateEditingIndex(int offset, bool isRemoved);
+	void UpdateEditingIndex(int offset, bool isRemoved, bool wasResized = false);
 };

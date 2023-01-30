@@ -120,6 +120,7 @@ Equation operator!(const Equation& e);
 AdvancedString operator+(const AdvancedString& s1, const AdvancedString& s2);
 AdvancedString operator+(const AdvancedString& s1, const std::string& s2);
 AdvancedString operator+(const std::string& s1, const AdvancedString& s2);
+void operator+=(AdvancedString& s1, const AdvancedString& s2);
 bool operator==(const AdvancedString& s1, const AdvancedString& s2);
 bool operator==(const AdvancedString& s1, const std::string& s2);
 bool operator==(const std::string& s1, const AdvancedString& s2);
