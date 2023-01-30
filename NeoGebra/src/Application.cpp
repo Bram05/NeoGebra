@@ -4,6 +4,7 @@
 #include "Application.h"
 #include "Constants.h"
 #include "Util.h"
+#include "Maths/PostulateVerifier.h" // Temporary
 
 #include <GLFW/glfw3.h> // I don't like this
 
@@ -162,6 +163,8 @@ Application::Application()
 	m_WindowUI = new MainWindowUI;
 	m_Window->ToggleMaximized();
 	PrintInfo(std::cout << "Created application\n\n");
+
+	//PostulateVerifier::I2(*m_Model);
 }
 
 Application::~Application()

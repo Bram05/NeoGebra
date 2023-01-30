@@ -75,8 +75,9 @@ std::map<AdvancedString, float> Equation::linkNumberedVars(const std::vector<std
 }
 
 // replace logx with 10logx and sqrt(x) with 2sqrt(x) and 5(...) with 5*(...)
-void cleanUpEquation(AdvancedString& s) {
+void Equation::cleanUpEquation(AdvancedString& s) {
 	replaceAll(s, AdvancedString(" "), AdvancedString(""));
+	//replaceVarName(s, AdvancedString("pi"), AdvancedString({ 0x03C0 }));
 	replaceAll(s, AdvancedString("~"), AdvancedString({ 0x221A }));
 	replaceAll(s, AdvancedString("log"), AdvancedString({ 0x33D2 }));
 	replaceAll(s, AdvancedString("sqrt("), AdvancedString(std::vector<unsigned int>{ 0x221A, '('}));

@@ -79,6 +79,7 @@ private:
 	*/
 	std::map<AdvancedString, float> linkNumberedVars(const std::vector<std::vector<float>>& identifiers) const;
 	void replaceVarName(AdvancedString& s, const AdvancedString& from, const AdvancedString& to) const;
+	void cleanUpEquation(AdvancedString& s);
 
 	SolvedVarMap* m_SolvedDefinedVars;
 	std::vector<NEType> m_NumberedVarInputTypes;

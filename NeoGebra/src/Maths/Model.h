@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include "Equation.h"
+#include "PostulateVerifier.h"
 
 class Model;
 class NEElement;
@@ -145,6 +146,7 @@ public:
 	friend NEElement;
 	friend NEPoint;
 	friend NELine;
+	friend PostulateVerifier;
 };
 
 bool operator==(const NEElement& lhs, const NEElement& rhs);

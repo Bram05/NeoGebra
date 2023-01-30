@@ -454,27 +454,9 @@ void EquationUI::UpdateGraphs()
 		if (text.empty())
 			continue;
 
-		try {
-			std::vector<float> identifiers{ ParseInput(text) };
-			if (identifiers.size() != Application::Get()->GetModel()->GetNumPointIdentifiers())
-			{
-				std::string input;
-				for (int i : text)
-					input.push_back(i);
-				std::cerr << "Failed to create the point: " << input << " because it has " << identifiers.size() << " identifiers while the model needs " << Application::Get()->GetModel()->GetNumPointIdentifiers() << '\n';
-				continue;
-			}
-			m_NEPoints.push_back(std::make_shared<NEPoint>(identifiers, Application::Get()->GetModel(), RGBColour{ 255, 0, 0, 255 }, false));
-		}
-			UserInput(new NEPoint(identifiers, Application::Get()->GetModel(), { 255, 0, 0, 255 }, false));
-		}
-		catch (const std::exception&)
-		{
-			std::string input;
-			for (int i : text)
-				input.push_back(i);
-			std::cerr << "Failed to create the point " << input << '\n';
-		}
+		std::vector<float> identifiers{ ParseInput(text) };
+		UserInput(new NEPoint(identifiers, Application::Get()->GetModel(), { 255, 0, 0, 255 }, false));
+
 	}
 
 	for (int i{ m_LinesIndexBegin }; i < m_LinesIndexBegin + NumInputFields; ++i)
@@ -483,26 +465,9 @@ void EquationUI::UpdateGraphs()
 		if (text.empty())
 			continue;
 
-		try {
-			std::vector<float> identifiers{ ParseInput(text) };
-			if (identifiers.size() != Application::Get()->GetModel()->GetNumLineIdentifiers())
-			{
-				std::string input;
-				for (int i : text)
-					input.push_back(i);
-				std::cerr << "Failed to create the line: " << input << " because it has " << identifiers.size() << " identifiers while the model needs " << Application::Get()->GetModel()->GetNumLineIdentifiers() << '\n';
-				continue;
-			}
-			m_NELines.push_back(std::make_shared<NELine>(identifiers, Application::Get()->GetModel(), RGBColour{ 255, 255, 0, 255 }, false));
-			UserInput(new NELine(identifiers, Application::Get()->GetModel(), { 255, 255, 0, 255 }, false));
-		}
-		catch (const std::exception&)
-		{
-			std::string input;
-			for (int i : text)
-				input.push_back(i);
-			std::cerr << "Failed to create the line " << input << '\n';
-		}
+		std::vector<float> identifiers{ ParseInput(text) };
+		UserInput(new NELine(identifiers, Application::Get()->GetModel(), { 255, 255, 0, 255 }, false));
+
 	}
 	Application::Get()->GetWindowUI()->UpdateGraphUI();
 }
