@@ -2,14 +2,11 @@
 #include <vector>
 #include <string>
 #include "Equation.h"
-#include "PostulateVerifier.h"
 
 class Model;
 class NEElement;
 class NEPoint;
 class NELine;
-
-// Moved NEType to Equation.h
 
 struct RGBColour
 {

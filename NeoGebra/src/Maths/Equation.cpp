@@ -278,6 +278,7 @@ bool Equation::getSolution(const std::vector<std::vector<float>>& identifiers, s
 
 	if (Z3_ast_vector_size(*cPtr, test2) == 0) {
 		Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString:\n"+smtLibString);
+		throw ErrorBoxException();
 	}
 
 	for (int i{}; i < Z3_ast_vector_size(*cPtr, test2); ++i) {

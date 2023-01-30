@@ -16,6 +16,7 @@ enum NEType
 struct AdvancedString;
 class Equation;
 class Model;
+class PostulateVerifier;
 
 typedef std::pair<std::vector<std::pair < AdvancedString, std::shared_ptr<Equation> >>, std::vector<std::pair < AdvancedString, std::shared_ptr<Equation> >> > VarMap;
 typedef std::map < std::pair<NEType, AdvancedString>, std::map<int, double> > SolvedVarMap;
@@ -113,6 +114,7 @@ public:
 	std::string toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, bool useCustomScroll, const Equation& customScrollX, const Equation& customScrollY) const;
 
 	friend Model;
+	friend PostulateVerifier;
 };
 
 Equation operator+(const Equation& e1, const Equation& e2);
