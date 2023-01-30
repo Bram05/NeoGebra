@@ -1,6 +1,7 @@
 #pragma once
 
 #include "z3++.h"
+#include "Util.h"
 #include <regex>
 #include <set>
 
@@ -28,12 +29,7 @@ struct AdvancedString {
 	AdvancedString() {}
 	explicit AdvancedString(const std::string& str) { for (const char c : str) { content.push_back(c); } }
 	explicit AdvancedString(const std::vector<unsigned int>& v) : content(v) {}
-	AdvancedString(unsigned int c) 
-		: 
-		content({c}) 
-	{
-
-	}
+	AdvancedString(unsigned int c) : content({c}) {}
 	AdvancedString(const AdvancedString& s) : content(s.content) {}
 	size_t size() const { return content.size(); }
 	size_t length() const { return content.size(); }

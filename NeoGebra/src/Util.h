@@ -4,6 +4,9 @@
 
 #include "Constants.h"
 
+class ErrorBoxException : public std::exception {};
+#define UserInput(...) try { __VA_ARGS__; } catch(ErrorBoxException) {}
+
 namespace Util
 {
 	// Convert between pixel coordinates and OpenGL coordinates.

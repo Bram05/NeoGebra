@@ -466,6 +466,8 @@ void EquationUI::UpdateGraphs()
 			}
 			m_NEPoints.push_back(std::make_shared<NEPoint>(identifiers, Application::Get()->GetModel(), RGBColour{ 255, 0, 0, 255 }, false));
 		}
+			UserInput(new NEPoint(identifiers, Application::Get()->GetModel(), { 255, 0, 0, 255 }, false));
+		}
 		catch (const std::exception&)
 		{
 			std::string input;
@@ -492,6 +494,7 @@ void EquationUI::UpdateGraphs()
 				continue;
 			}
 			m_NELines.push_back(std::make_shared<NELine>(identifiers, Application::Get()->GetModel(), RGBColour{ 255, 255, 0, 255 }, false));
+			UserInput(new NELine(identifiers, Application::Get()->GetModel(), { 255, 255, 0, 255 }, false));
 		}
 		catch (const std::exception&)
 		{
