@@ -10,6 +10,8 @@
 
 static void TabButtonClickedStatic(void*,int);
 
+constexpr int NumInputFields{ 8 };
+
 // Represents what will eventually be the part where equations can be written
 class EquationUI : public UIElement
 {
@@ -29,8 +31,8 @@ protected:
 	std::shared_ptr<Text> m_PointText;
 	std::shared_ptr<Text> m_LineText;
 	std::vector<std::shared_ptr<Text>> m_ModelTexts;
-	std::vector<std::shared_ptr<NEPoint>> m_NEPoints;
-	std::vector<std::shared_ptr<NELine>> m_NELines;
+	std::array<std::shared_ptr<NEPoint>, NumInputFields> m_NEPoints;
+	std::array<std::shared_ptr<NELine>, NumInputFields> m_NELines;
 
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;

@@ -64,11 +64,16 @@ std::map<AdvancedString, float> Equation::linkNumberedVars(const std::vector<std
 		throw ErrorBoxException();
 	}
 	
-	std::map<AdvancedString, float> m;
+	std::map<AdvancedString, float> m{};
 	for (int i = 0; i < m_NumberedVarNames.size(); ++i) {
 		AdvancedString numberedVarName(m_NumberedVarNames[i]);
 		for (int j = 0; j < identifiers[i].size(); ++j) {
-			m[numberedVarName + std::to_string(j)] = identifiers[i][j];
+			auto[it, worked] = m.insert({numberedVarName + std::to_string(j), identifiers[i][j]});
+			if (!worked)
+			{
+				Application::Get()->GetWindowUI()->DisplayError("Invalid identifier names. Did you chose the same name twice?");
+				throw ErrorBoxException();
+			}
 		}
 	}
 	return m;
