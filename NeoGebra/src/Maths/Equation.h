@@ -30,7 +30,7 @@ struct AdvancedString {
 	AdvancedString() {}
 	explicit AdvancedString(const std::string& str) { for (const char c : str) { content.push_back(c); } }
 	explicit AdvancedString(const std::vector<unsigned int>& v) : content(v) {}
-	AdvancedString(unsigned int c) : content({c}) {}
+	explicit AdvancedString(unsigned int c) : content({c}) {}
 	AdvancedString(const AdvancedString& s) : content(s.content) {}
 	size_t size() const { return content.size(); }
 	size_t length() const { return content.size(); }
@@ -58,7 +58,7 @@ class Equation
 {
 private:
 	double	   recGetResult(const AdvancedString& s, const std::map<AdvancedString, float>& vars, std::vector<int> ids) const;
-	std::string recToSmtLib(const AdvancedString& s, const std::map<AdvancedString, float>& vars, std::set<std::string>& toDefine, std::vector<std::pair<std::string, std::string>>& sqrts, std::vector<int> ids, bool isFirstLayer = false) const;
+	std::string recToSmtLib(const AdvancedString& s, const std::map<AdvancedString, float>& vars, std::set<std::string>& toDefine, std::vector<std::pair<std::string, std::string>>& sqrts, std::vector<int> ids, bool isFirstLayer = false, bool embeddedEquals = true) const;
 	std::string recToShader(const AdvancedString& s, const std::map<AdvancedString, float>& vars, std::vector<int> ids) const;
 	int		getNextOperator(const AdvancedString& s, bool& orEquals) const;
 
@@ -110,8 +110,7 @@ public:
 	double getResult(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
 	bool isTrue(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
 	std::string toSmtLib(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, const std::vector<std::string>& resNames, const std::vector<std::pair<std::string, std::string>>& extraSqrts = {}, const std::string& extraSMT = {}) const;
-	std::string toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const { return toShader(identifiers, ids, false, AdvancedString(), AdvancedString()); }
-	std::string toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, bool useCustomScroll, const Equation& customScrollX, const Equation& customScrollY) const;
+	std::string toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
 
 	friend Model;
 	friend PostulateVerifier;
@@ -123,9 +122,13 @@ Equation operator!(const Equation& e);
 AdvancedString operator+(const AdvancedString& s1, const AdvancedString& s2);
 AdvancedString operator+(const AdvancedString& s1, const std::string& s2);
 AdvancedString operator+(const std::string& s1, const AdvancedString& s2);
+AdvancedString operator+(const AdvancedString& s1, const char& s2);
+AdvancedString operator+(const char& s1, const AdvancedString& s2);
 void operator+=(AdvancedString& s1, const AdvancedString& s2);
 bool operator==(const AdvancedString& s1, const AdvancedString& s2);
 bool operator==(const AdvancedString& s1, const std::string& s2);
 bool operator==(const std::string& s1, const AdvancedString& s2);
+bool operator==(const AdvancedString& s1, const char& s2);
+bool operator==(const char& s1, const AdvancedString& s2);
 
 bool operator<(const AdvancedString& s1, const AdvancedString& s2);

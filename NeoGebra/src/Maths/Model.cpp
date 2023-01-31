@@ -44,7 +44,7 @@ NEElement::NEElement(const std::vector<float>& identifiers, const Equation& def,
 }
 
 std::string NEElement::getShader() {
-	return m_Def.toShader({ m_Identifiers }, { m_ID }, m_Model->m_UseCustomScroll, m_Model->m_CustomScrollX, m_Model->m_CustomScrollY);
+	return m_Def.toShader({ m_Identifiers }, { m_ID });
 }
 
 NEPoint::NEPoint(const std::vector<float>& identifiers, std::shared_ptr<Model> m, const RGBColour& colour, bool checkValidity)
@@ -168,7 +168,7 @@ std::vector<float> Model::generateXFromY(const NEElement& e1, const NEElement& e
 	std::vector<std::pair < AdvancedString, std::shared_ptr<Equation> >> m = e1.getType() == line ? m_Variables.first : m_Variables.second;
 	Equation& def = e1.getType() == line ? m_PointDef : m_LineDef;
 	int definedSqrts = 0;
-	extraSMT = "(assert " + def.recToSmtLib(def.m_EquationString, tmp2, tmp, sqrts, {}, true) + ")";
+	extraSMT = "(assert " + def.recToSmtLib(def.m_EquationString, tmp2, tmp, sqrts, {}, true, false) + ")";
 	for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
 		std::string def = sqrts[i].first;
 		std::string pow = sqrts[i].second;
@@ -177,7 +177,7 @@ std::vector<float> Model::generateXFromY(const NEElement& e1, const NEElement& e
 	extraSMT = "(declare-const x Real)(declare-const y Real)" + extraSMT;
 	definedSqrts = sqrts.size();
 	for (int i = m.size() - 1; i >= 0; --i) {
-		extraSMT = "(define-fun " + m_IncidenceConstr.m_NumberedVarNames[e1.getType() == line ? 0 : 1].toString() + "." + m[i].first.toString() + " () Real " + m[i].second->recToSmtLib(m[i].second->m_EquationString, tmp2, tmp, sqrts, {}, true) + ")" + extraSMT;
+		extraSMT = "(define-fun " + m_IncidenceConstr.m_NumberedVarNames[e1.getType() == line ? 0 : 1].toString() + "." + m[i].first.toString() + " () Real " + m[i].second->recToSmtLib(m[i].second->m_EquationString, tmp2, tmp, sqrts, {}, true, false) + ")" + extraSMT;
 		for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
 			std::string def = sqrts[i].first;
 			std::string pow = sqrts[i].second;

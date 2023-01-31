@@ -77,9 +77,6 @@ class Model : public std::enable_shared_from_this<Model> {
 	EquationVector m_LineFromPoints;
 	EquationVector m_PointFromLines;
 
-	Equation m_CustomScrollX = Equation({});
-	Equation m_CustomScrollY = Equation({});
-	bool m_UseCustomScroll = false;
 
 	unsigned int m_PointIdentifiers;
 	unsigned int m_LineIdentifiers;
@@ -117,9 +114,6 @@ public:
 
 	void addExtraEquation(Equation& eq, const RGBColour& colour = RGBColour(125, 125, 125, 255));
 	std::vector<NEElement>& getExtraEquations() { return m_ExtraEquations; }
-
-	void setCustomScroll(const Equation& customScrollX, const Equation& customScrollY) { m_CustomScrollX = customScrollX; m_CustomScrollY = customScrollY;}
-	void toggleCustomScroll(bool state) { m_UseCustomScroll = state; }
 
 	std::vector<NEElement>& getElements() { return m_Elements; }
 	unsigned int GetNumPointIdentifiers() const { return m_PointIdentifiers; }

@@ -86,9 +86,6 @@ Application::Application()
 		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(0 & p0 = q0) | (!(p0 = q0) & sqrt((p0 - (q0^2+q1^2-p0^2-p1^2)/(-2p0+2q0))^2 + p1^2))")}
 	};
 
-	//Equation P2customScrollPointX{ {AdvancedString("dx"), AdvancedString("dy")}, AdvancedString("tanh(0.5dx)") };
-	//Equation P2customScrollPointY{ {AdvancedString("dx"), AdvancedString("dy")}, AdvancedString("tanh(0.5dy)")};
-
 	m_Model = std::make_shared<Model>(P2variables, 2, P2pointDef, 2, P2lineDef, P2incidence, P2distanceDef, Equation{ {} });
 
 
@@ -119,8 +116,8 @@ Application::Application()
 
 	VarMap variables;
 	Equation pointDef(std::vector<AdvancedString>{AdvancedString("p")}, AdvancedString("x=p0 & y=p1 & y>0"));
-	Equation lineDef(std::vector<AdvancedString>{AdvancedString("l")}, AdvancedString("y > 0 & ((x - l0)^2 + y^2 = l1 | (x = l0 * (l1 = 0))) & !(l0 < 0)"));
-	Equation incidenceDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("l")}, AdvancedString("p1 > 0 & ((p0 - l0)^2 + p1^2 = l1 | (p0 = l0 & (l1 = 0))) & !(l0 < 0)"));
+	Equation lineDef(std::vector<AdvancedString>{AdvancedString("l")}, AdvancedString("y > 0 & ((x - l0)^2 + y^2 = l1 | (x = l0 & (l1 = 0))) & !(l1 < 0)"));
+	Equation incidenceDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("l")}, AdvancedString("p1 > 0 & ((p0 - l0)^2 + p1^2 = l1 | (p0 = l0 & (l1 = 0))) & !(l1 < 0)"));
 	Equation distanceDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q")}, AdvancedString("2 * atanh(sqrt(((q0-p0)^2+(q1-p1)^2)/((q0-p0)^2 + (q1+p1)^2)))"));
 	Equation betweennessDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q"), AdvancedString("r")}, AdvancedString("((p0 < q0 & q0 < r0) | p0 > q0 & q0 > r0) | ((p0 = q0 & q0 = r0) & p1 < q1 & q1 < r1)"));
 
@@ -164,7 +161,7 @@ Application::Application()
 	m_Window->ToggleMaximized();
 	PrintInfo(std::cout << "Created application\n\n");
 
-	//PostulateVerifier::I2(*m_Model);
+	//PostulateVerifier::I3(*m_Model);
 }
 
 Application::~Application()

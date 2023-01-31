@@ -29,7 +29,7 @@ KeyboardUI::KeyboardUI(float leftX, float rightX, float topY, float bottomY)
 	float x = leftX + indent;
 	float y = topY - 0.01f;
 	for (int i = 1; i <= textList.size(); i++) {
-		m_SubUIElements.push_back({ std::make_shared<ButtonUI>(x, x + buttonWidth, y, y - buttonWidth, insertKey, &textList[i-1], textList[i-1]) });
+		m_SubUIElements.push_back({ std::make_shared<ButtonUI>(x, x + buttonWidth, y, y - buttonWidth, insertKey, &textList[i-1], AdvancedString(textList[i-1])) });
 		if (i % 4 == 0) {
 			x = leftX + indent;
 			y -= buttonWidth;

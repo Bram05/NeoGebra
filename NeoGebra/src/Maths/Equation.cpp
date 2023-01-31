@@ -195,6 +195,12 @@ void Equation::replaceVarName(AdvancedString& s, const AdvancedString& from, con
 				s.insert(s.begin() + i, to.begin(), to.end());
 				i += to.length() + k;
 			}
+			else if ((from == "x" || from == "y") && (i == 0 || std::find(std::begin(specialCharacters), std::end(specialCharacters), s[i - 1]) != std::end(specialCharacters)) &&
+				(i + from.size() == s.size() || std::find(std::begin(specialCharacters), std::end(specialCharacters), s[i + from.size()]) != std::end(specialCharacters))) {
+				s.erase(s.begin() + i, s.begin() + i + from.size());
+				s.insert(s.begin() + i, to.begin(), to.end());
+				i += to.length();
+			}
 		}
 	}
 }
@@ -319,7 +325,7 @@ std::string Equation::toSmtLib(const std::vector<std::vector<float>>& identifier
 	sqrts.insert(sqrts.begin(), extraSqrts.begin(), extraSqrts.end());
 	int definedSqrts = sqrts.size();
 	std::map<AdvancedString, float> vars = linkNumberedVars(identifiers);
-	std::string out = "(assert " + recToSmtLib(m_EquationString, vars, toDefine, sqrts, ids, true) + ")(check-sat)";
+	std::string out = "(assert " + recToSmtLib(m_EquationString, vars, toDefine, sqrts, ids, true, false) + ")(check-sat)";
 
 	for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
 		std::string def = sqrts[i].first;
@@ -335,11 +341,18 @@ std::string Equation::toSmtLib(const std::vector<std::vector<float>>& identifier
 	for (std::string var : toDefine) {
 		out = "(declare-const " + var + " Real)" + out;
 	}
-
-	return "(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))" + out;
+	///
+	//  (define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))
+	//	(define-fun feqReal((a Real)(b Real)) Real(ite(< (abs(- a b)) 0.0001) 1.0 0.0))
+	//	(define-fun gReal((a Real)(b Real)) Real(ite(> a b) 1.0 0.0))
+	//	(define-fun geReal((a Real)(b Real)) Real(ite(>= a b) 1.0 0.0))
+	//	(define-fun lReal((a Real)(b Real)) Real(ite(< a b) 1.0 0.0))
+	//	(define-fun leReal((a Real)(b Real)) Real(ite(<= a b) 1.0 0.0))
+	/// 
+	return "(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001)) (define-fun feqReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.0001) 1.0 0.0)) (define-fun gReal ((a Real)(b Real)) Real (ite (> a b) 1.0 0.0)) (define-fun geReal ((a Real)(b Real)) Real (ite (>= a b) 1.0 0.0)) (define-fun lReal ((a Real)(b Real)) Real (ite (< a b) 1.0 0.0)) (define-fun leReal ((a Real)(b Real)) Real (ite (<= a b) 1.0 0.0))" + out;
 }
 
-std::string Equation::toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, bool useCustomScroll, const Equation& customScrollX, const Equation& customScrollY) const {
+std::string Equation::toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids) const {
 	std::map<AdvancedString, float> vars = linkNumberedVars(identifiers);
 	return recToShader(m_EquationString, vars, ids);
 }
@@ -428,7 +441,7 @@ double Equation::recGetResult(const AdvancedString& s, const std::map<AdvancedSt
 	}
 }
 
-std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<AdvancedString, float>& vars, std::set<std::string>& toDefine, std::vector<std::pair<std::string, std::string>>& sqrts, std::vector<int> ids, bool isFirstLayer) const {
+std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<AdvancedString, float>& vars, std::set<std::string>& toDefine, std::vector<std::pair<std::string, std::string>>& sqrts, std::vector<int> ids, bool isFirstLayer, bool embeddedEquals) const {
 	bool orEquals = false; // True if the > or < is a >= or <=
 	int operIndex = getNextOperator(s, orEquals);
 
@@ -439,9 +452,9 @@ std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<Advanc
 			return "(- " + recToSmtLib(s.substr(1, s.length() - 1), vars, toDefine, sqrts, ids) + ")";
 		}
 		if (vars.count(s)) { return std::to_string(vars.at(s)); }
-		if (s[0] == '(' and s.back() == ')') { return recToSmtLib(s.substr(1, s.length() - 2), vars, toDefine, sqrts, ids); }
+		if (s[0] == '(' and s.back() == ')') { return recToSmtLib(s.substr(1, s.length() - 2), vars, toDefine, sqrts, ids, isFirstLayer, embeddedEquals); }
 		if (s[0] == '[' and s.back() == ']') { return ("(abs " + recToSmtLib(s.substr(1, s.length() - 2), vars, toDefine, sqrts, ids) + ')'); }
-		if (s[0] == '!') { return ("(not " + recToSmtLib(s.substr(1, s.length() - 1), vars, toDefine, sqrts, ids) + ')'); }
+		if (s[0] == '!') { return ("(not " + recToSmtLib(s.substr(1, s.length() - 1), vars, toDefine, sqrts, ids, isFirstLayer, embeddedEquals) + ')'); }
 		if (s.size() > 5) {
 			if (s.substr(0, 4) == "sin(" and s.back() == ')') { return "(cos " + recToSmtLib(s.substr(4, s.length() - 5), vars, toDefine, sqrts, ids) + ")"; }
 			if (s.substr(0, 4) == "cos(" and s.back() == ')') { return "(cos " + recToSmtLib(s.substr(4, s.length() - 5), vars, toDefine, sqrts, ids) + ")"; }
@@ -477,19 +490,49 @@ std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<Advanc
 	AdvancedString s2 = s.substr(operIndex + 1, s.length() - operIndex - 1);
 
 	switch (s[operIndex]) {
-	case '|': return "(or " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
+	case '|': return "(or " + recToSmtLib(s1, vars, toDefine, sqrts, ids, false, embeddedEquals) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids, false, embeddedEquals) + ")";
 	case '&': {
 		if (isFirstLayer) {
-			return recToSmtLib(s1, vars, toDefine, sqrts, ids) + ")(assert " + recToSmtLib(s2, vars, toDefine, sqrts, ids, true);
+			return recToSmtLib(s1, vars, toDefine, sqrts, ids, true, embeddedEquals) + ")(assert " + recToSmtLib(s2, vars, toDefine, sqrts, ids, true, embeddedEquals);
 		}
-		return "(and " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
+		return "(and " + recToSmtLib(s1, vars, toDefine, sqrts, ids, isFirstLayer, embeddedEquals) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids, isFirstLayer, embeddedEquals) + ")";
 	}
-	case 0x2260: return "(not (feq " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + "))";
-	case '>': return "(> " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
-	case 0x2265: return "(>= " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2.substr(1, s2.length() - 1), vars, toDefine, sqrts, ids) + ")";
-	case '<': return "(< " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
-	case 0x2264: return "(<= " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2.substr(1, s2.length() - 1), vars, toDefine, sqrts, ids) + ")";
-	case '=': return "(feq " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
+	case 0x2260: {
+		if (embeddedEquals) 
+			return "(not (feqReal " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + "))";
+		else 
+			return "(not (feq " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + "))";
+	}
+	case '>': {
+		if (embeddedEquals)
+			return "(gReal " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
+		else
+			return "(> " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
+	}
+	case 0x2265: {
+		if (embeddedEquals)
+			return "(geReal " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2.substr(1, s2.length() - 1), vars, toDefine, sqrts, ids) + ")";
+		else
+			return "(>= " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2.substr(1, s2.length() - 1), vars, toDefine, sqrts, ids) + ")";
+	}
+	case '<': {
+		if (embeddedEquals)
+			return "(lReal " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
+		else
+			return "(< " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
+	}
+	case 0x2264: {
+		if (embeddedEquals) 
+			return "(leReal " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2.substr(1, s2.length() - 1), vars, toDefine, sqrts, ids) + ")";
+		else
+			return "(<= " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2.substr(1, s2.length() - 1), vars, toDefine, sqrts, ids) + ")";
+	}
+	case '=': {
+		if (embeddedEquals) 
+			return "(feqReal " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
+		else 
+			return "(feq " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
+	}
 	case '+': return "(+ " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
 	case '-': return "(- " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
 	case '*': return "(* " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
@@ -647,6 +690,18 @@ AdvancedString operator+(const std::string& s1, const AdvancedString& s2) {
 	return res;
 }
 
+AdvancedString operator+(const AdvancedString& s1, const char& s2) {
+	AdvancedString res = s1;
+	res.content.insert(res.content.end(), s2);
+	return res;
+}
+
+AdvancedString operator+(const char& s1, const AdvancedString& s2) {
+	AdvancedString res = s2;
+	res.content.insert(res.content.begin(), s1);
+	return res;
+}
+
 void operator+=(AdvancedString& s1, const AdvancedString& s2)
 {
 	s1.content.insert(s1.content.end(), s2.content.begin(), s2.content.end());
@@ -672,6 +727,14 @@ bool operator==(const std::string& s1, const AdvancedString& s2) {
 		}
 	}
 	return true;
+}
+
+bool operator==(const AdvancedString& s1, const char& s2) {
+	return s1.size() == 1 && s1[0] == s2;
+}
+
+bool operator==(const char& s1, const AdvancedString& s2) {
+	return s2 == s1;
 }
 
 bool operator<(const AdvancedString& s1, const AdvancedString& s2) {
