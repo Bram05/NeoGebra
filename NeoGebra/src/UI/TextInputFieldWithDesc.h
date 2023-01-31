@@ -14,6 +14,7 @@ public:
 	~TextInputFieldWithDesc();
 
 	const AdvancedString& GetText() const { return ((TextInputField*)m_SubUIElements[0].element.get())->GetText(); }
+	void SetText(const AdvancedString& text) { ((TextInputField*)m_SubUIElements[0].element.get())->SetText(text); }
 protected:
 	virtual void RenderPass(Renderer* r);
 

@@ -41,6 +41,10 @@ NEElement::NEElement(const std::vector<float>& identifiers, const Equation& def,
 		m_Model->m_Elements.push_back(std::move(*this));
 		m_Model->solveVariables(this);
 	}
+	else
+	{
+		m_ID = -1;
+	}
 }
 
 std::string NEElement::getShader() {
@@ -130,7 +134,7 @@ void Model::solveVariables(const NEElement* e) {
 }
 
 void Model::addExtraEquation(Equation& eq, const RGBColour& colour) {
-	m_Elements.push_back(NEElement(std::vector<float>{}, eq, 0, notype, shared_from_this(), colour, false));
+	m_ExtraEquations.push_back(NEElement(std::vector<float>{}, eq, 0, notype, shared_from_this(), colour, false));
 }
 
 NELine Model::lineFromPoints(const NEPoint& p1, const NEPoint& p2) {

@@ -592,3 +592,60 @@ void EquationUI::UpdateModel()
 	UpdateGraphs();
 	//Application::Get()->GetWindowUI()->UpdateGraphUI();
 }
+
+void EquationUI::LoadFromActiveModel()
+{
+	const std::shared_ptr<Model>& model = Application::Get()->GetModel();
+	if (!model)
+	{
+		Application::Get()->GetWindowUI()->DisplayError("ERROR: trying to fill the inputs based on a non-existing model");
+		return;
+	}
+
+	const AdvancedString& lineDef = model->GetLineDef().m_EquationString;
+	const AdvancedString& pointDef = model->GetPointDef().m_EquationString;
+	const AdvancedString& incidenceDef = model->GetIncidenceConstr().m_EquationString;
+	const AdvancedString& congruenceDef = model->GetDistanceDef().m_EquationString;
+	const AdvancedString& betweennessDef = model->GetBetweennessConstr().m_EquationString;
+	int numLineIds = model->GetNumLineIdentifiers();
+	int numPointIds = model->GetNumPointIdentifiers();
+	AdvancedString lineFromPoints, pointFromLines;
+
+	bool first = true;
+	for (const Equation& e : model->GetLineFromPoints())
+	{
+		if (!first)
+			lineFromPoints += AdvancedString("; ");
+		lineFromPoints += e.m_EquationString;
+		first = false;
+	}
+
+	first = true;
+	for (const Equation& e : model->GetPointFromLines())
+	{
+		if (!first)
+			pointFromLines += AdvancedString("; ");
+		pointFromLines += e.m_EquationString;
+		first = false;
+	}
+
+	m_Variables = model->GetVarMap();
+
+	((TextInputField*)(m_SubUIElements[m_PointDefInputField].element.get()))->SetText(pointDef);
+	((TextInputField*)(m_SubUIElements[m_LineDefInputField].element.get()))->SetText(lineDef);
+	((TextInputFieldWithDesc*)(m_SubUIElements[m_PointDefInputField - 1].element.get()))->SetText(AdvancedString(std::to_string(numPointIds)));
+	((TextInputFieldWithDesc*)(m_SubUIElements[m_LineDefInputField - 1].element.get()))->SetText(AdvancedString(std::to_string(numLineIds)));
+	//((TextInputField*)(m_SubUIElements[m_PointDefInputField - 3].element.get()))->SetText(; // use p as letter
+	//((TextInputField*)(m_SubUIElements[m_LineDefInputField - 3].element.get()))->GetText();
+	((TextInputField*)(m_SubUIElements[m_LineDefInputField + 1].element.get()))->SetText(incidenceDef);
+	((TextInputField*)(m_SubUIElements[m_LineDefInputField + 2].element.get()))->SetText(betweennessDef);
+	((TextInputFieldWithDesc*)(m_SubUIElements[m_LineDefInputField + 3].element.get()))->SetText(congruenceDef);
+	((TextInputField*)(m_SubUIElements[m_LineDefInputField + 4].element.get()))->SetText(lineFromPoints);
+	((TextInputField*)(m_SubUIElements[m_LineDefInputField + 5].element.get()))->SetText(pointFromLines);
+
+	m_ExtraEquations.clear();
+	for (NEElement& extra : model->getExtraEquations())
+	{
+		m_ExtraEquations.push_back(extra.getDef());
+	}
+}

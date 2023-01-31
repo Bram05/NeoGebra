@@ -21,6 +21,7 @@ public:
 
 	void UpdateGraphs();
 	void UpdateModel();
+	void LoadFromActiveModel();
 
 	VarMap m_Variables;
 	std::vector<Equation> m_ExtraEquations;
