@@ -60,6 +60,29 @@ static void HalfPlaneModel(void* obj)
 	Application::Get()->GetWindowUI()->GetEquationUI()->UpdateModel();
 }
 
+static void BeltramiKleinModel(void* obj) {
+	VarMap variables;
+	Equation BKpointDef{ {AdvancedString("p")}, AdvancedString("x = p0 & y = p1 & x^2 + y^2 < 1 ") };
+	Equation BKlineDef{ {AdvancedString("l")}, AdvancedString("l0*x+l1*y=l2 & x^2 + y^2 < 1") };
+	Equation BKincidence{ {AdvancedString("p"), AdvancedString("l")}, AdvancedString("p0*l0+l1*p1=1") };
+	Equation BKdistanceDef{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(((p1-q1)*p0+(q0-p0)*p1-(q0-p0)*y)/(p1-q1))^2 + (((p1-q1)*p0+(q0-p0)*p1-(p1-q1)*x)/(q0-p0))^2 = 1") };
+	Equation BKbetweennessDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q"), AdvancedString("r")}, AdvancedString("((p0 < q0 & q0 < r0) | p0 > q0 & q0 > r0) | ((p0 = q0 & q0 = r0) & p1 < q1 & q1 < r1)"));
+	
+	EquationVector BKlineFromPoints{
+		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("q1-p1") },
+		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(-q0+p0)")},
+		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(q1-p1)*q0+(-q0+p0)*q1")}
+	};
+	EquationVector BKpointFromLines{ 
+		{ {AdvancedString("l"), AdvancedString("k") }, AdvancedString("(l1*k2-l2*k1)/(-l0*k1+l1*k0)")},
+		{ {AdvancedString("l"), AdvancedString("k") }, AdvancedString("(l0*k2-l2*k1)/(l0*k1-l1*k0)") }  
+	};
+	Application::Get()->SetModel(variables, 2, BKpointDef, 3, BKlineDef, BKincidence, BKdistanceDef, BKbetweennessDef, BKlineFromPoints, BKpointFromLines);
+	Application::Get()->GetWindowUI()->GetEquationUI()->LoadFromActiveModel();
+	Application::Get()->GetWindowUI()->GetEquationUI()->UpdateModel();
+	////End Beltrami-Klein Model
+}
+
 MenuUI::MenuUI(float leftX, float rightX, float topY, float bottomY)
 	: UIElement(leftX, rightX, topY, bottomY, "MenuUI")//, text(500, 500, "red")
 {
@@ -71,8 +94,8 @@ MenuUI::MenuUI(float leftX, float rightX, float topY, float bottomY)
 	float buttonWidth = 0.24f;
 	float indent = 0.025f;
 
-	std::vector<void(*)(void*)> functions = { &PoincareModel, &HalfPlaneModel };
-	std::vector<AdvancedString> textList = { AdvancedString(L"Poincaré Model"), AdvancedString(L"Half-Plane Model") };
+	std::vector<void(*)(void*)> functions = { &PoincareModel, &HalfPlaneModel, &BeltramiKleinModel };
+	std::vector<AdvancedString> textList = { AdvancedString(L"Poincaré Model"), AdvancedString(L"Half-Plane Model"),AdvancedString(L"Beltrami Klein Model") };
 	for (int i = 0; i < functions.size(); i++) {
 		m_SubUIElements.push_back({ std::make_shared<ButtonUI>(leftX + indent + i * buttonWidth, (leftX + i * buttonWidth + buttonWidth), topY - 0.01f, (topY - 0.09f), functions[i], this, textList[i]) });
 	}
