@@ -11,9 +11,10 @@ NeoGebra is a program that can be used for creating, visualizing and verifying N
 ## Features
 
 - Sample Non-Euclidean models built-in, such as the Poincare model, Beltrami-Klein model and the half plane model.
+- Compare models
 - Custom Non-Euclidean models, with your own identifiers
 - Postulates verifier
-- Cross-platform
+- Cross-platform (MacOS untested)
 
 ## Table of content
 
