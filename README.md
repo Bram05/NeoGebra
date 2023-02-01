@@ -1,26 +1,26 @@
 # NeoGebra 💫
 
-NeoGebra is a program that can be used for creating and verifying Non-Euclidean models.
+NeoGebra is a program that can be used for creating, visualizing and verifying Non-Euclidean models.
 
-## Screenshots 📸
+## Screenshots
 
   <img src="https://raw.githubusercontent.com/Bram05/NeoGebra/main/NeoGebra/assets/images/Example1.png" width=auto />
   <img src="https://raw.githubusercontent.com/Bram05/NeoGebra/main/NeoGebra/assets/images/Example2.png" width=auto /> 
   <img src="https://raw.githubusercontent.com/Bram05/NeoGebra/main/NeoGebra/assets/images/Example3.png" width=auto />
 
-## Features 📋
+## Features
 
 - Sample Non-Euclidean models built-in, such as the Poincare model, Beltrami-Klein model and the half plane model.
 - Custom Non-Euclidean models, with your own identifiers
 - Postulates verifier
 - Cross-platform
 
-## Table of content 📖
+## Table of content
 
 - [NeoGebra 💫](#neogebra-)
-  - [Screenshots 📸](#screenshots-)
-  - [Features 📋](#features-)
-  - [Table of content 📖](#table-of-content-)
+  - [Screenshots](#screenshots)
+  - [Features](#features)
+  - [Table of content](#table-of-content)
   - [Usage](#usage)
     - [Model](#model)
     - [Points](#points)
@@ -53,7 +53,7 @@ First of all, you will have to choose a model that you would like to work in. Th
 A point is a definition which doesn't certainly have the same definition in different models. The 3 built-in models have however the same point identifiers, p0 and p1. The way you can create a point is by filling in the identifiers. This can be done by separating each identifier by a comma ( , ).
 For example valid points in the Poincare model would be:
 
-> 0.5,0.51
+> 0.5,0.51 <br>
 > 0.1,-0.2
 
 For decimals you should use a point ( . )
@@ -74,7 +74,7 @@ For decimals you should use a point ( . )
 If you would like to construct a line from 2 points, you will first have to [create 2 points](#Points).<br>
 Once you create the 2 points, you can create a line by using the index of the points. Let's say you have points:
 
-> 1️⃣: 0.1,0.1
+> 1️⃣: 0.1,0.1 <br>
 > 2️⃣: -0.1,0.3
 
 You can create a line in this way:
@@ -88,7 +88,7 @@ This will draw a line on the graph through both points.
 If you would like to get the point of intersection from 2 lines, you will first have to [create 2 lines](#lines).<br>
 Once you create the 2 lines, you can get the point by using the index of the lines. Let's say you have lines:
 
-> 1️⃣: 0.1,0.1
+> 1️⃣: 0.1,0.1 <br>
 > 2️⃣: -0.1,0.3
 
 You can get the point in this way:
@@ -164,7 +164,7 @@ You can create a definition of 2 intersecting lines. As an input you will use 2 
 
 The main goal of variables is to make definitions more readable and easier for you. You can define variables in the variable menu. To access the variable menu, you click on the button vairables next to the field of the definition. A variable menu will pop-up where you can specify the name the variable on the left-side, and it's value on the right-side.
 
-> ✅ You can use point identifiers in the definition , such as p0,p1,q0,q1
+> ✅ You can use point identifiers in the definition , such as p0,p1,q0,q1 <br>
 > ❌ You can not use x or y in the definition
 
 Let's say you created a point variable `r`, to access it in the definition of a point you simply use : `p.r`. <br>
