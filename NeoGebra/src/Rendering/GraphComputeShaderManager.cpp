@@ -196,8 +196,9 @@ void GraphComputeShaderManager::RunComputeShaders(Graph* graph, float midCoordX,
 	glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
 	glUseProgram(m_CompShader4);
-	glBindImageTexture(0, m_SmallTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
-	glBindImageTexture(1, graph->m_Texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	glBindImageTexture(0, m_IntermediateTexture2, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	glBindImageTexture(1, m_SmallTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	glBindImageTexture(2, graph->m_Texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
 	glDispatchCompute(std::ceil(m_Width / 32.0f), std::ceil(m_Height / 32.0f), 1);
 	glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }
