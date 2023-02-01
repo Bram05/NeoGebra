@@ -52,7 +52,7 @@ namespace Util
 		std::cin.get();
 		std::exit(EXIT_FAILURE);
 	}
-
+		
 #ifdef TIMING
 	std::ofstream Timer::s_OutputStream;
 
