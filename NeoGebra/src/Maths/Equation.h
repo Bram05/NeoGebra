@@ -59,7 +59,7 @@ class Equation
 {
 private:
 	double	   recGetResult(const AdvancedString& s, const std::map<AdvancedString, float>& vars, std::vector<int> ids) const;
-	std::string recToSmtLib(const AdvancedString& s, const std::map<AdvancedString, float>& vars, std::set<std::string>& toDefine, std::vector<std::pair<std::string, std::string>>& sqrts, std::vector<int> ids, bool isFirstLayer = false, bool embeddedEquals = true) const;
+	std::string recToSmtLib(const AdvancedString& s, const std::map<AdvancedString, float>& vars, std::set<std::string>& toDefine, std::vector<std::string>& sqrts, std::vector<int> ids, bool isFirstLayer = false, bool embeddedEquals = true) const;
 	std::string recToShader(const AdvancedString& s, const std::map<AdvancedString, float>& vars, std::vector<int> ids) const;
 	int		getNextOperator(const AdvancedString& s, bool& orEquals) const;
 
@@ -105,12 +105,14 @@ public:
 	* @param vars Map containing varnames and their values.
 	* @return Returns float with 1 or 0 (true or false).
 	*/
-	bool getSolution(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, std::vector<std::string>& resNames, z3::context* cPtr = nullptr, z3::solver* solverPtr = nullptr, const std::vector<std::pair<std::string, std::string>>& extraSqrts = {}, const std::string& extraSMT = {}) const;
+	bool getSolution(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, std::vector<std::string>& resNames, z3::context* cPtr = nullptr, z3::solver* solverPtr = nullptr, const std::string& extraSMT = {}) const;
 	Equation diff(const AdvancedString& remainingVar) const;
+
+	static std::string getVarFunsSmt(NEType t, const Model& model, std::string& smt, std::vector<std::string>& sqrts);
 
 	double getResult(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
 	bool isTrue(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
-	std::string toSmtLib(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, const std::vector<std::string>& resNames, const std::vector<std::pair<std::string, std::string>>& extraSqrts = {}, const std::string& extraSMT = {}) const;
+	std::string toSmtLib(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, const std::vector<std::string>& resNames, const std::string& extraSMT = {}) const;
 	std::string toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
 
 	friend Model;

@@ -275,7 +275,7 @@ AdvancedString Equation::recDiff(const AdvancedString& s1, const AdvancedString&
 	return newS1;
 }
 
-bool Equation::getSolution(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, std::vector<std::string>& resNames, z3::context* cPtr, z3::solver* solverPtr, const std::vector<std::pair<std::string, std::string>>& extraSqrts, const std::string& extraSMT) const {
+bool Equation::getSolution(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, std::vector<std::string>& resNames, z3::context* cPtr, z3::solver* solverPtr, const std::string& extraSMT) const {
 	//calculate vars
 	if (!solverPtr) {
 		z3::context c;
@@ -284,7 +284,7 @@ bool Equation::getSolution(const std::vector<std::vector<float>>& identifiers, s
 		solverPtr = &solver;
 	}
 
-	std::string smtLibString = toSmtLib(identifiers, ids, resNames, extraSqrts, extraSMT);
+	std::string smtLibString = toSmtLib(identifiers, ids, resNames, extraSMT);
 	Z3_ast_vector test2 = Z3_parse_smtlib2_string(*cPtr, smtLibString.c_str(), 0, 0, 0, 0, 0, 0);
 
 	if (Z3_ast_vector_size(*cPtr, test2) == 0) {
@@ -324,18 +324,60 @@ bool Equation::isTrue(const std::vector<std::vector<float>>& identifiers, std::v
 	return recGetResult(m_EquationString, vars, ids);
 }
 
-std::string Equation::toSmtLib(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, const std::vector<std::string>& resNames, const std::vector<std::pair<std::string, std::string>>& extraSqrts, const std::string& extraSMT) const {
+std::string Equation::getVarFunsSmt(NEType t, const Model& model, std::string& smt, std::vector<std::string>& sqrts) {
+	std::set<std::string> tmp;
+	std::map<AdvancedString, float> tmp2;
+
+	std::string identName = t == point ? model.m_PointDef.m_NumberedVarNames[0].toString() : model.m_LineDef.m_NumberedVarNames[0].toString();
+	std::string indentifierString;
+	for (int i = 0; i < (t == point ? model.m_PointIdentifiers : model.m_LineIdentifiers); ++i) {
+		indentifierString += " " + identName + std::to_string(i);
+	}
+
+	const std::vector< std::pair < AdvancedString, std::shared_ptr<Equation> >>& extraVars = (t == point ? model.m_Variables.first : model.m_Variables.second);
+
+	for (const std::pair < AdvancedString, std::shared_ptr<Equation>>& var : extraVars) {
+		std::string varName = var.first.toString();
+		auto loc = smt.find(identName + "." + varName);
+		while (loc != std::string::npos) {
+			smt.replace(loc, identName.length() + varName.length() + 1, "(" + identName + "." + varName + indentifierString + ")");
+			loc = smt.find(identName + "." + varName, loc + 2);
+		}
+	}
+
+	std::vector<std::string> otherVars;
+	std::string funcDefsSmt;
+	for (const std::pair < AdvancedString, std::shared_ptr<Equation>>& var : extraVars) {
+		std::string tmpSmt = "(define-fun " + identName + "." + var.first.toString() + " (";
+		for (int i = 0; i < (t == point ? model.m_PointIdentifiers : model.m_LineIdentifiers); i++) {
+			tmpSmt += "(" + identName + std::to_string(i) + " Real)";
+		}
+
+		tmpSmt += ") Real " + var.second->recToSmtLib(var.second->m_EquationString, tmp2, tmp, sqrts, {}, true, false) + ")";
+		
+		for (std::string otherVar : otherVars) {
+			auto loc = tmpSmt.find(identName + "." + otherVar);
+			while (loc != std::string::npos) {
+				tmpSmt.replace(loc, identName.length() + otherVar.length() + 1, "(" + identName + "." + otherVar + indentifierString + ")");
+				loc = tmpSmt.find(identName + "." + otherVar, loc + 2);
+			}
+		}
+		otherVars.push_back(var.first.toString());
+
+		funcDefsSmt += tmpSmt;
+	}
+	return funcDefsSmt;
+}
+
+std::string Equation::toSmtLib(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, const std::vector<std::string>& resNames, const std::string& extraSMT) const {
 	std::set<std::string> toDefine;
-	std::vector<std::pair<std::string, std::string>> sqrts;
-	sqrts.insert(sqrts.begin(), extraSqrts.begin(), extraSqrts.end());
+	std::vector<std::string> sqrts;
 	int definedSqrts = sqrts.size();
 	std::map<AdvancedString, float> vars = linkNumberedVars(identifiers);
 	std::string out = "(assert " + recToSmtLib(m_EquationString, vars, toDefine, sqrts, ids, true, false) + ")(check-sat)";
 
 	for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
-		std::string def = sqrts[i].first;
-		std::string pow = sqrts[i].second;
-		out = "(declare-const sqrt" + std::to_string(i) + " Real)(assert (>= sqrt" + std::to_string(i) + " 0))(assert (= (^ sqrt" + std::to_string(i) + " " + pow + ") " + def + "))" + out;
+		out = "(assert " + sqrts[i] + ")" + out;
 	}
 	out = extraSMT + out;
 
@@ -353,8 +395,13 @@ std::string Equation::toSmtLib(const std::vector<std::vector<float>>& identifier
 	//	(define-fun geReal((a Real)(b Real)) Real(ite(>= a b) 1.0 0.0))
 	//	(define-fun lReal((a Real)(b Real)) Real(ite(< a b) 1.0 0.0))
 	//	(define-fun leReal((a Real)(b Real)) Real(ite(<= a b) 1.0 0.0))
+	//  (declare-fun sqrt (Real) Real)
+	//  (declare-fun root3 (Real) Real)
+	//  (declare-fun root4 (Real) Real)
+	//  (assert (forall ((rootInp Real)) (> (sqrt rootInp) 0.0)))
+	//  (assert (forall ((rootInp Real)) (> (root4 rootInp) 0.0)))
 	/// 
-	return "(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001)) (define-fun feqReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.0001) 1.0 0.0)) (define-fun gReal ((a Real)(b Real)) Real (ite (> a b) 1.0 0.0)) (define-fun geReal ((a Real)(b Real)) Real (ite (>= a b) 1.0 0.0)) (define-fun lReal ((a Real)(b Real)) Real (ite (< a b) 1.0 0.0)) (define-fun leReal ((a Real)(b Real)) Real (ite (<= a b) 1.0 0.0))" + out;
+	return "(declare-fun sqrt (Real) Real)(declare-fun root3 (Real) Real)(declare-fun root4 (Real) Real)(assert (forall ((rootInp Real)) (> (sqrt rootInp) 0.0)))(assert (forall ((rootInp Real)) (> (root4 rootInp) 0.0)))(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001)) (define-fun feqReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.0001) 1.0 0.0)) (define-fun gReal ((a Real)(b Real)) Real (ite (> a b) 1.0 0.0)) (define-fun geReal ((a Real)(b Real)) Real (ite (>= a b) 1.0 0.0)) (define-fun lReal ((a Real)(b Real)) Real (ite (< a b) 1.0 0.0)) (define-fun leReal ((a Real)(b Real)) Real (ite (<= a b) 1.0 0.0))" + out;
 }
 
 std::string Equation::toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids) const {
@@ -446,7 +493,7 @@ double Equation::recGetResult(const AdvancedString& s, const std::map<AdvancedSt
 	}
 }
 
-std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<AdvancedString, float>& vars, std::set<std::string>& toDefine, std::vector<std::pair<std::string, std::string>>& sqrts, std::vector<int> ids, bool isFirstLayer, bool embeddedEquals) const {
+std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<AdvancedString, float>& vars, std::set<std::string>& toDefine, std::vector<std::string>& sqrts, std::vector<int> ids, bool isFirstLayer, bool embeddedEquals) const {
 	bool orEquals = false; // True if the > or < is a >= or <=
 	int operIndex = getNextOperator(s, orEquals);
 
@@ -483,10 +530,7 @@ std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<Advanc
 		
 		if (s[0] == 'e') { return std::to_string(eConstant); }
 		if (s[0] == 0x03C0) { return std::to_string(piConstant); }
-		bool succes; float val;
-		std::tie(succes, val) = getVariable(s, ids);
-		if (succes) { return std::to_string(val); }
-		if (s.find(AdvancedString(".")) != s.size()) {return s.toString();}
+		if (s.find(AdvancedString(".")) != s.size()) { return s.toString();}
 		toDefine.insert(s.toString());
 		return s.toString();
 	}
@@ -544,15 +588,19 @@ std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<Advanc
 	case '/': return "(/ " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
 	case '^': return "(^ " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")"; //s2 only ints (https://stackoverflow.com/questions/36812843/why-z3-always-return-unknown-when-assertions-have-power)
 	case 0x221A: {
-		std::pair<std::string, std::string> sqrt = { recToSmtLib(s2, vars, toDefine, sqrts, ids) , recToSmtLib(s1, vars, toDefine, sqrts, ids) };
+		float rootBase = recGetResult(s1, vars, ids);
+		std::string rootContent = recToSmtLib(s2, vars, toDefine, sqrts, ids);
+		std::string rootFunName = (rootBase == 2.0 ? "sqrt" : (rootBase == 3.0 ? "root3" : (rootBase == 4.0 ? "root4" : "error")));
+		if (rootFunName == "error") { //s2 only ints (https://stackoverflow.com/questions/36812843/why-z3-always-return-unknown-when-assertions-have-power)
+			Application::Get()->GetWindowUI()->DisplayError("Z3 can't process sqrt with power: " + std::to_string(rootBase));
+			throw ErrorBoxException();
+		}
+		std::string sqrt = "(= (^ (" + rootFunName + " " + rootContent + ") " + std::to_string((int)rootBase) + ") " + rootContent + ")";
 		auto it = std::find(sqrts.begin(), sqrts.end(), sqrt);
-		if (it != sqrts.end()) {
-			return "sqrt" + std::to_string(it - sqrts.begin());
-		}
-		else {
+		if (it == sqrts.end()) {
 			sqrts.push_back(sqrt);
-			return "sqrt" + std::to_string(sqrts.size() - 1); //s2 only ints (https://stackoverflow.com/questions/36812843/why-z3-always-return-unknown-when-assertions-have-power)
 		}
+		return "(" + rootFunName + " " + rootContent + ")";
 	}
 	//ToDo add log to z3
 	default: {

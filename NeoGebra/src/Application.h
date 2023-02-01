@@ -38,7 +38,7 @@ public:
 		const EquationVector& lineFromPoints = {},
 		const EquationVector& pointFromLines = {})
 	{
-		m_Model = std::make_shared<Model>(varMap, pointIdentifiers, pointDef, lineIdentifiers, lineDef, incidenceConstr, distanceDef, betweennessConstr, lineFromPoints, pointFromLines);
+		m_Model = std::make_shared<Model>(varMap, pointIdentifiers, pointDef, lineIdentifiers, lineDef, incidenceConstr, lineFromPoints, pointFromLines, distanceDef, betweennessConstr);
 	}	
 
 	// To prevent multiple application being created the constructor is private and only main is able to create one

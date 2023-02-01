@@ -86,7 +86,7 @@ Application::Application()
 		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(0 & p0 = q0) | (!(p0 = q0) & sqrt((p0 - (q0^2+q1^2-p0^2-p1^2)/(-2p0+2q0))^2 + p1^2))")}
 	};
 
-	m_Model = std::make_shared<Model>(P2variables, 2, P2pointDef, 2, P2lineDef, P2incidence, P2distanceDef, Equation{ {} });
+	m_Model = std::make_shared<Model>(P2variables, 2, P2pointDef, 2, P2lineDef, P2incidence, Equation{ {} }, Equation{ {} }, P2distanceDef);
 
 
 	std::cout << P2lineFromPoints[0].getResult({ {1.0, 2.0}, {3.0, 4.0} });
@@ -112,7 +112,7 @@ Application::Application()
 	std::cout << idsl[0] << ' ' << idsl[1] << std::endl;*/
 	
 	VarMap v;
-	m_Model = std::make_shared<Model>(v, 0, Equation(AdvancedString("")), 0, Equation(AdvancedString("")), Equation(AdvancedString("")));
+	m_Model = std::make_shared<Model>(v, 0, Equation(AdvancedString("")), 0, Equation(AdvancedString("")), Equation(AdvancedString("")), EquationVector(), EquationVector());
 
 	Application::s_Instance = this;
 	m_Window = new Window(WindowCreationOptions(1080, 720, "NeoGeobra", MouseClickCallback, TextCallback, MouseMovedCallback, KeyCallback, ResizeCallback));

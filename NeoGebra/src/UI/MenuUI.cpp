@@ -7,6 +7,7 @@
 #include "Rendering/TextRenderer.h"
 #include "ErrorBox.h"
 #include "EquationUI.h"
+#include "Maths/PostulateVerifier.h"
 
 static void PoincareModel(void*)
 {
@@ -32,6 +33,7 @@ static void PoincareModel(void*)
 	Application::Get()->GetModel()->addExtraEquation(boundary);
 	Application::Get()->GetWindowUI()->GetEquationUI()->LoadFromActiveModel();
 	Application::Get()->GetWindowUI()->GetEquationUI()->UpdateModel();
+	//PostulateVerifier::I2(*Application::Get()->GetModel());
 }
 
 static void BeltramiKleinModel(void* obj) {

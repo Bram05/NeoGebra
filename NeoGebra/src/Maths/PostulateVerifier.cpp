@@ -25,10 +25,11 @@ bool PostulateVerifier::I2(const Model& model) {
 	///		)
 	/// )
 	/// 
+	
 	// Generate extra code for z3
 	std::string smt{};
 	std::set<std::string> tmp;
-	std::vector<std::pair<std::string, std::string>> sqrts;
+	std::vector<std::string> sqrts;
 	std::map<AdvancedString, float> tmp2;
 	std::vector<std::pair < AdvancedString, std::shared_ptr<Equation> >> m = model.m_Variables.second;
 
@@ -38,11 +39,11 @@ bool PostulateVerifier::I2(const Model& model) {
 	model.m_LineDef.replaceVarName(lineDefEquation, AdvancedString("x"), AdvancedString("xl"));
 	model.m_LineDef.replaceVarName(lineDefEquation, AdvancedString("y"), AdvancedString("yl"));
 	smt = "(assert " + model.m_LineDef.recToSmtLib(lineDefEquation, tmp2, tmp, sqrts, {}, true, false) + ")";
+
 	for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
-		std::string def = sqrts[i].first;
-		std::string pow = sqrts[i].second;
-		smt = "(declare-const sqrt" + std::to_string(i) + " Real)(assert (>= sqrt" + std::to_string(i) + " 0))(assert (= (^ sqrt" + std::to_string(i) + " " + pow + ") " + def + "))" + smt;
+		smt = "(assert " + sqrts[i] + ")" + smt;
 	}
+	definedSqrts = sqrts.size();
 	smt = "(declare-const xl Real)(declare-const yl Real)" + smt;
 
 	// Not exists with two point definitions
@@ -72,23 +73,48 @@ bool PostulateVerifier::I2(const Model& model) {
 	pointDefB.replaceVarName(pointDefB.m_EquationString, model.m_PointDef.m_NumberedVarNames[0], model.m_PointDef.m_NumberedVarNames[0] + "b");
 	incidenceB.replaceVarName(incidenceB.m_EquationString, model.m_IncidenceConstr.m_NumberedVarNames[0], model.m_IncidenceConstr.m_NumberedVarNames[0] + "b");
 	std::string ABsmt = "(and (and " + incidenceA.recToSmtLib(incidenceA.m_EquationString, tmp2, tmp, sqrts, {}, false, false) + " " + incidenceB.recToSmtLib(incidenceB.m_EquationString, tmp2, tmp, sqrts, {}, false, false) + + ") (and " + pointDefA.recToSmtLib(pointDefA.m_EquationString, tmp2, tmp, sqrts, {}, false, false) + " " + pointDefB.recToSmtLib(pointDefB.m_EquationString, tmp2, tmp, sqrts, {}, false, false) + "))";
+
 	for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
-		std::string def = sqrts[i].first;
-		std::string pow = sqrts[i].second;
-		smt += "(sqrt" + std::to_string(i) + " Real)";
-		ABsmt = "(and " + ABsmt + " " + "(and (>= sqrt" + std::to_string(i) + " 0) (= (^ sqrt" + std::to_string(i) + " " + pow + ") " + def + ")))";
+		ABsmt = "(and " + sqrts[i] + " " + ABsmt + ")";
 	}
-	// Points identifiers are not the same
+	definedSqrts = sqrts.size();
+
+	smt = Equation::getVarFunsSmt(point, model, ABsmt, sqrts) + smt;
+	for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
+		for (int j = 0; j < 2; ++j) {
+			std::string tmpSqrt = sqrts[i];
+			for (int k = 0; k < model.m_PointIdentifiers; ++k) {
+				auto loc = tmpSqrt.find(model.m_PointDef.m_NumberedVarNames[0].toString() + std::to_string(k));
+				while (loc != std::string::npos) {
+					tmpSqrt.replace(loc, model.m_PointDef.m_NumberedVarNames[0].length() + 1, model.m_PointDef.m_NumberedVarNames[0].toString() + (char)('a' + j) + std::to_string(k));
+					loc = tmpSqrt.find(model.m_PointDef.m_NumberedVarNames[0].toString() + std::to_string(k), loc + 1 + model.m_PointDef.m_NumberedVarNames[0].length());
+				}
+			}
+			ABsmt = "(and " + tmpSqrt + " " + ABsmt + ")";
+		}
+	}
+	definedSqrts = sqrts.size();
+
 	smt += ") (and " + ABsmt + " ";
+	
+	// Points identifiers are not the same
 	std::string isNotTheSameSmt = "(= " + pointVarName + "a0 " + pointVarName + "b0)";
 	for (int i = 1; i < model.m_PointIdentifiers; ++i) {
 		isNotTheSameSmt = "(and " + isNotTheSameSmt + " (= " + pointVarName + "a" + std::to_string(i) + " " + pointVarName + "b" + std::to_string(i) + "))";
 	}
 	smt += "(not " + isNotTheSameSmt + ")))))(check-sat)";
 
+	std::string tmpSmt = Equation::getVarFunsSmt(line, model, smt, sqrts);
+	for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
+		smt = "(assert " + sqrts[i] + ")" + smt;
+	}
+	definedSqrts = sqrts.size();
+	smt = tmpSmt + smt;
+
 	for (int i = 0; i < model.m_LineIdentifiers; ++i) {
 		smt = "(declare-const " + model.m_LineDef.m_NumberedVarNames[0].toString() + std::to_string(i) + " Real)" + smt;
 	}
+
 	///
 	//  (define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))
 	//	(define-fun feqReal((a Real)(b Real)) Real(ite(< (abs(- a b)) 0.0001) 1.0 0.0))
@@ -96,9 +122,14 @@ bool PostulateVerifier::I2(const Model& model) {
 	//	(define-fun geReal((a Real)(b Real)) Real(ite(>= a b) 1.0 0.0))
 	//	(define-fun lReal((a Real)(b Real)) Real(ite(< a b) 1.0 0.0))
 	//	(define-fun leReal((a Real)(b Real)) Real(ite(<= a b) 1.0 0.0))
+	//  (declare-fun sqrt (Real) Real)
+	//  (declare-fun root3 (Real) Real)
+	//  (declare-fun root4 (Real) Real)
+	//  (assert (forall ((rootInp Real)) (> (sqrt rootInp) 0.0)))
+	//  (assert (forall ((rootInp Real)) (> (root4 rootInp) 0.0)))
 	/// 
-	smt = "(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))(define-fun feqReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.0001) 1.0 0.0))(define-fun gReal ((a Real)(b Real)) Real (ite (> a b) 1.0 0.0))(define-fun geReal ((a Real)(b Real)) Real (ite (>= a b) 1.0 0.0))(define-fun lReal ((a Real)(b Real)) Real (ite (< a b) 1.0 0.0))(define-fun leReal ((a Real)(b Real)) Real (ite (<= a b) 1.0 0.0))" + smt;
-
+	smt =  "(declare-fun sqrt (Real) Real)(declare-fun root3 (Real) Real)(declare-fun root4 (Real) Real)(assert (forall ((rootInp Real)) (> (sqrt rootInp) 0.0)))(assert (forall ((rootInp Real)) (> (root4 rootInp) 0.0)))(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001)) (define-fun feqReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.0001) 1.0 0.0)) (define-fun gReal ((a Real)(b Real)) Real (ite (> a b) 1.0 0.0)) (define-fun geReal ((a Real)(b Real)) Real (ite (>= a b) 1.0 0.0)) (define-fun lReal ((a Real)(b Real)) Real (ite (< a b) 1.0 0.0)) (define-fun leReal ((a Real)(b Real)) Real (ite (<= a b) 1.0 0.0))" + smt;
+	
 	// Check if solution exists
 	z3::context c;
 	z3::solver solver(c);
@@ -162,10 +193,11 @@ bool PostulateVerifier::I3(const Model& model) {
 	///		)
 	/// )
 	/// 
+	
 	// Generate extra code for z3
 	std::string smt{};
 	std::set<std::string> tmp;
-	std::vector<std::pair<std::string, std::string>> sqrts;
+	std::vector<std::string> sqrts;
 	std::map<AdvancedString, float> tmp2;
 	std::vector<std::pair < AdvancedString, std::shared_ptr<Equation> >> m = model.m_Variables.second;
 	
@@ -180,14 +212,10 @@ bool PostulateVerifier::I3(const Model& model) {
 		model.m_PointDef.replaceVarName(pointDefEquation, model.m_PointDef.m_NumberedVarNames[0], pName);
 		smt += "(assert " + model.m_PointDef.recToSmtLib(pointDefEquation, tmp2, tmp, sqrts, {}, true, false) + ")";
 		for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
-			std::string def = sqrts[i].first;
-			std::string pow = sqrts[i].second;
-			smt = "(declare-const sqrt" + std::to_string(i) + " Real)(assert (>= sqrt" + std::to_string(i) + " 0))(assert (= (^ sqrt" + std::to_string(i) + " " + pow + ") " + def + "))" + smt;
+			smt = "(assert " + sqrts[i] + ")" + smt;
 		}
+		definedSqrts = sqrts.size();
 		smt = std::string("(declare-const x") + (char)('a' + pNameN) + std::string(" Real)(declare-const y") + (char)('a' + pNameN) + " Real)" + smt;
-		for (int i = 0; i < model.m_PointIdentifiers; ++i) {
-			smt = std::string("(declare-const p") + (char)('a' + pNameN) + std::to_string(i) + std::string(" Real)") + smt;
-		}
 	}
 
 	//Points are not the same
@@ -226,14 +254,36 @@ bool PostulateVerifier::I3(const Model& model) {
 	model.m_LineDef.replaceVarName(lineDefEquation, AdvancedString("y"), AdvancedString("yl"));
 	incidenceSmt = "(and " + model.m_LineDef.recToSmtLib(lineDefEquation, tmp2, tmp, sqrts, {}, false, false) + " " + incidenceSmt + ")";
 
+	smt = Equation::getVarFunsSmt(line, model, incidenceSmt, sqrts) + smt ;
+
 	for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
-		std::string def = sqrts[i].first;
-		std::string pow = sqrts[i].second;
-		smt += "(sqrt" + std::to_string(i) + " Real)";
-		incidenceSmt = "(and " + incidenceSmt + " " + "(and (>= sqrt" + std::to_string(i) + " 0) (= (^ sqrt" + std::to_string(i) + " " + pow + ") " + def + ")))";
+		incidenceSmt = "(and " + sqrts[i] + " " + incidenceSmt + ")";
 	}
+	definedSqrts = sqrts.size();
 
 	smt += ") " + incidenceSmt + ")))(check-sat)";
+
+	smt = Equation::getVarFunsSmt(point, model, smt, sqrts) + smt;
+	for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
+		for (int j = 0; j < 3; ++j) {
+			std::string tmpSqrt = sqrts[i];
+			for (int k = 0; k < model.m_PointIdentifiers; ++k) {
+				auto loc = tmpSqrt.find(model.m_PointDef.m_NumberedVarNames[0].toString() + std::to_string(k));
+				while (loc != std::string::npos) {
+					tmpSqrt.replace(loc, model.m_PointDef.m_NumberedVarNames[0].length() + 1, model.m_PointDef.m_NumberedVarNames[0].toString() + (char)('a' + j) + std::to_string(k));
+					loc = tmpSqrt.find(model.m_PointDef.m_NumberedVarNames[0].toString() + std::to_string(k), loc + 1 + model.m_PointDef.m_NumberedVarNames[0].length());
+				}
+			}
+			smt = "(assert " + tmpSqrt + ")" + smt;
+		}
+	}
+	definedSqrts = sqrts.size();
+
+	for (int i = 0; i < model.m_PointIdentifiers; ++i) {
+		smt = "(declare-const " + model.m_PointDef.m_NumberedVarNames[0].toString() + "a" + std::to_string(i) + " Real)" + smt;
+		smt = "(declare-const " + model.m_PointDef.m_NumberedVarNames[0].toString() + "b" + std::to_string(i) + " Real)" + smt;
+		smt = "(declare-const " + model.m_PointDef.m_NumberedVarNames[0].toString() + "c" + std::to_string(i) + " Real)" + smt;
+	}
 
 	///
 	//  (define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))
@@ -242,8 +292,13 @@ bool PostulateVerifier::I3(const Model& model) {
 	//	(define-fun geReal((a Real)(b Real)) Real(ite(>= a b) 1.0 0.0))
 	//	(define-fun lReal((a Real)(b Real)) Real(ite(< a b) 1.0 0.0))
 	//	(define-fun leReal((a Real)(b Real)) Real(ite(<= a b) 1.0 0.0))
+	//  (declare-fun sqrt (Real) Real)
+	//  (declare-fun root3 (Real) Real)
+	//  (declare-fun root4 (Real) Real)
+	//  (assert (forall ((rootInp Real)) (> (sqrt rootInp) 0.0)))
+	//  (assert (forall ((rootInp Real)) (> (root4 rootInp) 0.0)))
 	/// 
-	smt = "(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))(define-fun feqReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.0001) 1.0 0.0))(define-fun gReal ((a Real)(b Real)) Real (ite (> a b) 1.0 0.0))(define-fun geReal ((a Real)(b Real)) Real (ite (>= a b) 1.0 0.0))(define-fun lReal ((a Real)(b Real)) Real (ite (< a b) 1.0 0.0))(define-fun leReal ((a Real)(b Real)) Real (ite (<= a b) 1.0 0.0))" + smt;
+	smt = "(declare-fun sqrt (Real) Real)(declare-fun root3 (Real) Real)(declare-fun root4 (Real) Real)(assert (forall ((rootInp Real)) (> (sqrt rootInp) 0.0)))(assert (forall ((rootInp Real)) (> (root4 rootInp) 0.0)))(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001)) (define-fun feqReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.0001) 1.0 0.0)) (define-fun gReal ((a Real)(b Real)) Real (ite (> a b) 1.0 0.0)) (define-fun geReal ((a Real)(b Real)) Real (ite (>= a b) 1.0 0.0)) (define-fun lReal ((a Real)(b Real)) Real (ite (< a b) 1.0 0.0)) (define-fun leReal ((a Real)(b Real)) Real (ite (<= a b) 1.0 0.0))" + smt;
 
 	// Check if solution exists
 	z3::context c;

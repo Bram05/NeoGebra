@@ -16,7 +16,7 @@ void main()
         for (int y = 0; y < u_Size; y++) {
             // TODO: line thickness uitproberen
             vec2 coord = TexCoords + vec2(x - int(u_Size/2), y - int(u_Size/2) ) / vec2(textureSize(tex,0));
-            if (!isnan(biggest))
+            if ((x - int(u_Size/2))*(x - int(u_Size/2)) + (y - int(u_Size/2))*(y - int(u_Size/2)) <= int(u_Size/2)*int(u_Size/2) && !isnan(biggest))
                 biggest = max(biggest, texture(tex, coord).r);
         }
     }

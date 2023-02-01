@@ -84,8 +84,6 @@ class Model : public std::enable_shared_from_this<Model> {
 	std::vector<NEElement> m_ExtraEquations;
 
 	void solveVariables(const NEElement* e);
-
-	std::vector<float> generateXFromY(const NEElement& e1, const NEElement& e2);
 public:
 	/**
 	* Create new model by providing the necessary constraints.
@@ -104,10 +102,10 @@ public:
 		unsigned int lineIdentifiers,
 		const Equation& lineDef,
 		const Equation& incidenceConstr,
+		const EquationVector& lineFromPoints,
+		const EquationVector& pointFromLines,
 		const Equation& distanceDef = Equation({}),
-		const Equation& betweennessConstr = Equation({}),
-		const EquationVector& lineFromPoints = EquationVector{},
-		const EquationVector& pointFromLines = EquationVector{});
+		const Equation& betweennessConstr = Equation({}));
 
 	/// Copy an existing Model object. 
 	Model(const Model& g);
@@ -138,6 +136,7 @@ public:
 	friend NEPoint;
 	friend NELine;
 	friend PostulateVerifier;
+	friend Equation;
 };
 
 bool operator==(const NEElement& lhs, const NEElement& rhs);
