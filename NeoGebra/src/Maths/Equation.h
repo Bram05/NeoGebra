@@ -108,7 +108,7 @@ public:
 	bool getSolution(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, std::vector<std::string>& resNames, z3::context* cPtr = nullptr, z3::solver* solverPtr = nullptr, const std::string& extraSMT = {}) const;
 	Equation diff(const AdvancedString& remainingVar) const;
 
-	static std::string getVarFunsSmt(NEType t, const Model& model, std::string& smt, std::vector<std::string>& sqrts);
+	static std::string getVarFunsSmt(NEType t, const Model& model, std::string& smt, std::vector<std::string>& sqrts, int amountOfVars = 1);
 
 	double getResult(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
 	bool isTrue(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;

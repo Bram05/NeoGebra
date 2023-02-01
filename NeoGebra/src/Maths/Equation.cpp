@@ -191,7 +191,7 @@ void Equation::replaceVarName(AdvancedString& s, const AdvancedString& from, con
 		}
 		if (match) {
 			int k = 0;
-			while ((s[i + from.size() + k] >= '0' && s[i + from.size() + k] <= '9') || s[i + from.size() + k] == '.') { k++; }
+			while (i + from.size() + k != s.size() && ((s[i + from.size() + k] >= '0' && s[i + from.size() + k] <= '9') || s[i + from.size() + k] == '.')) { k++; }
 			if (k > 0 && (i == 0 || std::find(std::begin(specialCharacters), std::end(specialCharacters), s[i - 1]) != std::end(specialCharacters)) &&
 				(i + from.size() + k == s.size() || std::find(std::begin(specialCharacters), std::end(specialCharacters), s[i + from.size() + k]) != std::end(specialCharacters) || s[i + from.size()] == '.'))
 			{
@@ -324,25 +324,49 @@ bool Equation::isTrue(const std::vector<std::vector<float>>& identifiers, std::v
 	return recGetResult(m_EquationString, vars, ids);
 }
 
-std::string Equation::getVarFunsSmt(NEType t, const Model& model, std::string& smt, std::vector<std::string>& sqrts) {
+std::string Equation::getVarFunsSmt(NEType t, const Model& model, std::string& smt, std::vector<std::string>& sqrts, int amountOfVars) {
 	std::set<std::string> tmp;
 	std::map<AdvancedString, float> tmp2;
 
 	std::string identName = t == point ? model.m_PointDef.m_NumberedVarNames[0].toString() : model.m_LineDef.m_NumberedVarNames[0].toString();
-	std::string indentifierString;
-	for (int i = 0; i < (t == point ? model.m_PointIdentifiers : model.m_LineIdentifiers); ++i) {
-		indentifierString += " " + identName + std::to_string(i);
-	}
+	
 
 	const std::vector< std::pair < AdvancedString, std::shared_ptr<Equation> >>& extraVars = (t == point ? model.m_Variables.first : model.m_Variables.second);
 
-	for (const std::pair < AdvancedString, std::shared_ptr<Equation>>& var : extraVars) {
-		std::string varName = var.first.toString();
-		auto loc = smt.find(identName + "." + varName);
-		while (loc != std::string::npos) {
-			smt.replace(loc, identName.length() + varName.length() + 1, "(" + identName + "." + varName + indentifierString + ")");
-			loc = smt.find(identName + "." + varName, loc + 2);
+	if (amountOfVars == 1) {
+		std::string indentifierString;
+		for (int i = 0; i < (t == point ? model.m_PointIdentifiers : model.m_LineIdentifiers); ++i) {
+			indentifierString += " " + identName + std::to_string(i);
 		}
+		for (const std::pair < AdvancedString, std::shared_ptr<Equation>>& var : extraVars) {
+			std::string varName = var.first.toString();
+			auto loc = smt.find(identName + "." + varName);
+			while (loc != std::string::npos) {
+				smt.replace(loc, identName.length() + varName.length() + 1, "(" + identName + "." + varName + indentifierString + ")");
+				loc = smt.find(identName + "." + varName, loc + 2);
+			}
+		}
+	}
+	else {
+		for (int n = 0; n < amountOfVars; ++n) {
+			std::string indentifierString;
+			for (int i = 0; i < (t == point ? model.m_PointIdentifiers : model.m_LineIdentifiers); ++i) {
+				indentifierString += " " + identName + (char)('a' + n) + std::to_string(i);
+			}
+			for (const std::pair < AdvancedString, std::shared_ptr<Equation>>& var : extraVars) {
+				std::string varName = var.first.toString();
+				auto loc = smt.find(identName + (char)('a'+n) + "." + varName);
+				while (loc != std::string::npos) {
+					smt.replace(loc, identName.length() + varName.length() + 2, "(" + identName + "." + varName + indentifierString + ")");
+					loc = smt.find(identName + (char)('a' + n) + "." + varName, loc + 2);
+				}
+			}
+		}
+	}
+
+	std::string indentifierString;
+	for (int i = 0; i < (t == point ? model.m_PointIdentifiers : model.m_LineIdentifiers); ++i) {
+		indentifierString += " " + identName + std::to_string(i);
 	}
 
 	std::vector<std::string> otherVars;

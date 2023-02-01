@@ -33,7 +33,7 @@ static void PoincareModel(void*)
 	Application::Get()->GetModel()->addExtraEquation(boundary);
 	Application::Get()->GetWindowUI()->GetEquationUI()->LoadFromActiveModel();
 	Application::Get()->GetWindowUI()->GetEquationUI()->UpdateModel();
-	//PostulateVerifier::I2(*Application::Get()->GetModel());
+	//PostulateVerifier::DISTANCE(*Application::Get()->GetModel());
 }
 
 static void BeltramiKleinModel(void* obj) {

@@ -566,6 +566,8 @@ void EquationUI::UpdateModel()
 	Equation pointDefEq({ pointId }, pointDef);
 	Equation lineDefEq({ { lineId } }, lineDef);
 	Equation incidenceDefEq{ {pointId, lineId}, incidenceDef };
+	Equation congruenceDefEq{ {AdvancedString("p"), AdvancedString("q")}, congruenceDef}; //ToDo change
+	Equation betweennessDefEq{ {AdvancedString("p"), AdvancedString("q"), AdvancedString("r")}, betweennessDef}; //ToDo change
 
 	VarMap correctMap;
 	for (unsigned int i{ 0 }; i < m_Variables.first.size(); ++i)
@@ -577,7 +579,7 @@ void EquationUI::UpdateModel()
 		correctMap.second.emplace_back(m_Variables.second[i].first, std::make_shared<Equation>(std::vector<AdvancedString>{lineId}, m_Variables.second[i].second->m_EquationString));
 	}
 
-	Application::Get()->SetModel(correctMap, numPointsIdents, pointDefEq, numLineIdents, lineDefEq, incidenceDefEq, congruenceDef, betweennessDef, lineFromPointsVec, pointFromLinesVec);
+	Application::Get()->SetModel(correctMap, numPointsIdents, pointDefEq, numLineIdents, lineDefEq, incidenceDefEq, congruenceDefEq, betweennessDefEq, lineFromPointsVec, pointFromLinesVec);
 	for (auto& eq : m_ExtraEquations)
 	{
 		Application::Get()->GetModel()->addExtraEquation(eq);
