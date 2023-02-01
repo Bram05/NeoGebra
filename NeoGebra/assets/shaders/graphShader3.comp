@@ -1,21 +1,21 @@
 #version 430 core
 
-layout (local_size_x = 1, local_size_y = 1, local_size_z = 1) in;
+layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 
 layout(r32f, binding = 0) uniform image2D in_texture;
 layout(r32f, binding = 1) uniform image2D out_texture;
 
-layout(location = 0) uniform ivec2 u_Size;
+layout(location = 0) uniform ivec2 u_MipmapSize;
 
 void main()
 {
+    ivec2 pos = ivec2( gl_GlobalInvocationID.xy );
+	if (pos.x >= u_MipmapSize.x || pos.y >= u_MipmapSize.y)
+        return;
 	float biggest = -1.0;
-	for (int y = 0; y < u_Size.y; ++y)
-	{
-		for (int x = 0; x < u_Size.x; ++x)
-		{
-			biggest = max(biggest, imageLoad(in_texture, ivec2(x, y)).r);
-		}
-	}
-	imageStore(out_texture, ivec2(0,0), vec4(biggest,0.0,0.0,0.0));
+	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x - 1, 2 * pos.y - 1)).r);
+	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x    , 2 * pos.y - 1)).r);
+	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x    , 2 * pos.y    )).r);
+	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x - 1, 2 * pos.y    )).r);
+    imageStore(out_texture, pos, vec4(biggest, 0.0,0.0,0.0));
 }
