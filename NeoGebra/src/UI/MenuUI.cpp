@@ -39,7 +39,7 @@ static void BeltramiKleinModel(void* obj) {
 	Equation BKpointDef{ {AdvancedString("p")}, AdvancedString("x = p0 & y = p1 & x^2 + y^2 < 1 ") };
 	Equation BKlineDef{ {AdvancedString("l")}, AdvancedString("l0*x+l1*y=l2 & x^2 + y^2 < 1") };
 	Equation BKincidence{ {AdvancedString("p"), AdvancedString("l")}, AdvancedString("p0*l0+l1*p1=1") };
-	Equation BKdistanceDef{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(((p1-q1)*p0+(q0-p0)*p1-(q0-p0)*y)/(p1-q1))^2 + (((p1-q1)*p0+(q0-p0)*p1-(p1-q1)*x)/(q0-p0))^2 = 1") };
+	Equation BKdistanceDef{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("") };
 	Equation BKbetweennessDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q"), AdvancedString("r")}, AdvancedString("((p0 < q0 & q0 < r0) | p0 > q0 & q0 > r0) | ((p0 = q0 & q0 = r0) & p1 < q1 & q1 < r1)"));
 	
 	EquationVector BKlineFromPoints{
