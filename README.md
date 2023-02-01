@@ -112,6 +112,9 @@ A point could be identified by 1 or more identifiers and has it's boundaries set
 
 This basically means that, the x coordinate is equal to p0 (first point identifier), and the y coordinate is equal to p1. AND that the point is within the circle with radius 1.
 
+- To choose the radius of a point you have to edit the second field
+- To choose the number of identifiers you can edit the third field.
+
 ### Lines definition
 
 What's the formula of a line in your model? It could be a straight euclidean line , or an arc of a circle of whose center is outside the unit circle for example. You will have to define the formula of a line using as many identifiers as you wish. A Euclidean line is usually defined as y = ax + b or ax + by = c. <br>This could be translated to:
@@ -121,6 +124,9 @@ What's the formula of a line in your model? It could be a straight euclidean lin
 |l0,l1|l0,l1,l2|
 
 With the first example, we have 2 line identifiers, however with the second one we require 3 identifiers.
+
+- To choose the width of a line you have to edit the second field
+- To choose the number of identifiers you can edit the third field.
 
 ### Incidence definition
 
@@ -154,10 +160,14 @@ distance(P,Q) = $\sqrt{(q1-p1)^2 + (q0-p0)^2}$
 
 You can create a definition of creating a line using 2 points. Your input will be points and the output will be a line (if possible) drawn on the graph. For examples you can view the built-in models
 
+> ⚠ You can use the point variables
+
 ### Intersection of 2 lines definition
 
 how to get the value of 2 lines with a point
 You can create a definition of 2 intersecting lines. As an input you will use 2 created lines and as an output a point will be drawn (if possible) on the graph at the intersection point. For examples you can view the built-in models
+
+> ⚠ You can use the line variables
 
 ### Extras
 
