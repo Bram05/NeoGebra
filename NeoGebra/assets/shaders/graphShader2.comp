@@ -51,7 +51,7 @@ void main() {
     float major = 0.5 * (Hxx + Hyy + sqrt(abs((Hxx * Hxx) + 4 * (Hxy * Hxy) - 2 * Hxx * Hyy + (Hyy * Hyy))));
     float minor = 0.5 * (Hxx + Hyy - sqrt(abs((Hxx * Hxx) + 4 * (Hxy * Hxy) - 2 * Hxx * Hyy + (Hyy * Hyy))));
 
-    //imageStore(out_texture, pos, vec4(-major, 0.0,0.0,0.0));
+    //imageStore(out_texture, pos, vec4(major, 0.0,0.0,0.0));
     //return;
 
     if (minor > 0.5 * major)

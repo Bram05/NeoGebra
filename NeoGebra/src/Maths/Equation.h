@@ -29,6 +29,7 @@ struct AdvancedString {
 	std::vector<unsigned int> content;
 	AdvancedString() {}
 	explicit AdvancedString(const std::string& str) { for (const char c : str) { content.push_back(c); } }
+	explicit AdvancedString(const std::wstring& str) { for (const wchar_t c : str) { content.push_back(c); } }
 	explicit AdvancedString(const std::vector<unsigned int>& v) : content(v) {}
 	explicit AdvancedString(unsigned int c) : content({c}) {}
 	AdvancedString(const AdvancedString& s) : content(s.content) {}

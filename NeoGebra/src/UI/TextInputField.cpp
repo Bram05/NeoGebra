@@ -139,6 +139,17 @@ void TextInputField::NotSelectedAnymore()
 	}
 }
 
+void TextInputField::SetText(const AdvancedString& text)
+{
+	m_Text->SetText(AdvancedString(""));
+	m_Text->m_RenderBegin = 0;
+	m_Text->m_RenderEnd = 0;
+	m_Editingindex = 0;
+	for (unsigned int c : text)
+		TextInput(c);
+	UpdateEditingLine();
+}
+
 void TextInputField::RenderPass(Renderer* r)
 {
 	for (std::shared_ptr<Line>& l : m_Lines)
@@ -179,7 +190,7 @@ void TextInputField::UpdateEditingIndex(int newIndex, bool isRemoved, bool wasRe
 	if (offset >= 0 || wasResized) // Offset is 0 after delete is pressed
 	{
 		// TODO hij gaat er nog wel eens overheen
-		if (m_Editingindex > m_Text->m_RenderEnd | wasResized)
+		if (m_Editingindex > m_Text->m_RenderEnd || wasResized)
 		{
 			m_Text->m_RenderEnd = m_Editingindex; // maybe change this to += offset for a nicer effect when jumping around
 			m_Text->m_RenderBegin = m_Text->m_RenderEnd - 1;

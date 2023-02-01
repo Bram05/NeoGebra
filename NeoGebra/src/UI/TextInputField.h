@@ -16,6 +16,7 @@ public:
 	virtual ~TextInputField();
 
 	const AdvancedString& GetText() const { return m_Text->GetText(); }
+	void SetText(const AdvancedString& text);
 	virtual void RenderPass(Renderer* r) override;
 
 protected:

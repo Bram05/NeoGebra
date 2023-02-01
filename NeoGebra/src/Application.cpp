@@ -110,49 +110,9 @@ Application::Application()
 	l.setColour({ 0, 0, 255, 255 });
 	std::vector<float> idsl = l.getIdentifiers();
 	std::cout << idsl[0] << ' ' << idsl[1] << std::endl;*/
-
-	// ------------------------------ Beginning of Half-plane model ------------------------------
-	Equation extra(AdvancedString("y = 0"));
-
-	VarMap variables;
-	Equation pointDef(std::vector<AdvancedString>{AdvancedString("p")}, AdvancedString("x=p0 & y=p1 & y>0"));
-	Equation lineDef(std::vector<AdvancedString>{AdvancedString("l")}, AdvancedString("y > 0 & ((x - l0)^2 + y^2 = l1 | (x = l0 & (l1 = 0))) & !(l1 < 0)"));
-	Equation incidenceDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("l")}, AdvancedString("p1 > 0 & ((p0 - l0)^2 + p1^2 = l1 | (p0 = l0 & (l1 = 0))) & !(l1 < 0)"));
-	Equation distanceDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q")}, AdvancedString("2 * atanh(sqrt(((q0-p0)^2+(q1-p1)^2)/((q0-p0)^2 + (q1+p1)^2)))"));
-	Equation betweennessDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q"), AdvancedString("r")}, AdvancedString("((p0 < q0 & q0 < r0) | p0 > q0 & q0 > r0) | ((p0 = q0 & q0 = r0) & p1 < q1 & q1 < r1)"));
-
-	EquationVector lineFromPoints{
-		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(!(p0 = q0) * (q0^2+q1^2-p0^2-p1^2)/(-2*p0+2*q0)) + ((p0 = q0) * q0)") },
-		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("!(p0 = q0) * ((p0 - (q0^2+q1^2-p0^2-p1^2)/(-2*p0+2*q0))^2 + p1^2)")}
-	};
-
-	EquationVector pointFromLines{
-		{ {AdvancedString("l"), AdvancedString("k") }, AdvancedString("(l1 = 0) * l0 + (k1 = 0) * k0 + !(l1 = 0) * !(k1 = 0) * (k1 - l1 + l0 ^ 2 - k0 ^ 2) / (-2 * k0 + 2 * l0)")},
-		{ {AdvancedString("l"), AdvancedString("k") }, AdvancedString("(l1 = 0) * sqrt(k1 - (l0 - k0)^2) + (k1 = 0) * (sqrt(l1 - (k0 - l0) ^ 2)) + !(l1 = 0) * !(k1 = 0) * sqrt(l1 - (((k1 - l1 + l0 ^ 2 - k0 ^ 2) / (-2 * k0 + 2 * l0) - l0) ^ 2))") }, //  
-	};
-
-	m_Model = std::make_shared<Model>(variables, 2, pointDef, 2, lineDef, incidenceDef, distanceDef, betweennessDef, lineFromPoints, pointFromLines);
-	m_Model->addExtraEquation(extra, { 255,0,0,255 });
-	//std::shared_ptr<NEPoint> p1(std::make_shared<NEPoint>(std::vector<float>{0.22f, 0.91f}, m_Model));
-	//std::shared_ptr<NEPoint> p2(std::make_shared<NEPoint>(std::vector<float>{ 1.5f, 1.94f}, m_Model));
-	//std::shared_ptr<NEPoint> p3(std::make_shared<NEPoint>(std::vector<float>{2.95, 1.76}, m_Model));
-
-	//std::shared_ptr<NEPoint> p4(std::make_shared<NEPoint>(std::vector<float>{ 4.5f, 1.94f}, m_Model));
-	//std::shared_ptr<NEPoint> p5(std::make_shared<NEPoint>(std::vector<float>{ 4.5f, 1.76f}, m_Model));
-
-	//std::shared_ptr<NELine> l1(std::make_shared<NELine>(std::vector<float>{1.0f, 4.0f}, m_Model));
-	//std::shared_ptr<NELine> l2(std::make_shared<NELine>(std::vector<float>{2.0f, 2.0f}, m_Model));
-	std::shared_ptr<NELine> l3(std::make_shared<NELine>(std::vector<float>{0.0f, 0.0f}, m_Model));
-	std::shared_ptr<NELine> l4(std::make_shared<NELine>(std::vector<float>{4.0f, 18.0f}, m_Model));
-
-	//std::cout << distance(*p2, *p1) << '\n';
-	//std::cout << isBetween(*p1, *p2, *p3) << '\n';
-	//m_Model->lineFromPoints(*p1, *p2);
-	//m_Model->lineFromPoints(*p4, *p5);
-	//m_Model->pointFromLines(*l1, *l2);
-	m_Model->pointFromLines(*l3, *l4);
-
-	// ------------------------------ End of Half-plane model ------------------------------
+	
+	VarMap v;
+	m_Model = std::make_shared<Model>(v, 0, Equation(AdvancedString("")), 0, Equation(AdvancedString("")), Equation(AdvancedString("")));
 
 	Application::s_Instance = this;
 	m_Window = new Window(WindowCreationOptions(1080, 720, "NeoGeobra", MouseClickCallback, TextCallback, MouseMovedCallback, KeyCallback, ResizeCallback));

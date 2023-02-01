@@ -210,7 +210,7 @@ static void DisplayExtrasVariables(void* obj)
 	else
 		g_ExtrasWindow.window->Focus();
 }
-constexpr int NumInputFields{ 8 }, DefaultPointSize{ 10 }, DefaultLineWidth{ 3 };
+constexpr int DefaultPointSize{ 10 }, DefaultLineWidth{ 3 };
 
 EquationUI::EquationUI(float leftX, float rightX, float topY, float bottomY)
 	: UIElement(leftX, rightX, topY, bottomY, "EquationUI")
@@ -258,7 +258,7 @@ EquationUI::EquationUI(float leftX, float rightX, float topY, float bottomY)
 	float currentHeight = topY - 0.2f;
 	for (int i{ 0 }; i < NumInputFields; ++i)
 	{
-		m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX, rightX - 0.01f, currentHeight, currentHeight - 0.07f, AdvancedString(std::to_string(i) + ":"), 0.04f, UpdateGraphsStatic, this));
+		m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX, rightX - 0.01f, currentHeight, currentHeight - 0.07f, AdvancedString(std::to_string(i+1) + ":"), 0.04f, UpdateGraphsStatic, this));
 		currentHeight -= 0.1f;
 	}
 
@@ -275,7 +275,7 @@ EquationUI::EquationUI(float leftX, float rightX, float topY, float bottomY)
 	currentHeight = topY - 0.2f;
 	for (int i{ 0 }; i < NumInputFields; ++i)
 	{
-		m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX, rightX - 0.01f, currentHeight, currentHeight - 0.07f, AdvancedString(std::to_string(i) + ":"), 0.04f, UpdateGraphsStatic, this));
+		m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX, rightX - 0.01f, currentHeight, currentHeight - 0.07f, AdvancedString(std::to_string(i+1) + ":"), 0.04f, UpdateGraphsStatic, this));
 		currentHeight -= 0.1f;
 	}
 
@@ -444,8 +444,11 @@ std::vector<float> EquationUI::ParseInput(const AdvancedString& input)
 
 void EquationUI::UpdateGraphs()
 {
-	m_NEPoints.clear();
-	m_NELines.clear();
+	for (int i{ 0 }; i < NumInputFields; ++i)
+	{
+		m_NEPoints[i] = {};
+		m_NELines[i] = {};
+	}
 	Application::Get()->GetWindowUI()->GetGraphUI()->DeleteGraphs();
 	Application::Get()->GetModel()->getElements().clear();
 	for (int i{ m_PointsIndexBegin }; i < m_PointsIndexBegin + NumInputFields; ++i)
@@ -455,8 +458,7 @@ void EquationUI::UpdateGraphs()
 			continue;
 
 		std::vector<float> identifiers{ ParseInput(text) };
-		UserInput(new NEPoint(identifiers, Application::Get()->GetModel(), { 255, 0, 0, 255 }, false));
-
+		UserInput(m_NEPoints[i - m_PointsIndexBegin] = std::make_shared<NEPoint>(identifiers, Application::Get()->GetModel(), RGBColour{ 255, 0, 0, 255 }, false));
 	}
 
 	for (int i{ m_LinesIndexBegin }; i < m_LinesIndexBegin + NumInputFields; ++i)
@@ -466,9 +468,60 @@ void EquationUI::UpdateGraphs()
 			continue;
 
 		std::vector<float> identifiers{ ParseInput(text) };
-		UserInput(new NELine(identifiers, Application::Get()->GetModel(), { 255, 255, 0, 255 }, false));
-
+		UserInput(m_NELines[i - m_LinesIndexBegin] = std::make_shared<NELine>(identifiers, Application::Get()->GetModel(), RGBColour{ 255, 255, 0, 255 }, false));
 	}
+
+	for (int i{ m_PointsIndexBegin + NumInputFields }; i < m_PointsIndexBegin + NumInputFields + 4; ++i)
+	{
+		TextInputField* field = (TextInputField*)m_SubUIElements[i].element.get();
+		const AdvancedString& text = field->GetText();
+		if (text.empty())
+			continue;
+		auto it = text.toString().find(',');
+		if (it == std::string::npos)
+		{
+			Application::Get()->GetWindowUI()->DisplayError("Line from points: " + text.toString() + " does not contain a comma. You need to specify two points separated by a comma.");
+		}
+		else
+		{
+			try {
+				const std::shared_ptr<NEPoint>& p1 = m_NEPoints[std::stoi(text.substr(0, it).toString())-1];
+				const std::shared_ptr<NEPoint>& p2 = m_NEPoints[std::stoi(text.substr(it + 1, text.size() - it - 1).toString())-1];
+				UserInput(Application::Get()->GetModel()->lineFromPoints(*p1, *p2));
+			}
+			catch (const std::exception& e)
+			{
+				Application::Get()->GetWindowUI()->DisplayError("Failed to parse one of the 'line from points' declerations");
+			}
+		}
+	}
+
+	for (int i{ m_LinesIndexBegin + NumInputFields }; i < m_LinesIndexBegin + NumInputFields + 4; ++i)
+	{
+		TextInputField* field = (TextInputField*)m_SubUIElements[i].element.get();
+		const AdvancedString& text = field->GetText();
+		if (text.empty())
+			continue;
+		auto it = text.toString().find(',');
+		if (it == std::string::npos)
+		{
+			Application::Get()->GetWindowUI()->DisplayError("Point from lines: " + text.toString() + " does not contain a comma. You need to specify two points separated by a comma.");
+		}
+		else
+		{
+			try
+			{
+				const std::shared_ptr<NELine>& l1 = m_NELines[std::stoi(text.substr(0, it).toString())-1];
+				const std::shared_ptr<NELine>& l2 = m_NELines[std::stoi(text.substr(it + 1, text.size() - it - 1).toString())-1];
+				UserInput(Application::Get()->GetModel()->pointFromLines(*l1, *l2));
+			}
+			catch (const std::exception& e)
+			{
+				Application::Get()->GetWindowUI()->DisplayError("Failed to parse one of the 'point from lines' declerations");
+			}
+		}
+	}
+
 	Application::Get()->GetWindowUI()->UpdateGraphUI();
 }
 
@@ -508,7 +561,7 @@ void EquationUI::UpdateModel()
 			begin = i + 1;
 		}
 	}
-	pointFromLinesVec.emplace_back(std::vector<AdvancedString>{AdvancedString("l"), AdvancedString("l")}, pointFromLines.substr(begin, pointFromLines.size() - begin));
+	pointFromLinesVec.emplace_back(std::vector<AdvancedString>{AdvancedString("l"), AdvancedString("k")}, pointFromLines.substr(begin, pointFromLines.size() - begin));
 
 	Equation pointDefEq({ pointId }, pointDef);
 	Equation lineDefEq({ { lineId } }, lineDef);
@@ -537,44 +590,62 @@ void EquationUI::UpdateModel()
 	Application::Get()->GetRenderer()->GetGraphRenderer()->setPointSize(pointSize);
 
 	UpdateGraphs();
+	//Application::Get()->GetWindowUI()->UpdateGraphUI();
+}
 
-	for (int i{ m_PointsIndexBegin + NumInputFields }; i < m_PointsIndexBegin + NumInputFields + 4; ++i)
+void EquationUI::LoadFromActiveModel()
+{
+	const std::shared_ptr<Model>& model = Application::Get()->GetModel();
+	if (!model)
 	{
-		TextInputField* field = (TextInputField*)m_SubUIElements[i].element.get();
-		const AdvancedString& text = field->GetText();
-		if (text.empty())
-			continue;
-		auto it = text.toString().find(',');
-		if (it == std::string::npos)
-		{
-			Application::Get()->GetWindowUI()->DisplayError("Line from points: " + text.toString() + " does not contain a comma. You need to specify two points separated by a comma.");
-		}
-		else
-		{
-			const std::shared_ptr<NEPoint>& p1 = m_NEPoints[std::stoi(text.substr(0, it).toString())];
-			const std::shared_ptr<NEPoint>& p2 = m_NEPoints[std::stoi(text.substr(it + 1, text.size() - it - 1).toString())];
-			Application::Get()->GetModel()->lineFromPoints(*p1, *p2);
-		}
+		Application::Get()->GetWindowUI()->DisplayError("ERROR: trying to fill the inputs based on a non-existing model");
+		return;
 	}
 
-	for (int i{ m_LinesIndexBegin + NumInputFields }; i < m_LinesIndexBegin + NumInputFields + 4; ++i)
-	{
-		TextInputField* field = (TextInputField*)m_SubUIElements[i].element.get();
-		const AdvancedString& text = field->GetText();
-		if (text.empty())
-			continue;
-		auto it = text.toString().find(',');
-		if (it == std::string::npos)
-		{
-			Application::Get()->GetWindowUI()->DisplayError("Point from lines: " + text.toString() + " does not contain a comma. You need to specify two points separated by a comma.");
-		}
-		else
-		{
-			const std::shared_ptr<NELine>& l1 = m_NELines[std::stoi(text.substr(0, it).toString())];
-			const std::shared_ptr<NELine>& l2 = m_NELines[std::stoi(text.substr(it + 1, text.size() - it - 1).toString())];
-			Application::Get()->GetModel()->pointFromLines(*l1, *l2);
-		}
-	}
-	Application::Get()->GetWindowUI()->UpdateGraphUI();
+	const AdvancedString& lineDef = model->GetLineDef().m_EquationString;
+	const AdvancedString& pointDef = model->GetPointDef().m_EquationString;
+	const AdvancedString& incidenceDef = model->GetIncidenceConstr().m_EquationString;
+	const AdvancedString& congruenceDef = model->GetDistanceDef().m_EquationString;
+	const AdvancedString& betweennessDef = model->GetBetweennessConstr().m_EquationString;
+	int numLineIds = model->GetNumLineIdentifiers();
+	int numPointIds = model->GetNumPointIdentifiers();
+	AdvancedString lineFromPoints, pointFromLines;
 
+	bool first = true;
+	for (const Equation& e : model->GetLineFromPoints())
+	{
+		if (!first)
+			lineFromPoints += AdvancedString("; ");
+		lineFromPoints += e.m_EquationString;
+		first = false;
+	}
+
+	first = true;
+	for (const Equation& e : model->GetPointFromLines())
+	{
+		if (!first)
+			pointFromLines += AdvancedString("; ");
+		pointFromLines += e.m_EquationString;
+		first = false;
+	}
+
+	m_Variables = model->GetVarMap();
+
+	((TextInputField*)(m_SubUIElements[m_PointDefInputField].element.get()))->SetText(pointDef);
+	((TextInputField*)(m_SubUIElements[m_LineDefInputField].element.get()))->SetText(lineDef);
+	((TextInputFieldWithDesc*)(m_SubUIElements[m_PointDefInputField - 1].element.get()))->SetText(AdvancedString(std::to_string(numPointIds)));
+	((TextInputFieldWithDesc*)(m_SubUIElements[m_LineDefInputField - 1].element.get()))->SetText(AdvancedString(std::to_string(numLineIds)));
+	//((TextInputField*)(m_SubUIElements[m_PointDefInputField - 3].element.get()))->SetText(; // use p as letter
+	//((TextInputField*)(m_SubUIElements[m_LineDefInputField - 3].element.get()))->GetText();
+	((TextInputField*)(m_SubUIElements[m_LineDefInputField + 1].element.get()))->SetText(incidenceDef);
+	((TextInputField*)(m_SubUIElements[m_LineDefInputField + 2].element.get()))->SetText(betweennessDef);
+	((TextInputFieldWithDesc*)(m_SubUIElements[m_LineDefInputField + 3].element.get()))->SetText(congruenceDef);
+	((TextInputField*)(m_SubUIElements[m_LineDefInputField + 4].element.get()))->SetText(lineFromPoints);
+	((TextInputField*)(m_SubUIElements[m_LineDefInputField + 5].element.get()))->SetText(pointFromLines);
+
+	m_ExtraEquations.clear();
+	for (NEElement& extra : model->getExtraEquations())
+	{
+		m_ExtraEquations.push_back(extra.getDef());
+	}
 }

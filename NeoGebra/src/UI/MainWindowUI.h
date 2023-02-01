@@ -2,6 +2,8 @@
 
 #include "WindowUI.h"
 
+class EquationUI;
+
 class MainWindowUI : public WindowUI
 {
 public:
@@ -12,6 +14,7 @@ public:
 	void SetFPSCounter(float fps);
 	void UpdateGraphUI();
 	GraphUI* GetGraphUI();
+	EquationUI* GetEquationUI() { return (EquationUI*)(m_UIElements[1].get()); }
 
 private:
 	int m_GraphUIIndex, m_FPSCounterIndex;
