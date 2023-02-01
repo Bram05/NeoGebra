@@ -1,4 +1,4 @@
-# NeoGebra 💫
+# NeoGebra
 
 NeoGebra is a program that can be used for creating, visualizing and verifying Non-Euclidean models.
 
@@ -14,11 +14,11 @@ NeoGebra is a program that can be used for creating, visualizing and verifying N
 - Compare models
 - Custom Non-Euclidean models, with your own identifiers
 - Postulates verifier
-- Cross-platform (MacOS untested)
+- Windows / Linux
 
 ## Table of content
 
-- [NeoGebra 💫](#neogebra-)
+- [NeoGebra](#neogebra)
   - [Screenshots](#screenshots)
   - [Features](#features)
   - [Table of content](#table-of-content)
