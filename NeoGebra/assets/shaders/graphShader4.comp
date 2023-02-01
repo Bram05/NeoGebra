@@ -1,0 +1,13 @@
+#version 430 core
+
+layout (local_size_x = 32, local_size_y = 32, local_size_z = 1) in;
+
+layout(r32f, binding = 0) uniform image2D in_texture;
+layout(r32f, binding = 1) uniform image2D small_texture;
+layout(r32f, binding = 2) uniform image2D out_texture;
+
+void main()
+{
+    ivec2 pos = ivec2( gl_GlobalInvocationID.xy );
+	imageStore(out_texture, pos, vec4(imageLoad(in_texture, pos).r / imageLoad(small_texture, ivec2(0,0)).r, 0.0,0.0,0.0));
+}

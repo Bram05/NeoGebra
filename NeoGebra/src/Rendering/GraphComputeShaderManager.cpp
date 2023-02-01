@@ -19,21 +19,44 @@ GraphComputeShaderManager::GraphComputeShaderManager(const std::string& name, fl
 	m_Width = Util::ConvertToPixelValue(width, true);
 	m_Height = Util::ConvertToPixelValue(height, false);
 	m_CompShader2 = CreateOtherComputeShader(m_Name + "2");
+	m_CompShader3 = CreateOtherComputeShader(m_Name + "3");
+	m_CompShader4 = CreateOtherComputeShader(m_Name + "4");
 
-	glGenTextures(1, &m_IntermediateTexture);
+	glGenTextures(1, &m_IntermediateTexture1);
 	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_IntermediateTexture);
+	glBindTexture(GL_TEXTURE_2D, m_IntermediateTexture1);
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, m_Width, m_Height, 0, GL_RED, GL_FLOAT, NULL);
-	glBindImageTexture(0, m_IntermediateTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	glBindImageTexture(0, m_IntermediateTexture1, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+
+	glGenTextures(1, &m_IntermediateTexture2);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_IntermediateTexture2);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, m_Width, m_Height, 0, GL_RED, GL_FLOAT, NULL);
+	glBindImageTexture(0, m_IntermediateTexture2, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+
+	glGenTextures(1, &m_SmallTexture);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, m_SmallTexture);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 1, 1, 0, GL_RED, GL_FLOAT, NULL);
+	glBindImageTexture(0, m_SmallTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
 }
 
 GraphComputeShaderManager::~GraphComputeShaderManager()
 {
-	glDeleteTextures(1, &m_IntermediateTexture);
+	glDeleteTextures(1, &m_IntermediateTexture1);
+	glDeleteTextures(1, &m_IntermediateTexture2);
 	glDeleteProgram(m_CompShader2);
 }
 
@@ -41,8 +64,10 @@ void GraphComputeShaderManager::SetGraphSize(int width, int height)
 {
 	m_Width = width;
 	m_Height = height;
-	glDeleteTextures(1, &m_IntermediateTexture);
-	m_IntermediateTexture = CreateTexture();
+	glDeleteTextures(1, &m_IntermediateTexture1);
+	glDeleteTextures(1, &m_IntermediateTexture2);
+	m_IntermediateTexture1 = CreateTexture();
+	m_IntermediateTexture2 = CreateTexture();
 }
 
 void GraphComputeShaderManager::SetUniform(unsigned int loc, const std::array<float, 4>& vec) const
@@ -145,8 +170,8 @@ unsigned int GraphComputeShaderManager::CreateOtherComputeShader(const std::stri
 void GraphComputeShaderManager::RunComputeShaders(Graph* graph, float midCoordX, float midCoordY, float unitLengthPixels) const
 {
 	//Util::Timer t("Running compute shader");
-	glBindImageTexture(0, m_IntermediateTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
-	glBindImageTexture(1, graph->m_Texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	glBindImageTexture(0, m_IntermediateTexture1, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	glBindImageTexture(1, m_IntermediateTexture2, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
 
 	//Run 1st shader
 	glUseProgram(graph->m_CompShader1);
@@ -161,6 +186,19 @@ void GraphComputeShaderManager::RunComputeShaders(Graph* graph, float midCoordX,
 
 	glUseProgram(m_CompShader2);
 	glDispatchCompute(std::ceil(m_Width/32.0f), std::ceil(m_Height/32.0f), 1);
+	glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+	glUseProgram(m_CompShader3);
+	glBindImageTexture(0, m_IntermediateTexture2, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	glBindImageTexture(1, m_SmallTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	glUniform2i(0, m_Width, m_Height);
+	glDispatchCompute(1, 1, 1);
+	glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+	glUseProgram(m_CompShader4);
+	glBindImageTexture(0, m_SmallTexture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	glBindImageTexture(1, graph->m_Texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	glDispatchCompute(std::ceil(m_Width / 32.0f), std::ceil(m_Height / 32.0f), 1);
 	glMemoryBarrier(GL_ALL_BARRIER_BITS);
 }
 

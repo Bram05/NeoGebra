@@ -123,8 +123,6 @@ Application::Application()
 	m_WindowUI = new MainWindowUI;
 	m_Window->ToggleMaximized();
 	PrintInfo(std::cout << "Created application\n\n");
-
-	//PostulateVerifier::I2(*m_Model);
 }
 
 Application::~Application()
