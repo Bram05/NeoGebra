@@ -60,7 +60,7 @@ void main() {
         imageStore(out_texture, pos, vec4(0.0, 0.0,0.0,0.0));
     else
     {
-        if (abs(Hx) > 0.1 * major || abs(Hy) > 0.1 * major)
+        if (abs(Hx) > 0.05 * major || abs(Hy) > 0.05 * major)
             imageStore(out_texture, pos, vec4(0.0, 0.0,0.0,0.0));
         else
             imageStore(out_texture, pos, vec4(major, 0.0,0.0,0.0));
