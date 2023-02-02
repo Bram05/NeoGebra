@@ -32,22 +32,33 @@ GraphComputeShaderManager::GraphComputeShaderManager(const std::string& name, fl
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, m_Width, m_Height, 0, GL_RED, GL_FLOAT, NULL);
 	glBindImageTexture(0, m_IntermediateTexture1, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
 
-	glGenTextures(1, &m_IntermediateTexture2);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, m_IntermediateTexture2);
+	int level = 0, mipmapWidth = m_Width, mipmapHeight = m_Height;
+	while (mipmapWidth != 1 && mipmapHeight != 1)
+	{
+		unsigned int val;
+		glGenTextures(1, &val);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, val);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, m_Width, m_Height, 0, GL_RED, GL_FLOAT, NULL);
-	glBindImageTexture(0, m_IntermediateTexture2, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
-	glGenerateTextureMipmap(m_IntermediateTexture2);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, mipmapWidth, mipmapHeight, 0, GL_RED, GL_FLOAT, NULL);
+		glBindImageTexture(0, val, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+		glGenerateTextureMipmap(val);
+		m_IntermediateTextures2.push_back(val);
+
+		mipmapWidth = std::max(mipmapWidth / 2, 1);
+		mipmapHeight = std::max(mipmapHeight / 2, 1);
+		++level;
+	}
 }
 
 GraphComputeShaderManager::~GraphComputeShaderManager()
 {
 	glDeleteTextures(1, &m_IntermediateTexture1);
-	glDeleteTextures(1, &m_IntermediateTexture2);
+	for (unsigned int i : m_IntermediateTextures2)
+		glDeleteTextures(1, &i);
 	glDeleteProgram(m_CompShader2);
 }
 
@@ -56,10 +67,40 @@ void GraphComputeShaderManager::SetGraphSize(int width, int height)
 	m_Width = width;
 	m_Height = height;
 	glDeleteTextures(1, &m_IntermediateTexture1);
-	glDeleteTextures(1, &m_IntermediateTexture2);
+	for (unsigned int i : m_IntermediateTextures2)
+		glDeleteTextures(1, &i);
+	m_IntermediateTextures2.resize(0);
+	int level = 0, mipmapWidth = m_Width, mipmapHeight = m_Height;
+	while (mipmapWidth != 1 && mipmapHeight != 1)
+	{
+		unsigned int val;
+		glGenTextures(1, &val);
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, val);
+
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, mipmapWidth, mipmapHeight, 0, GL_RED, GL_FLOAT, NULL);
+		//glBindImageTexture(0, val, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+		//glGenerateTextureMipmap(val);
+		m_IntermediateTextures2.push_back(val);
+
+		mipmapWidth = std::max(mipmapWidth / 2, 1);
+		mipmapHeight = std::max(mipmapHeight / 2, 1);
+		++level;
+	}
+	unsigned int val;
+	glGenTextures(1, &val);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, val);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, mipmapWidth, mipmapHeight, 0, GL_RED, GL_FLOAT, NULL);
+	m_IntermediateTextures2.push_back(val);
 	m_IntermediateTexture1 = CreateTexture();
-	m_IntermediateTexture2 = CreateTexture();
-	glGenerateTextureMipmap(m_IntermediateTexture2);
 }
 
 void GraphComputeShaderManager::SetUniform(unsigned int loc, const std::array<float, 4>& vec) const
@@ -162,7 +203,7 @@ unsigned int GraphComputeShaderManager::CreateOtherComputeShader(const std::stri
 void GraphComputeShaderManager::RunComputeShaders(Graph* graph, float midCoordX, float midCoordY, float unitLengthPixels) const
 {
 	glBindImageTexture(0, m_IntermediateTexture1, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
-	glBindImageTexture(1, m_IntermediateTexture2, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	glBindImageTexture(1, m_IntermediateTextures2[0], 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
 
 	Util::Timer t("Running compute shader1");
 	//Run 1st shader
@@ -186,27 +227,31 @@ void GraphComputeShaderManager::RunComputeShaders(Graph* graph, float midCoordX,
 	t.Stop();
 
 	t.Restart("Running compute shader3");
-	int level = 0, mipmapWidth = m_Width / 2, mipmapHeight = m_Height / 2;
+	//int prevMipmapWidth = m_Width, prevMipmapHeight = m_Height;
+	int i = 0, mipmapWidth = m_Width / 2, mipmapHeight = m_Height / 2;
 	glUseProgram(m_CompShader3);
-	while (mipmapWidth != 1 && mipmapHeight != 1)
+	for (; i < m_IntermediateTextures2.size()-1; ++i)
 	{
-		glBindImageTexture(0, m_IntermediateTexture2, level, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
-		glBindImageTexture(1, m_IntermediateTexture2, level + 1, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+		glBindImageTexture(0, m_IntermediateTextures2[i], 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+		glBindImageTexture(1, m_IntermediateTextures2[i+1], 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+		//glUniform2i(1, prevMipmapWidth, prevMipmapHeight);
 		glUniform2i(0, mipmapWidth, mipmapHeight);
+		//glUniform1i(0, level);
 		glDispatchCompute(std::ceil(mipmapWidth / 8.0f), std::ceil(mipmapHeight / 8.0f), 1);
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
 		mipmapWidth = std::max(mipmapWidth / 2, 1);
+		//prevMipmapWidth = std::max(prevMipmapWidth / 2, 1);
 		mipmapHeight = std::max(mipmapHeight / 2, 1);
-		++level;
+		//prevMipmapHeight = std::max(prevMipmapHeight / 2, 1);
 	}
 	glFinish();
 	t.Stop();
 
 	t.Restart("Running compute shader4");
 	glUseProgram(m_CompShader4);
-	glBindImageTexture(0, m_IntermediateTexture2, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
-	glBindImageTexture(1, m_IntermediateTexture2, level, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	glBindImageTexture(0, m_IntermediateTextures2[0], 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	glBindImageTexture(1, m_IntermediateTextures2[i], 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
 	glBindImageTexture(2, graph->m_Texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
 	glDispatchCompute(std::ceil(m_Width / 32.0f), std::ceil(m_Height / 32.0f), 1);
 	glFinish();

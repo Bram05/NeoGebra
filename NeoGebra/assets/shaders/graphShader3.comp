@@ -5,6 +5,8 @@ layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
 layout(r32f, binding = 0) uniform image2D in_texture;
 layout(r32f, binding = 1) uniform image2D out_texture;
 
+//layout(location = 0) uniform int level;
+//layout(location = 1) uniform ivec2 u_PrevMipmapSize;
 layout(location = 0) uniform ivec2 u_MipmapSize;
 
 void main()
@@ -13,9 +15,9 @@ void main()
 	if (pos.x >= u_MipmapSize.x || pos.y >= u_MipmapSize.y)
         return;
 	float biggest = -1.0;
-	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x - 1, 2 * pos.y - 1)).r);
-	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x    , 2 * pos.y - 1)).r);
+	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x + 1, 2 * pos.y + 1)).r);
+	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x    , 2 * pos.y + 1)).r);
+	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x + 1, 2 * pos.y    )).r);
 	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x    , 2 * pos.y    )).r);
-	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x - 1, 2 * pos.y    )).r);
     imageStore(out_texture, pos, vec4(biggest, 0.0,0.0,0.0));
 }

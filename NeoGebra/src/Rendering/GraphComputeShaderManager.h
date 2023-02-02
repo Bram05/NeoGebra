@@ -21,7 +21,8 @@ public:
 
 private:
 	unsigned int m_CompShader2, m_CompShader3, m_CompShader4;
-	unsigned int m_IntermediateTexture1, m_IntermediateTexture2;
+	unsigned int m_IntermediateTexture1;
+	std::vector<unsigned int> m_IntermediateTextures2;
 	int m_MaxNumberOfTextureUnits;
 	int m_Width, m_Height; // Stored in pixels
 	std::string m_Name;
