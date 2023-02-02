@@ -11,7 +11,7 @@
 class TabUI : public UIElement
 {
 public:
-	TabUI(float leftX, float rightX, float topY, float bottomY, int startingButton, void(*callback)(void*,int), void* obj);
+	TabUI(float leftX, float rightX, float topY, float bottomY, int startingButton, void(*callback)(void*,int), void* obj, const std::vector<AdvancedString>& texts);
 	~TabUI();
 
 	void ButtonClicked(int value);

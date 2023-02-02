@@ -13,7 +13,7 @@ class TabUI;
 class PermaButtonUI : public UIElement
 {
 public:
-	PermaButtonUI(float leftX, float rightX, float topY, float bottomY, int value, TabUI* parent, const std::string& text);
+	PermaButtonUI(float leftX, float rightX, float topY, float bottomY, int value, TabUI* parent, const AdvancedString& text);
 	~PermaButtonUI();
 
 	void SetActivation(bool value);
