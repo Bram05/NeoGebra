@@ -53,8 +53,6 @@ struct AdvancedString {
 	unsigned int& operator [](int i) { return content[i]; }
 };
 
-void replaceAll(AdvancedString& str, const AdvancedString& from, const AdvancedString& to);
-
 class Equation
 {
 private:
@@ -108,6 +106,7 @@ public:
 	bool getSolution(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, std::vector<std::string>& resNames, z3::context* cPtr = nullptr, z3::solver* solverPtr = nullptr, const std::string& extraSMT = {}) const;
 	Equation diff(const AdvancedString& remainingVar) const;
 
+	static void replaceAll(AdvancedString& str, const AdvancedString& from, const AdvancedString& to);
 	static std::string getVarFunsSmt(NEType t, const Model& model, std::string& smt, std::vector<std::string>& sqrts, int amountOfVars = 1);
 
 	double getResult(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
@@ -125,8 +124,8 @@ Equation operator!(const Equation& e);
 AdvancedString operator+(const AdvancedString& s1, const AdvancedString& s2);
 AdvancedString operator+(const AdvancedString& s1, const std::string& s2);
 AdvancedString operator+(const std::string& s1, const AdvancedString& s2);
-AdvancedString operator+(const AdvancedString& s1, const char& s2);
-AdvancedString operator+(const char& s1, const AdvancedString& s2);
+AdvancedString operator+(const AdvancedString& s1, const unsigned int& s2);
+AdvancedString operator+(const unsigned int& s1, const AdvancedString& s2);
 void operator+=(AdvancedString& s1, const AdvancedString& s2);
 bool operator==(const AdvancedString& s1, const AdvancedString& s2);
 bool operator==(const AdvancedString& s1, const std::string& s2);

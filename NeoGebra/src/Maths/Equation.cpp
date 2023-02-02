@@ -22,7 +22,7 @@ bool isNumber(const AdvancedString& str)
 	* @param from[in] Substring that should be replaced.
 	* @param to[in] Substring to replace 'from' with.
 */
-void replaceAll(AdvancedString& str, const AdvancedString& from, const AdvancedString& to) {
+void Equation::replaceAll(AdvancedString& str, const AdvancedString& from, const AdvancedString& to) {
 	for (int i = 0; i < str.size(); i++) {
 		bool match = true;
 		for (int j = 0; j < from.size(); j++) {
@@ -82,7 +82,7 @@ std::map<AdvancedString, float> Equation::linkNumberedVars(const std::vector<std
 // replace logx with 10logx and sqrt(x) with 2sqrt(x) and 5(...) with 5*(...)
 void Equation::cleanUpEquation(AdvancedString& s) {
 	replaceAll(s, AdvancedString(" "), AdvancedString(""));
-	//replaceVarName(s, AdvancedString("pi"), AdvancedString({ 0x03C0 }));
+	replaceVarName(s, AdvancedString("pi"), AdvancedString({ 0x03C0 }));
 	replaceAll(s, AdvancedString("~"), AdvancedString({ 0x221A }));
 	replaceAll(s, AdvancedString("log"), AdvancedString({ 0x33D2 }));
 	replaceAll(s, AdvancedString("sqrt("), AdvancedString(std::vector<unsigned int>{ 0x221A, '('}));
@@ -181,7 +181,7 @@ std::pair<bool, double> Equation::getVariable(const AdvancedString& key, std::ve
 }
 
 void Equation::replaceVarName(AdvancedString& s, const AdvancedString& from, const AdvancedString& to) const {
-	for (int i = 0; i < s.size() - from.size(); i++) {
+	for (int i = 0; i < (int)(s.size() - from.size()); i++) {
 		bool match = true;
 		for (int j = 0; j < from.size(); j++) {
 			if (s[i + j] != from[j]) {
@@ -200,12 +200,13 @@ void Equation::replaceVarName(AdvancedString& s, const AdvancedString& from, con
 				s.insert(s.begin() + i, to.begin(), to.end());
 				i += to.length() + k;
 			}
-			else if ((from == "x" || from == "y") && (i == 0 || std::find(std::begin(specialCharacters), std::end(specialCharacters), s[i - 1]) != std::end(specialCharacters)) &&
+			else if ((from == "x" || from == "y" || from == "pi") && (i == 0 || std::find(std::begin(specialCharacters), std::end(specialCharacters), s[i - 1]) != std::end(specialCharacters)) &&
 				(i + from.size() == s.size() || std::find(std::begin(specialCharacters), std::end(specialCharacters), s[i + from.size()]) != std::end(specialCharacters))) {
 				s.erase(s.begin() + i, s.begin() + i + from.size());
 				s.insert(s.begin() + i, to.begin(), to.end());
 				i += to.length();
 			}
+
 		}
 	}
 }
@@ -767,13 +768,13 @@ AdvancedString operator+(const std::string& s1, const AdvancedString& s2) {
 	return res;
 }
 
-AdvancedString operator+(const AdvancedString& s1, const char& s2) {
+AdvancedString operator+(const AdvancedString& s1, const unsigned int& s2) {
 	AdvancedString res = s1;
 	res.content.insert(res.content.end(), s2);
 	return res;
 }
 
-AdvancedString operator+(const char& s1, const AdvancedString& s2) {
+AdvancedString operator+(const unsigned int& s1, const AdvancedString& s2) {
 	AdvancedString res = s2;
 	res.content.insert(res.content.begin(), s1);
 	return res;
