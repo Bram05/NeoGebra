@@ -3,6 +3,7 @@
 #include "ButtonUI.h"
 #include "Rendering/Renderer.h"
 #include "Application.h"
+#include "Util.h"
 
 ButtonUI::ButtonUI(float leftX, float rightX, float topY, float bottomY, void(*func)(void*), void* obj, const std::string& text, const std::array<float, 4>& backgroundColour, const std::array<float, 4>& hoveredColour)
 	: ButtonUI(leftX, rightX, topY, bottomY, func, obj, AdvancedString(text), backgroundColour, hoveredColour) {}
@@ -34,8 +35,7 @@ void ButtonUI::RenderPass(Renderer* r)
 
 void ButtonUI::WasClicked(float x, float y)
 {
-	if (m_Action)
-		m_Action(m_Obj);
+	UserInput(if (m_Action) { m_Action(m_Obj); });
 }
 
 void ButtonUI::IsHovered(float x, float y)
