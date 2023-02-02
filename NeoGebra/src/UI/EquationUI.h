@@ -22,6 +22,7 @@ public:
 	void UpdateGraphs();
 	void UpdateModel();
 	void LoadFromActiveModel();
+	void UpdatePointsUI(int value);
 
 	VarMap m_Variables;
 	std::vector<Equation> m_ExtraEquations;
@@ -29,7 +30,7 @@ public:
 protected:
 	void RenderPass(Renderer* r) override;
 	std::vector<std::shared_ptr<Text>> m_Texts;
-	std::shared_ptr<Text> m_PointText;
+	//std::shared_ptr<Text> m_PointText;
 	std::shared_ptr<Text> m_LineText;
 	std::vector<std::shared_ptr<Text>> m_ModelTexts;
 	std::array<std::shared_ptr<NEPoint>, NumInputFields> m_NEPoints;
@@ -41,6 +42,8 @@ private:
 	int m_ModelBeginIndex, m_ModelEndIndex;
 	int m_UpdateGraphsButton;
 	int m_ButtonValue{2};
+	int m_LineFromPointsBegin, m_LineFromPointsEnd, m_DistanceBegin, m_DistanceEnd;
+	int m_PointsSwitchValue{0};
 
 	void TabButtonClicked(int value);
 	friend void TabButtonClickedStatic(void*,int);

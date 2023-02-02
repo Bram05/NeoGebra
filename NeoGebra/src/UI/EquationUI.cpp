@@ -12,6 +12,7 @@
 #include <GLFW/glfw3.h>
 #include "Util.h"
 #include "ExtrasWindowUI.h"
+#include "DistanceTestUI.h"
 
 static void TabButtonClickedStatic(void* obj, int value)
 {
@@ -26,6 +27,11 @@ static void UpdateGraphsStatic(void* obj)
 static void UpdateModelStatic(void* obj)
 {
 	((EquationUI*)obj)->UpdateModel();
+}
+
+static void UpdatePointsUIStatic(void* obj, int value)
+{
+	((EquationUI*)obj)->UpdatePointsUI(value);
 }
 
 struct SubWindow
@@ -258,28 +264,41 @@ EquationUI::EquationUI(float leftX, float rightX, float topY, float bottomY)
 	float currentHeight = topY - 0.2f;
 	for (int i{ 0 }; i < NumInputFields; ++i)
 	{
-		m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX, rightX - 0.01f, currentHeight, currentHeight - 0.07f, AdvancedString(std::to_string(i+1) + ":"), 0.04f, UpdateGraphsStatic, this));
+		m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX, rightX - 0.01f, currentHeight, currentHeight - 0.07f, AdvancedString(std::to_string(i + 1) + ":"), 0.04f, UpdateGraphsStatic, this));
 		currentHeight -= 0.1f;
 	}
 
-	m_PointText = std::make_shared<Text>("Lines from points (if defined):", leftX + 0.01f, rightX - 0.01f, currentHeight - 0.07f, 40.0f);
+	//m_SubUIElements.emplace_back(std::make_shared<Text>("Lines from points", leftX + 0.01f, rightX - 0.01f, currentHeight - 0.07f, 40.0f));
+	m_SubUIElements.emplace_back(std::make_shared<TabUI>(leftX, rightX, currentHeight, currentHeight - 0.08f, 0, UpdatePointsUIStatic, this, std::vector<AdvancedString>{AdvancedString("Create line"), AdvancedString("Distance")}));
 	currentHeight -= 0.10f;
 
+	float tempHeight = currentHeight;
+
+	m_LineFromPointsBegin = m_SubUIElements.size();
 	for (int i{ 0 }; i < 4; ++i)
 	{
-		m_SubUIElements.emplace_back(std::make_shared<TextInputField>(leftX + 0.01f, rightX - 0.01f, currentHeight, currentHeight - 0.07f, UpdateModelStatic, this));
+		m_SubUIElements.emplace_back(std::make_shared<TextInputField>(leftX + 0.01f, rightX - 0.01f, tempHeight, tempHeight - 0.07f, UpdateModelStatic, this));
+		tempHeight -= 0.1f;
+	}
+	m_LineFromPointsEnd = m_SubUIElements.size() - 1;
+
+	m_DistanceBegin = m_SubUIElements.size();
+	for (int i{ 0 }; i < 4; ++i)
+	{
+		m_SubUIElements.emplace_back(std::make_shared<DistanceTestUI>(leftX + 0.01f, rightX - 0.01f, currentHeight, currentHeight - 0.07f, UpdateModelStatic, this), false);
 		currentHeight -= 0.1f;
 	}
+	m_DistanceEnd = m_SubUIElements.size() - 1;
 
 	m_LinesIndexBegin = m_SubUIElements.size();
 	currentHeight = topY - 0.2f;
 	for (int i{ 0 }; i < NumInputFields; ++i)
 	{
-		m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX, rightX - 0.01f, currentHeight, currentHeight - 0.07f, AdvancedString(std::to_string(i+1) + ":"), 0.04f, UpdateGraphsStatic, this));
+		m_SubUIElements.emplace_back(std::make_shared<TextInputFieldWithDesc>(leftX, rightX - 0.01f, currentHeight, currentHeight - 0.07f, AdvancedString(std::to_string(i + 1) + ":"), 0.04f, UpdateGraphsStatic, this));
 		currentHeight -= 0.1f;
 	}
 
-	m_LineText = std::make_shared<Text>("Intersection of two lines (if defined):", leftX + 0.01f, rightX - 0.01f, currentHeight - 0.07f, 40.0f);
+	m_LineText = std::make_shared<Text>("Intersection of two lines:", leftX + 0.01f, rightX - 0.01f, currentHeight - 0.07f, 40.0f);
 	currentHeight -= 0.10f;
 
 	for (int i{ 0 }; i < 4; ++i)
@@ -333,13 +352,13 @@ EquationUI::EquationUI(float leftX, float rightX, float topY, float bottomY)
 	currentHeight -= 0.18f;
 
 	// New Line
-	m_ModelTexts.push_back(std::make_shared<Text>("Line From Two Points (may not be required)", leftX + 0.01f, rightX - 0.01f, currentHeight - 0.05f, 40.0f));
+	m_ModelTexts.push_back(std::make_shared<Text>("Line From Two Points", leftX + 0.01f, rightX - 0.01f, currentHeight - 0.05f, 40.0f));
 	m_SubUIElements.emplace_back(std::make_shared<TextInputField>(leftX + 0.01f, rightX - 0.01f, currentHeight - 0.07f, currentHeight - 0.14f, UpdateModelStatic, this, lineFromPoints), false);
 
 	currentHeight -= 0.18f;
 
 	// Points from line
-	m_ModelTexts.push_back(std::make_shared<Text>("Intersection Of Two Lines (may not be required)", leftX + 0.01f, rightX - 0.01f, currentHeight - 0.05f, 40.0f));
+	m_ModelTexts.push_back(std::make_shared<Text>("Intersection Of Two Lines", leftX + 0.01f, rightX - 0.01f, currentHeight - 0.05f, 40.0f));
 	m_SubUIElements.emplace_back(std::make_shared<TextInputField>(leftX + 0.01f, rightX - 0.01f, currentHeight - 0.07f, currentHeight - 0.14f, UpdateModelStatic, this, pointFromLines), false);
 
 	m_SubUIElements.emplace_back(std::make_shared<ButtonUI>(leftX + 0.01f, leftX + 0.16f, bottomY + 0.36f, bottomY + 0.27f, DisplayExtrasVariables, this, "Extra Equations", std::array<float, 4>{0.8f, 0.8f, 0.8f, 1.0f}, std::array<float, 4>{0.6f, 0.6f, 0.6f, 1.0f}), false);
@@ -347,7 +366,7 @@ EquationUI::EquationUI(float leftX, float rightX, float topY, float bottomY)
 	m_ModelEndIndex = m_SubUIElements.size() - 1;
 
 	m_SubUIElements.emplace_back(std::make_shared<KeyboardUI>(leftX, rightX, bottomY + 0.24f, bottomY));
-	m_SubUIElements.emplace_back(std::make_shared<TabUI>(leftX, rightX, topY, topY - 0.2f, m_ButtonValue, &TabButtonClickedStatic, this));
+	m_SubUIElements.emplace_back(std::make_shared<TabUI>(leftX, rightX, topY - 0.05f, topY - 0.15f, m_ButtonValue, &TabButtonClickedStatic, this, std::vector<AdvancedString>{AdvancedString("points"), AdvancedString("lines"), AdvancedString("model")}));
 	m_SubUIElements.emplace_back(std::make_shared<ButtonUI>(leftX + 0.02f, rightX - 0.02f, bottomY + 0.4f, bottomY + 0.27f, UpdateGraphsStatic, this, "Update graphs"));
 	m_UpdateGraphsButton = m_SubUIElements.size() - 1;
 
@@ -356,7 +375,6 @@ EquationUI::EquationUI(float leftX, float rightX, float topY, float bottomY)
 
 EquationUI::~EquationUI()
 {
-	// TODO: look into why the extra windows aren't properly destructed after glfwTerminate()
 	using namespace std::chrono_literals;
 	if (g_LineWindow.window)
 	{
@@ -382,10 +400,12 @@ EquationUI::~EquationUI()
 
 void EquationUI::TabButtonClicked(int value)
 {
-	for (int i{ m_PointsIndexBegin }; i < m_PointsIndexBegin + NumInputFields + 4; i++)
+	m_ButtonValue = value;
+	for (int i{ m_PointsIndexBegin }; i < m_PointsIndexBegin + NumInputFields + 9; i++)
 	{
 		m_SubUIElements[i].shouldRender = value == 0;
 	}
+	UpdatePointsUI(m_PointsSwitchValue);
 	for (int i{ m_LinesIndexBegin }; i < m_LinesIndexBegin + NumInputFields + 4; i++)
 	{
 		m_SubUIElements[i].shouldRender = value == 1;
@@ -395,7 +415,6 @@ void EquationUI::TabButtonClicked(int value)
 		m_SubUIElements[i].shouldRender = value == 2;
 	}
 	m_SubUIElements[m_UpdateGraphsButton].shouldRender = value == 0 || value == 1;
-	m_ButtonValue = value;
 }
 
 void EquationUI::RenderPass(Renderer* r)
@@ -416,10 +435,6 @@ void EquationUI::RenderPass(Renderer* r)
 	else if (m_ButtonValue == 1)
 	{
 		r->AddToRenderQueue(m_LineText);
-	}
-	else
-	{
-		r->AddToRenderQueue(m_PointText);
 	}
 	UIElement::RenderPass(r);
 }
@@ -471,7 +486,7 @@ void EquationUI::UpdateGraphs()
 		UserInput(m_NELines[i - m_LinesIndexBegin] = std::make_shared<NELine>(identifiers, Application::Get()->GetModel(), RGBColour{ 255, 255, 0, 255 }, true));
 	}
 
-	for (int i{ m_PointsIndexBegin + NumInputFields }; i < m_PointsIndexBegin + NumInputFields + 4; ++i)
+	for (int i{ m_LineFromPointsBegin }; i <= m_LineFromPointsEnd; ++i)
 	{
 		TextInputField* field = (TextInputField*)m_SubUIElements[i].element.get();
 		const AdvancedString& text = field->GetText();
@@ -485,9 +500,36 @@ void EquationUI::UpdateGraphs()
 		else
 		{
 			try {
-				const std::shared_ptr<NEPoint>& p1 = m_NEPoints[std::stoi(text.substr(0, it).toString())-1];
-				const std::shared_ptr<NEPoint>& p2 = m_NEPoints[std::stoi(text.substr(it + 1, text.size() - it - 1).toString())-1];
+				const std::shared_ptr<NEPoint>& p1 = m_NEPoints[std::stoi(text.substr(0, it).toString()) - 1];
+				const std::shared_ptr<NEPoint>& p2 = m_NEPoints[std::stoi(text.substr(it + 1, text.size() - it - 1).toString()) - 1];
 				UserInput(Application::Get()->GetModel()->lineFromPoints(*p1, *p2));
+			}
+			catch (const std::exception& e)
+			{
+				Application::Get()->GetWindowUI()->DisplayError("Failed to parse one of the 'line from points' declerations");
+			}
+		}
+	}
+	for (int i{ m_DistanceBegin }; i <= m_DistanceEnd; ++i)
+	{
+		DistanceTestUI* field = (DistanceTestUI*)m_SubUIElements[i].element.get();
+		const AdvancedString& text = field->GetText();
+		if (text.empty())
+		{
+			field->RemoveDistance();
+			continue;
+		}
+		auto it = text.toString().find(',');
+		if (it == std::string::npos)
+		{
+			Application::Get()->GetWindowUI()->DisplayError("Distance: " + text.toString() + " does not contain a comma. You need to specify two points separated by a comma.");
+		}
+		else
+		{
+			try {
+				const std::shared_ptr<NEPoint>& p1 = m_NEPoints[std::stoi(text.substr(0, it).toString()) - 1];
+				const std::shared_ptr<NEPoint>& p2 = m_NEPoints[std::stoi(text.substr(it + 1, text.size() - it - 1).toString()) - 1];
+				field->SetDistance(distance(*p1, *p2));
 			}
 			catch (const std::exception& e)
 			{
@@ -511,8 +553,8 @@ void EquationUI::UpdateGraphs()
 		{
 			try
 			{
-				const std::shared_ptr<NELine>& l1 = m_NELines[std::stoi(text.substr(0, it).toString())-1];
-				const std::shared_ptr<NELine>& l2 = m_NELines[std::stoi(text.substr(it + 1, text.size() - it - 1).toString())-1];
+				const std::shared_ptr<NELine>& l1 = m_NELines[std::stoi(text.substr(0, it).toString()) - 1];
+				const std::shared_ptr<NELine>& l2 = m_NELines[std::stoi(text.substr(it + 1, text.size() - it - 1).toString()) - 1];
 				UserInput(Application::Get()->GetModel()->pointFromLines(*l1, *l2));
 			}
 			catch (const std::exception& e)
@@ -546,7 +588,7 @@ void EquationUI::UpdateModel()
 		if (lineFromPoints[i] == ';')
 		{
 			lineFromPointsVec.emplace_back(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q")}, lineFromPoints.substr(begin, i - begin));
-			begin = i+1;
+			begin = i + 1;
 		}
 	}
 	lineFromPointsVec.emplace_back(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q")}, lineFromPoints.substr(begin, lineFromPoints.size() - begin));
@@ -566,8 +608,8 @@ void EquationUI::UpdateModel()
 	Equation pointDefEq({ pointId }, pointDef);
 	Equation lineDefEq({ { lineId } }, lineDef);
 	Equation incidenceDefEq{ {pointId, lineId}, incidenceDef };
-	Equation congruenceDefEq{ {AdvancedString("p"), AdvancedString("q")}, congruenceDef}; //ToDo change
-	Equation betweennessDefEq{ {AdvancedString("p"), AdvancedString("q"), AdvancedString("r")}, betweennessDef}; //ToDo change
+	Equation congruenceDefEq{ {AdvancedString("p"), AdvancedString("q")}, congruenceDef }; //ToDo change
+	Equation betweennessDefEq{ {AdvancedString("p"), AdvancedString("q"), AdvancedString("r")}, betweennessDef }; //ToDo change
 
 	VarMap correctMap;
 	for (unsigned int i{ 0 }; i < m_Variables.first.size(); ++i)
@@ -650,4 +692,17 @@ void EquationUI::LoadFromActiveModel()
 	{
 		m_ExtraEquations.push_back(extra.getDef());
 	}
+}
+
+void EquationUI::UpdatePointsUI(int value)
+{
+	for (int i{ m_LineFromPointsBegin }; i <= m_LineFromPointsEnd; ++i)
+	{
+		m_SubUIElements[i].shouldRender = value == 0 && m_ButtonValue == 0;
+	}
+	for (int i{ m_DistanceBegin }; i <= m_DistanceEnd; ++i)
+	{
+		m_SubUIElements[i].shouldRender = value == 1 && m_ButtonValue == 0;
+	}
+	m_PointsSwitchValue = value;
 }
