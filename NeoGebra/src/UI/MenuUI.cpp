@@ -26,7 +26,8 @@ static void PoincareModel(void*)
 
 	EquationVector lineFromPoints{
 		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(-sqrt((((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))-p0)^2+(((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))-p1)^2)+sqrt((((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))-p0)^2+(((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))-p1)^2+1))/(sqrt(((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))^2+((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))^2))*((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))") },
-		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(-sqrt((((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))-p0)^2+(((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))-p1)^2)+sqrt((((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))-p0)^2+(((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))-p1)^2+1))/(sqrt(((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))^2+((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))^2))*(-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0)") } };
+		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(-sqrt((((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))-p0)^2+(((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))-p1)^2)+sqrt((((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))-p0)^2+(((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))-p1)^2+1))/(sqrt(((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))^2+((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))^2))*(-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0)") } 
+	};
 
 	Application::Get()->SetModel(variables, 2, pointDef, 2, lineDef, incidence, distanceDef, betweenness, lineFromPoints);
 	Equation boundary(AdvancedString("x^2+y^2=1"));
@@ -76,7 +77,7 @@ static void HalfPlaneModel(void* obj)
 
 	EquationVector pointFromLines{
 		{ {AdvancedString("l"), AdvancedString("k") }, AdvancedString("(l1 = 0) * l0 + (k1 = 0) * k0 + !(l1 = 0) * !(k1 = 0) * (k1 - l1 + l0 ^ 2 - k0 ^ 2) / (-2 * k0 + 2 * l0)")},
-		{ {AdvancedString("l"), AdvancedString("k") }, AdvancedString("(l1 = 0) * sqrt(k1 - (l0 - k0)^2) + (k1 = 0) * (sqrt(l1 - (k0 - l0) ^ 2)) + !(l1 = 0) * !(k1 = 0) * sqrt(l1 - (((k1 - l1 + l0 ^ 2 - k0 ^ 2) / (-2 * k0 + 2 * l0) - l0) ^ 2))") }, //  
+		{ {AdvancedString("l"), AdvancedString("k") }, AdvancedString("(l1 = 0) * sqrt(k1 - (l0 - k0)^2) + (k1 = 0) * (sqrt(l1 - (k0 - l0) ^ 2)) + !(l1 = 0) * !(k1 = 0) * sqrt(l1 - (((k1 - l1 + l0 ^ 2 - k0 ^ 2) / (-2 * k0 + 2 * l0) - l0) ^ 2))") }
 	};
 
 	Application::Get()->SetModel(variables, 2, pointDef, 2, lineDef, incidenceDef, distanceDef, betweennessDef, lineFromPoints, pointFromLines);
@@ -102,13 +103,14 @@ static void EuclideanModel(void* obj)
 	};
 
 	EquationVector pointFromLines{
-		{ {AdvancedString("l"), AdvancedString("k") }, AdvancedString("(-l1*k2 + l2*k1)/(l0*k1 - l1*k0)")},
-		{ {AdvancedString("l"), AdvancedString("k") }, AdvancedString("( l0*k2 - l2*k0)/(l0*k1 - l1*k0)") },
+		{ {AdvancedString("l"), AdvancedString("k") }, AdvancedString("(l0*k1 - l1*k0 != 0)*(-l1*k2 + l2*k1)/(l0*k1 - l1*k0)+(l0*k1 - l1*k0 = 0)*NaN")},
+		{ {AdvancedString("l"), AdvancedString("k") }, AdvancedString("(l0*k1 - l1*k0 != 0)*( l0*k2 - l2*k0)/(l0*k1 - l1*k0)+(l0*k1 - l1*k0 = 0)*NaN") },
 	};
 
 	Application::Get()->SetModel(variables, 2, pointDef, 3, lineDef, incidenceDef, distanceDef, betweennessDef, lineFromPoints, pointFromLines);
 	Application::Get()->GetWindowUI()->GetEquationUI()->LoadFromActiveModel();
 	Application::Get()->GetWindowUI()->GetEquationUI()->UpdateModel();
+	//PostulateVerifier::PARALLEL(*Application::Get()->GetModel());
 }
 
 static void ProjectiveModel(void* obj)

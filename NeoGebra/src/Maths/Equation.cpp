@@ -305,10 +305,8 @@ bool Equation::getSolution(const std::vector<std::vector<float>>& identifiers, s
 	//std::cout << *solverPtr << "\n";
 	//std::cout << solverPtr->to_smt2() << "\n\n::\n\n";
 	switch (solverPtr->check()) {
-	case z3::sat: { return true; }
-	case z3::unsat: 
-		Application::Get()->GetWindowUI()->DisplayError("No solution found\nIf this is incorrect: Add manual function for this action");
-		return false;
+	case z3::sat: return true; 
+	case z3::unsat: return false;
 	case z3::unknown: 
 		Application::Get()->GetWindowUI()->DisplayError("Solver timeout: Add manual function for this action");
 	default: return false;
@@ -415,18 +413,19 @@ std::string Equation::toSmtLib(const std::vector<std::vector<float>>& identifier
 	}
 	///
 	//  (define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))
-	//	(define-fun feqReal((a Real)(b Real)) Real(ite(< (abs(- a b)) 0.0001) 1.0 0.0))
-	//	(define-fun gReal((a Real)(b Real)) Real(ite(> a b) 1.0 0.0))
-	//	(define-fun geReal((a Real)(b Real)) Real(ite(>= a b) 1.0 0.0))
-	//	(define-fun lReal((a Real)(b Real)) Real(ite(< a b) 1.0 0.0))
-	//	(define-fun leReal((a Real)(b Real)) Real(ite(<= a b) 1.0 0.0))
+	//  (define-fun notReal ((a Real)) Real (ite (feq a 0) 1.0 0.0))
+	//	(define-fun feqReal ((a Real)(b Real)) Real(ite(< (abs(- a b)) 0.0001) 1.0 0.0))
+	//	(define-fun gReal ((a Real)(b Real)) Real(ite(> a b) 1.0 0.0))
+	//	(define-fun geReal ((a Real)(b Real)) Real(ite(>= a b) 1.0 0.0))
+	//	(define-fun lReal ((a Real)(b Real)) Real(ite(< a b) 1.0 0.0))
+	//	(define-fun leReal ((a Real)(b Real)) Real(ite(<= a b) 1.0 0.0))
 	//  (declare-fun sqrt (Real) Real)
 	//  (declare-fun root3 (Real) Real)
 	//  (declare-fun root4 (Real) Real)
 	//  (assert (forall ((rootInp Real)) (> (sqrt rootInp) 0.0)))
 	//  (assert (forall ((rootInp Real)) (> (root4 rootInp) 0.0)))
 	/// 
-	return "(declare-fun sqrt (Real) Real)(declare-fun root3 (Real) Real)(declare-fun root4 (Real) Real)(assert (forall ((rootInp Real)) (> (sqrt rootInp) 0.0)))(assert (forall ((rootInp Real)) (> (root4 rootInp) 0.0)))(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001)) (define-fun feqReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.0001) 1.0 0.0)) (define-fun gReal ((a Real)(b Real)) Real (ite (> a b) 1.0 0.0)) (define-fun geReal ((a Real)(b Real)) Real (ite (>= a b) 1.0 0.0)) (define-fun lReal ((a Real)(b Real)) Real (ite (< a b) 1.0 0.0)) (define-fun leReal ((a Real)(b Real)) Real (ite (<= a b) 1.0 0.0))" + out;
+	return "(declare-fun sqrt (Real) Real)(declare-fun root3 (Real) Real)(declare-fun root4 (Real) Real)(assert (forall ((rootInp Real)) (> (sqrt rootInp) 0.0)))(assert (forall ((rootInp Real)) (> (root4 rootInp) 0.0)))(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))(define-fun notReal ((a Real)) Real (ite (feq a 0) 1.0 0.0)) (define-fun feqReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.0001) 1.0 0.0)) (define-fun gReal ((a Real)(b Real)) Real (ite (> a b) 1.0 0.0)) (define-fun geReal ((a Real)(b Real)) Real (ite (>= a b) 1.0 0.0)) (define-fun lReal ((a Real)(b Real)) Real (ite (< a b) 1.0 0.0)) (define-fun leReal ((a Real)(b Real)) Real (ite (<= a b) 1.0 0.0))" + out;
 }
 
 std::string Equation::toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids) const {
@@ -473,6 +472,7 @@ double Equation::recGetResult(const AdvancedString& s, const std::map<AdvancedSt
 		if (s == "f") { return false; }
 		if (s[0] == 0x03C0) { return piConstant; }
 		if (s[0] == 'e') { return eConstant; }
+		if (s == "NaN") { return std::numeric_limits<double>::quiet_NaN(); }
 		bool succes; double val;
 		std::tie(succes, val) = getVariable(s, ids);
 		if (succes) { return val; }
@@ -531,7 +531,14 @@ std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<Advanc
 		if (vars.count(s)) { return std::to_string(vars.at(s)); }
 		if (s[0] == '(' and s.back() == ')') { return recToSmtLib(s.substr(1, s.length() - 2), vars, toDefine, sqrts, ids, isFirstLayer, embeddedEquals); }
 		if (s[0] == '[' and s.back() == ']') { return ("(abs " + recToSmtLib(s.substr(1, s.length() - 2), vars, toDefine, sqrts, ids) + ')'); }
-		if (s[0] == '!') { return ("(not " + recToSmtLib(s.substr(1, s.length() - 1), vars, toDefine, sqrts, ids, isFirstLayer, embeddedEquals) + ')'); }
+		if (s[0] == '!') { 
+			if (embeddedEquals) {
+				return ("(notReal " + recToSmtLib(s.substr(1, s.length() - 1), vars, toDefine, sqrts, ids, isFirstLayer, embeddedEquals) + ')');
+			}
+			else {
+				return ("(not " + recToSmtLib(s.substr(1, s.length() - 1), vars, toDefine, sqrts, ids, isFirstLayer, embeddedEquals) + ')');
+			}
+		}
 		if (s.size() > 5) {
 			if (s.substr(0, 4) == "sin(" and s.back() == ')') { return "(cos " + recToSmtLib(s.substr(4, s.length() - 5), vars, toDefine, sqrts, ids) + ")"; }
 			if (s.substr(0, 4) == "cos(" and s.back() == ')') { return "(cos " + recToSmtLib(s.substr(4, s.length() - 5), vars, toDefine, sqrts, ids) + ")"; }
@@ -552,7 +559,7 @@ std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<Advanc
 
 		if (s == "t") { return "true"; }
 		if (s == "f") { return "false"; }
-		
+		if (s == "NaN") { return "1000000000000000"; }
 		if (s[0] == 'e') { return std::to_string(eConstant); }
 		if (s[0] == 0x03C0) { return std::to_string(piConstant); }
 		if (s.find(AdvancedString(".")) != s.size()) { return s.toString();}
@@ -573,7 +580,7 @@ std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<Advanc
 	}
 	case 0x2260: {
 		if (embeddedEquals) 
-			return "(not (feqReal " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + "))";
+			return "(notReal (feqReal " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + "))";
 		else 
 			return "(not (feq " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + "))";
 	}
