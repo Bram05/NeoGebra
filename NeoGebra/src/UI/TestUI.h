@@ -4,14 +4,14 @@
 #include "Rendering/TextRenderer.h"
 #include "TextInputField.h"
 
-class DistanceTestUI : public UIElement
+class TestUI : public UIElement
 {
 public:
-	DistanceTestUI(float left, float right, float top, float bottom, void(*enterCallback)(void*), void* obj);
-	virtual ~DistanceTestUI() {}
+	TestUI(float left, float right, float top, float bottom, void(*enterCallback)(void*), void* obj);
+	virtual ~TestUI() {}
 
-	void SetDistance(float d);
-	void RemoveDistance();
+	void SetOutput(const AdvancedString& output);
+	void RemoveOutput();
 	const AdvancedString& GetText() const { return ((TextInputField*)m_SubUIElements[0].element.get())->GetText(); }
 
 protected:

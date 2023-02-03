@@ -14,9 +14,9 @@ public:
 	ErrorBox(float leftX, float rightX, float topY, float bottomY);
 	~ErrorBox();
 	void DisplayError(const AdvancedString& text);
+	void RemoveError();
 
 private:
-
 	std::shared_ptr<Text> m_ErrorBoxText;
 	std::shared_ptr<Text> m_ErrorText;
 	std::vector<std::shared_ptr<Line>> m_Lines;

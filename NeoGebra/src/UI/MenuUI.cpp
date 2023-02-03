@@ -205,7 +205,7 @@ MenuUI::MenuUI(float leftX, float rightX, float topY, float bottomY)
 	float buttonWidth = 0.24f;
 	float indent = 0.025f;
 
-	std::vector<void(*)(void*)> functions = { &EmptyModel, &EuclideanModel, &ProjectiveModel, &ReverseProjectiveModel, &ProjectiveModel, &BeltramiKleinModel, &HalfPlaneModel, &ThreePointModel};
+	std::vector<void(*)(void*)> functions = { &EmptyModel, &EuclideanModel, &ProjectiveModel, &ReverseProjectiveModel, &PoincareModel, &BeltramiKleinModel, &HalfPlaneModel, &ThreePointModel};
 	std::vector<AdvancedString> textList = { AdvancedString(L"New Model"), AdvancedString(L"Euclidean Model"), AdvancedString(L"Projective Model"), AdvancedString(L"Reverse Projective Model"), AdvancedString(L"Poincaré Model"), AdvancedString(L"Beltrami Klein Model"), AdvancedString(L"Half-Plane Model"), AdvancedString(L"Three-point Model") };
 	for (int i = 0; i < functions.size(); i++) {
 		m_SubUIElements.push_back({ std::make_shared<ButtonUI>(leftX + indent + i * buttonWidth, (leftX + i * buttonWidth + buttonWidth), topY - 0.01f, (topY - 0.09f), functions[i], this, textList[i]) });

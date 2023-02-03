@@ -42,7 +42,7 @@ private:
 	int m_ModelBeginIndex, m_ModelEndIndex;
 	int m_UpdateGraphsButton;
 	int m_ButtonValue{2};
-	int m_LineFromPointsBegin, m_LineFromPointsEnd, m_DistanceBegin, m_DistanceEnd;
+	int m_LineFromPointsBegin, m_LineFromPointsEnd, m_DistanceBegin, m_DistanceEnd, m_BetweennessBegin, m_BetweennessEnd;
 	int m_PointsSwitchValue{0};
 
 	void TabButtonClicked(int value);
