@@ -15,8 +15,8 @@ static void PoincareModel(void*)
 	variables.second.push_back({ AdvancedString("d"), std::make_shared<Equation>(std::vector<AdvancedString>{AdvancedString("l")}, AdvancedString("~(l0^2+l1^2)")) });
 	variables.second.push_back({ AdvancedString("r"), std::make_shared<Equation>(std::vector<AdvancedString>{AdvancedString("l")}, AdvancedString("(1/l.d-l.d)/2")) });
 	variables.second.push_back({ AdvancedString("a"), std::make_shared<Equation>(std::vector<AdvancedString>{AdvancedString("l")}, AdvancedString("atan(l1/l0)")) });
-	variables.second.push_back({ AdvancedString("mx"), std::make_shared<Equation>(std::vector<AdvancedString>{AdvancedString("l")}, AdvancedString("l0+l.r*cos(l.a)*l0/[l0]")) });
-	variables.second.push_back({ AdvancedString("my"), std::make_shared<Equation>(std::vector<AdvancedString>{AdvancedString("l")}, AdvancedString("l1+l.r*sin(l.a)*l0/[l0]")) });
+	variables.second.push_back({ AdvancedString("mx"), std::make_shared<Equation>(std::vector<AdvancedString>{AdvancedString("l")}, AdvancedString("l0+l.r*cos(l.a)*(-1+2(l0 >= 0))")) });
+	variables.second.push_back({ AdvancedString("my"), std::make_shared<Equation>(std::vector<AdvancedString>{AdvancedString("l")}, AdvancedString("l1+l.r*sin(l.a)*(-1+2(l0 >= 0))")) });
 
 	Equation pointDef{ {AdvancedString("p")}, AdvancedString("x = p0 & y = p1 & p0^2 + p1^2 < 1") };
 	Equation lineDef{ {AdvancedString("l")}, AdvancedString("(x-l.mx)^2 + (y-l.my)^2 = l.r^2 & l0^2 + l1^2 < 1 & x^2 + y^2 < 1") };
@@ -29,36 +29,44 @@ static void PoincareModel(void*)
 		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(-sqrt((((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))-p0)^2+(((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))-p1)^2)+sqrt((((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))-p0)^2+(((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))-p1)^2+1))/(sqrt(((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))^2+((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))^2))*(-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0)") } 
 	};
 
-	Application::Get()->SetModel(variables, 2, pointDef, 2, lineDef, incidence, distanceDef, betweenness, lineFromPoints);
+	EquationVector pointFromLines{
+		{ {AdvancedString("l"), AdvancedString("k")}, AdvancedString("(2*(l.r^2+k.r^2)/((l.mx-k.mx)^2+(l.my-k.my)^2) - (l.r^2-k.r^2)^2/(((l.mx-k.mx)^2+(l.my-k.my)^2)^2) >= 1)*(0.5 * (l.mx+k.mx) + (l.r^2-k.r^2)/(2*((l.mx-k.mx)^2+(l.my-k.my)^2))*(k.mx-l.mx)+0.5*sqrt(2*(l.r^2+k.r^2)/((l.mx-k.mx)^2+(l.my-k.my)^2) - (l.r^2-k.r^2)^2/(((l.mx-k.mx)^2+(l.my-k.my)^2)^2)-1)*(k.my-l.my)*(-1+2*(l.a>=k.a))*(-1+2*(l0*k0>=0))*(1-2*(l0*k0=0)*(l0+k0<0)))  + (2*(l.r^2+k.r^2)/((l.mx-k.mx)^2+(l.my-k.my)^2) - (l.r^2-k.r^2)^2/(((l.mx-k.mx)^2+(l.my-k.my)^2)^2) < 1)*NaN")},
+		{ {AdvancedString("l"), AdvancedString("k")}, AdvancedString("(2*(l.r^2+k.r^2)/((l.mx-k.mx)^2+(l.my-k.my)^2) - (l.r^2-k.r^2)^2/(((l.mx-k.mx)^2+(l.my-k.my)^2)^2) >= 1)*(0.5 * (l.my+k.my) + (l.r^2-k.r^2)/(2*((l.mx-k.mx)^2+(l.my-k.my)^2))*(k.my-l.my)+0.5*sqrt(2*(l.r^2+k.r^2)/((l.mx-k.mx)^2+(l.my-k.my)^2) - (l.r^2-k.r^2)^2/(((l.mx-k.mx)^2+(l.my-k.my)^2)^2)-1)*(l.mx-k.mx)*(-1+2*(l.a>=k.a))*(-1+2*(l0*k0>=0))*(1-2*(l0*k0=0)*(l0+k0<0)))  + (2*(l.r^2+k.r^2)/((l.mx-k.mx)^2+(l.my-k.my)^2) - (l.r^2-k.r^2)^2/(((l.mx-k.mx)^2+(l.my-k.my)^2)^2) < 1)*NaN")}
+	};
+
+	Application::Get()->SetModel(variables, 2, pointDef, 2, lineDef, incidence, distanceDef, betweenness, lineFromPoints, pointFromLines);
 	Equation boundary(AdvancedString("x^2+y^2=1"));
 	Application::Get()->GetModel()->addExtraEquation(boundary);
 	Application::Get()->GetWindowUI()->GetEquationUI()->LoadFromActiveModel();
 	Application::Get()->GetWindowUI()->GetEquationUI()->UpdateModel();
-	//PostulateVerifier::DISTANCE(*Application::Get()->GetModel());
+	PostulateVerifier::PARALLEL(*Application::Get()->GetModel());
+
 }
 
 static void BeltramiKleinModel(void* obj) {
 	VarMap variables;
-	Equation BKpointDef{ {AdvancedString("p")}, AdvancedString("x = p0 & y = p1 & x^2 + y^2 < 1 ") };
-	Equation BKlineDef{ {AdvancedString("l")}, AdvancedString("l0*x+l1*y=l2 & x^2 + y^2 < 1") };
-	Equation BKincidence{ {AdvancedString("p"), AdvancedString("l")}, AdvancedString("p0*l0+l1*p1=1") };
+	Equation BKpointDef{ {AdvancedString("p")}, AdvancedString("x = p0 & y = p1 & p0^2 + p1^2 < 1 & x^2 + y^2 < 1 ") };
+	Equation BKlineDef{ {AdvancedString("l")}, AdvancedString("l0 * x + l1 * y = l2 & (l0 = 1| (l0 = 0 & l1 = 1)) & x^2 + y^2 < 1") };
+	Equation BKincidence{ {AdvancedString("p"), AdvancedString("l")}, AdvancedString("p0*l0+l1*p1=l2") };
 	Equation BKdistanceDef{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("") };
 	Equation BKbetweennessDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q"), AdvancedString("r")}, AdvancedString("((p0 < q0 & q0 < r0) | p0 > q0 & q0 > r0) | ((p0 = q0 & q0 = r0) & p1 < q1 & q1 < r1)"));
 	
 	EquationVector BKlineFromPoints{
-		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("q1-p1") },
-		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(-q0+p0)")},
-		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(q1-p1)*q0+(-q0+p0)*q1")}
+		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("p1 != q1") },
+		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(p1 = q1)+(p1!=q1)*(q0-p0)/(p1-q1)")},
+		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(p1 = q1)*p1 + (p1!=q1)*(p1*q0-p0*q1)/(p1-q1)")}
 	};
-	EquationVector BKpointFromLines{ 
-		{ {AdvancedString("l"), AdvancedString("k") }, AdvancedString("(l1*k2-l2*k1)/(-l0*k1+l1*k0)")},
-		{ {AdvancedString("l"), AdvancedString("k") }, AdvancedString("(l0*k2-l2*k1)/(l0*k1-l1*k0)") }  
+	EquationVector BKpointFromLines{
+		{ {AdvancedString("l"), AdvancedString("k") }, AdvancedString("(l0*k1 - l1*k0 != 0)*(((-l1*k2 + l2*k1)/(l0*k1 - l1*k0))^2 + (( l0*k2 - l2*k0)/(l0*k1 - l1*k0))^2 < 1)*(-l1*k2 + l2*k1)/(l0*k1 - l1*k0)+(l0*k1 - l1*k0 = 0)*NaN+(((-l1*k2 + l2*k1)/(l0*k1 - l1*k0))^2 + (( l0*k2 - l2*k0)/(l0*k1 - l1*k0))^2 >= 1)*NaN")},
+		{ {AdvancedString("l"), AdvancedString("k") }, AdvancedString("(l0*k1 - l1*k0 != 0)*(((-l1*k2 + l2*k1)/(l0*k1 - l1*k0))^2 + (( l0*k2 - l2*k0)/(l0*k1 - l1*k0))^2 < 1)*( l0*k2 - l2*k0)/(l0*k1 - l1*k0)+(l0*k1 - l1*k0 = 0)*NaN+(((-l1*k2 + l2*k1)/(l0*k1 - l1*k0))^2 + (( l0*k2 - l2*k0)/(l0*k1 - l1*k0))^2 >= 1)*NaN") },
 	};
+
 	Application::Get()->SetModel(variables, 2, BKpointDef, 3, BKlineDef, BKincidence, BKdistanceDef, BKbetweennessDef, BKlineFromPoints, BKpointFromLines);
 	Equation boundary(AdvancedString("x^2+y^2=1"));
 	Application::Get()->GetModel()->addExtraEquation(boundary);
 	Application::Get()->GetWindowUI()->GetEquationUI()->LoadFromActiveModel();
 	Application::Get()->GetWindowUI()->GetEquationUI()->UpdateModel();
+	PostulateVerifier::PARALLEL(*Application::Get()->GetModel());
 }
 
 static void HalfPlaneModel(void* obj)
@@ -169,7 +177,7 @@ static void ThreePointModel(void* obj)
 {
 	VarMap variables;
 	Equation pointDef(std::vector<AdvancedString>{AdvancedString("p")}, AdvancedString("(p0=0&x=-1&y=-1/2*~3)|(p0=1&x=1&y=-1/2*~3)|(p0=2&x=0&y=1/2*~3)"));
-	Equation lineDef(std::vector<AdvancedString>{AdvancedString("l")}, AdvancedString("l0=0&l0=1&l1=1&l1=2&l0<l1 &x>=-0.5&x<=0.5&y>=-1/4*~3&y<=1/4*~3&((l0+l1=1&y=-1/4*~3)|(l0+l1=2&y=~3*x+1/2*~3)|(l0+l1=3&y=-~3*x+1/2*~3))"));
+	Equation lineDef(std::vector<AdvancedString>{AdvancedString("l")}, AdvancedString("(l0=0|l0=1)&(l1=1|l1=2)&l0<l1 &x>=-1&x<=1&y>=-0.9&y<=1/2*~3&((((l0=0&l1=1)|(l0=1&l1=0))&y=-1/2*~3)|(((l0=0&l1=2)|(l0=2&l1=0))&y=~3*x+1/2*~3)|(((l0=1&l1=2)|(l0=2&l1=1))&y=-~3*x+1/2*~3))"));
 	Equation incidenceDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("l")}, AdvancedString("p0=l0|p0=l1"));
 	Equation distanceDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q")}, AdvancedString("1"));
 	Equation betweennessDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q"), AdvancedString("r")}, AdvancedString(""));
@@ -186,7 +194,9 @@ static void ThreePointModel(void* obj)
 	Application::Get()->SetModel(variables, 1, pointDef, 2, lineDef, incidenceDef, distanceDef, betweennessDef, lineFromPoints, pointFromLines);
 	Application::Get()->GetWindowUI()->GetEquationUI()->LoadFromActiveModel();
 	Application::Get()->GetWindowUI()->GetEquationUI()->UpdateModel();
+	UserInput(PostulateVerifier::PARALLEL(*Application::Get()->GetModel()));
 }
+
 
 static void EmptyModel(void* obj)
 {

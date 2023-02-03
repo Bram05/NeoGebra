@@ -592,9 +592,9 @@ std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<Advanc
 	}
 	case 0x2265: {
 		if (embeddedEquals)
-			return "(geReal " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2.substr(1, s2.length() - 1), vars, toDefine, sqrts, ids) + ")";
+			return "(geReal " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
 		else
-			return "(>= " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2.substr(1, s2.length() - 1), vars, toDefine, sqrts, ids) + ")";
+			return "(>= " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
 	}
 	case '<': {
 		if (embeddedEquals)
@@ -604,9 +604,9 @@ std::string Equation::recToSmtLib(const AdvancedString& s, const std::map<Advanc
 	}
 	case 0x2264: {
 		if (embeddedEquals) 
-			return "(leReal " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2.substr(1, s2.length() - 1), vars, toDefine, sqrts, ids) + ")";
+			return "(leReal " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
 		else
-			return "(<= " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2.substr(1, s2.length() - 1), vars, toDefine, sqrts, ids) + ")";
+			return "(<= " + recToSmtLib(s1, vars, toDefine, sqrts, ids) + " " + recToSmtLib(s2, vars, toDefine, sqrts, ids) + ")";
 	}
 	case '=': {
 		if (embeddedEquals) 

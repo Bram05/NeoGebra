@@ -139,7 +139,7 @@ bool PostulateVerifier::I2(const Model& model) {
 	Z3_ast_vector test2 = Z3_parse_smtlib2_string(c, smt.c_str(), 0, 0, 0, 0, 0, 0);
 
 	if (Z3_ast_vector_size(c, test2) == 0) {
-		Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString:\n" + smt);
+		Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString");
 		throw ErrorBoxException();
 	}
 
@@ -298,7 +298,7 @@ bool PostulateVerifier::I3(const Model& model) {
 	Z3_ast_vector test2 = Z3_parse_smtlib2_string(c, smt.c_str(), 0, 0, 0, 0, 0, 0);
 
 	if (Z3_ast_vector_size(c, test2) == 0) {
-		Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString:\n" + smt);
+		Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString");
 		throw ErrorBoxException();
 	}
 
@@ -316,7 +316,7 @@ bool PostulateVerifier::I3(const Model& model) {
 	case z3::sat: return true;
 	case z3::unsat: return false;
 	case z3::unknown: {
-		Application::Get()->GetWindowUI()->DisplayError("C-3: Not 100% certain");
+		Application::Get()->GetWindowUI()->DisplayError("C-3: Not 100 percent certain");
 		return false;
 	}
 	}
@@ -465,7 +465,7 @@ bool PostulateVerifier::B1(const Model& model) {
 	Z3_ast_vector test2 = Z3_parse_smtlib2_string(c, smt.c_str(), 0, 0, 0, 0, 0, 0);
 
 	if (Z3_ast_vector_size(c, test2) == 0) {
-		Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString:\n" + smt);
+		Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString");
 		throw ErrorBoxException();
 	}
 
@@ -481,7 +481,7 @@ bool PostulateVerifier::B1(const Model& model) {
 	case z3::sat: return false;
 	case z3::unsat: return true;
 	case z3::unknown: {
-		Application::Get()->GetWindowUI()->DisplayError("B-1: Not 100% certain");
+		Application::Get()->GetWindowUI()->DisplayError("B-1: Not 100 percent certain");
 		return false;
 	}
 	}
@@ -678,7 +678,7 @@ bool PostulateVerifier::B2(const Model& model) {
 	Z3_ast_vector test2 = Z3_parse_smtlib2_string(c, smt.c_str(), 0, 0, 0, 0, 0, 0);
 
 	if (Z3_ast_vector_size(c, test2) == 0) {
-		Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString:\n" + smt);
+		Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString");
 		throw ErrorBoxException();
 	}
 
@@ -694,7 +694,7 @@ bool PostulateVerifier::B2(const Model& model) {
 	case z3::sat: return false;
 	case z3::unsat: return true;
 	case z3::unknown: {
-		Application::Get()->GetWindowUI()->DisplayError("B-2: Not 100% certain");
+		Application::Get()->GetWindowUI()->DisplayError("B-2: Not 100 percent certain");
 		return true;
 	}
 	}
@@ -843,7 +843,7 @@ bool PostulateVerifier::B3(const Model& model) {
 	Z3_ast_vector test2 = Z3_parse_smtlib2_string(c, smt.c_str(), 0, 0, 0, 0, 0, 0);
 
 	if (Z3_ast_vector_size(c, test2) == 0) {
-		Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString:\n" + smt);
+		Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString");
 		throw ErrorBoxException();
 	}
 
@@ -859,7 +859,7 @@ bool PostulateVerifier::B3(const Model& model) {
 	case z3::sat: return false;
 	case z3::unsat: return true;
 	case z3::unknown: {
-		Application::Get()->GetWindowUI()->DisplayError("B-3: Not 100% certain");
+		Application::Get()->GetWindowUI()->DisplayError("B-3: Not 100 percent certain");
 		return false;
 	}
 	}
@@ -1074,7 +1074,7 @@ bool PostulateVerifier::C3(const Model& model) {
 	Z3_ast_vector test2 = Z3_parse_smtlib2_string(c, smt.c_str(), 0, 0, 0, 0, 0, 0);
 
 	if (Z3_ast_vector_size(c, test2) == 0) {
-		Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString:\n" + smt);
+		Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString");
 		throw ErrorBoxException();
 	}
 
@@ -1090,7 +1090,7 @@ bool PostulateVerifier::C3(const Model& model) {
 	case z3::sat: return false;
 	case z3::unsat: return true;
 	case z3::unknown: {
-		Application::Get()->GetWindowUI()->DisplayError("C-3: Not 100% certain");
+		Application::Get()->GetWindowUI()->DisplayError("C-3: Not 100 percent certain");
 		return true;
 	}
 	}
@@ -1197,7 +1197,7 @@ bool PostulateVerifier::DISTANCE(const Model& model) {
 	Z3_ast_vector test2 = Z3_parse_smtlib2_string(c, smt.c_str(), 0, 0, 0, 0, 0, 0);
 
 	if (Z3_ast_vector_size(c, test2) == 0) {
-		Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString:\n" + smt);
+		Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString");
 		throw ErrorBoxException();
 	}
 
@@ -1213,7 +1213,7 @@ bool PostulateVerifier::DISTANCE(const Model& model) {
 	case z3::sat: return false;
 	case z3::unsat: return true;
 	case z3::unknown: {
-		Application::Get()->GetWindowUI()->DisplayError("DISTANCE: Not 100% certain");
+		Application::Get()->GetWindowUI()->DisplayError("DISTANCE: Not 100 percent certain");
 		return true;
 	}
 	}
@@ -1344,14 +1344,14 @@ ParallelType PostulateVerifier::PARALLEL(const Model& model) {
 		//  Standard functions (See top of document)
 		//  Also feqBiggerError function for incidence, to prevent future rounding errors when transfering values between z3 instances
 		smt = "(define-fun feqBiggerError ((a Real)(b Real)) Bool (< (abs (- a b)) 0.1)) (define-fun feqBiggerErrorReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.1) 1.0 0.0))(declare-fun sqrt (Real) Real)(declare-fun root3 (Real) Real)(declare-fun root4 (Real) Real)(assert (forall ((rootInp Real)) (> (sqrt rootInp) 0.0)))(assert (forall ((rootInp Real)) (> (root4 rootInp) 0.0)))(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))(define-fun notReal ((a Real)) Real (ite (feq a 0) 1.0 0.0)) (define-fun feqReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.0001) 1.0 0.0)) (define-fun gReal ((a Real)(b Real)) Real (ite (> a b) 1.0 0.0)) (define-fun geReal ((a Real)(b Real)) Real (ite (>= a b) 1.0 0.0)) (define-fun lReal ((a Real)(b Real)) Real (ite (< a b) 1.0 0.0)) (define-fun leReal ((a Real)(b Real)) Real (ite (<= a b) 1.0 0.0))" + smt;
-
+		//smt = "(define-fun feqBiggerError   (     (a Real)     (b Real)   ) Bool   (<     (abs       (- a b)     ) 0.1) ) (define-fun feqBiggerErrorReal   (     (a Real)     (b Real)   ) Real   (ite     (<       (abs         (- a b)       ) 0.1) 1.0 0.0) ) (declare-fun sqrt   (Real) Real) (declare-fun root3   (Real) Real) (declare-fun root4   (Real) Real) (assert   (forall     (       (rootInp Real)     )     (>       (sqrt rootInp) 0.0)   ) ) (assert   (forall     (       (rootInp Real)     )     (>       (root4 rootInp) 0.0)   ) ) (define-fun feq   (     (a Real)     (b Real)   ) Bool   (<     (abs       (- a b)     ) 0.0001) ) (declare-const l1 Real) (declare-const l0 Real) (declare-const p0 Real) (declare-const xl Real) (declare-const yl Real) (declare-const xp Real) (declare-const yp Real) (assert   (=     (^       (sqrt 3) 2) 3) ) (assert   (or     (or       (and         (and           (feq p0 0)           (feq xp -1)         )         (feq yp           (*             (/ -1 2)             (sqrt 3)           )         )       )       (and         (and           (feq p0 1)           (feq xp 1)         )         (feq yp           (*             (/ -1 2)             (sqrt 3)           )         )       )     )     (and       (and         (feq p0 2)         (feq xp 0)       )       (feq yp         (*           (/ 1 2)           (sqrt 3)         )       )     )   ) ) (assert   (or     (feq l0 0)     (feq l0 1)   ) ) (assert   (or     (feq l1 1)     (feq l1 2)   ) ) (assert   (< l0 l1) ) (assert   (>= xl -1) ) (assert   (<= xl 1) ) (assert   (>= yl -0.9) ) (assert   (<= yl     (*       (/ 1 2)       (sqrt 3)     )   ) ) (assert   (or     (or       (and         (or           (and             (feq l0 0)             (feq l1 1)           )           (and             (feq l0 1)             (feq l1 0)           )         )         (feq yl           (*             (/ -1 2)             (sqrt 3)           )         )       )       (and         (or           (and             (feq l0 0)             (feq l1 2)           )           (and             (feq l0 2)             (feq l1 0)           )         )         (feq yl           (+             (*               (sqrt 3) xl)             (*               (/ 1 2)               (sqrt 3)             )           )         )       )     )     (and       (or         (and           (feq l0 1)           (feq l1 2)         )         (and           (feq l0 2)           (feq l1 1)         )       )       (feq yl         (+           (*             (* -1               (sqrt 3)             ) xl)           (*             (/ 1 2)             (sqrt 3)           )         )       )     )   ) ) (assert   (not     (or       (feqBiggerError p0 l0)       (feqBiggerError p0 l1)     )   ) ) (check-sat)";
 		// Check if solution exists
 		z3::context c;
 		z3::solver solver(c);
 		Z3_ast_vector test2 = Z3_parse_smtlib2_string(c, smt.c_str(), 0, 0, 0, 0, 0, 0);
 
 		if (Z3_ast_vector_size(c, test2) == 0) {
-			Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString:\n" + smt);
+			Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString");
 			throw ErrorBoxException();
 		}
 
@@ -1506,7 +1506,7 @@ ParallelType PostulateVerifier::PARALLEL(const Model& model) {
 		Z3_ast_vector test2 = Z3_parse_smtlib2_string(c, smt.c_str(), 0, 0, 0, 0, 0, 0);
 
 		if (Z3_ast_vector_size(c, test2) == 0) {
-			Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString:\n" + smt);
+			Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString");
 			throw ErrorBoxException();
 		}
 
@@ -1522,7 +1522,7 @@ ParallelType PostulateVerifier::PARALLEL(const Model& model) {
 			switch (solver.check()) {
 			case z3::unsat: return ELLIPTIC;
 			case z3::unknown: {
-				Application::Get()->GetWindowUI()->DisplayError("PARALLEL: Not 100% certain");
+				Application::Get()->GetWindowUI()->DisplayError("PARALLEL: Not 100 percent certain");
 				return ELLIPTIC;
 			}
 			}
@@ -1532,7 +1532,7 @@ ParallelType PostulateVerifier::PARALLEL(const Model& model) {
 			case z3::sat: return HYPERBOLIC;
 			case z3::unsat: return EUCLIDEAN;
 			case z3::unknown: {
-				Application::Get()->GetWindowUI()->DisplayError("PARALLEL: Not 100% certain");
+				Application::Get()->GetWindowUI()->DisplayError("PARALLEL: Not 100 percent certain");
 				return EUCLIDEAN;
 			}
 			}

@@ -19,10 +19,17 @@ NEElement::NEElement(const std::vector<float>& identifiers, const Equation& def,
 			resNames.push_back(def.m_NumberedVarNames[0].toString() + std::to_string(i));
 		}
 
+<<<<<<< HEAD
 		/*if (!def.getSolution({identifiers}, {m_ID}, resNames)) {
 			Application::Get()->GetWindowUI()->DisplayError("Invalid element: Check the definition");
 			throw ErrorBoxException();
 		}*/
+=======
+		//if (!def.getSolution({ identifiers }, { m_ID }, resNames)) {
+		//	Application::Get()->GetWindowUI()->DisplayError("Invalid element: Check the definition");
+		//	throw ErrorBoxException();
+		//}
+>>>>>>> 918347aa38f0176a961fdc519eab91e5cbbb4a0f
 	}
 
 	if (identifiers.size() != identNum) {
@@ -151,7 +158,7 @@ NELine Model::lineFromPoints(const NEPoint& p1, const NEPoint& p2) {
 NEPoint Model::pointFromLines(const NELine& l1, const NELine& l2) {
 	std::vector<float> identifiers;
 	for (int i = 0; i < m_PointIdentifiers; ++i) {
-		float identifier = m_PointFromLines[i].getResult({ l1.getIdentifiers(), l2.getIdentifiers() }, { l1.getID(), l1.getID() });
+		float identifier = m_PointFromLines[i].getResult({ l1.getIdentifiers(), l2.getIdentifiers() }, { l1.getID(), l2.getID() });
 		if (isnan(identifier)) {
 			Application::Get()->GetWindowUI()->DisplayError("Lines don't intersect");
 			throw ErrorBoxException();
