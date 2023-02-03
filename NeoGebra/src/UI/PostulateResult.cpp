@@ -3,8 +3,8 @@
 #include "Rendering/Renderer.h"
 
 PostulateResult::PostulateResult(float leftX, float rightX, float topY, float bottomY, const AdvancedString& name)
-	: UIElement(leftX, rightX, topY, bottomY, "PostulateResult"), m_Name{std::make_shared<Text>(name, leftX, rightX, bottomY + 0.02f, 40.0f)},
-	m_Result{std::make_shared<Text>(": ---------", leftX + 0.1f,rightX, bottomY + 0.02f, 40.0f)}
+	: UIElement(leftX, rightX, topY, bottomY, "PostulateResult"), m_Name{ std::make_shared<Text>(name, leftX, rightX, bottomY + 0.02f, 40.0f) },
+	m_Result{ std::make_shared<Text>(": ---------", leftX + 0.1f,rightX, bottomY + 0.02f, 40.0f) }
 {
 }
 
@@ -22,18 +22,28 @@ void PostulateResult::SetResult(PostulateResultValues result)
 	{
 	case VALID:
 		text = AdvancedString(": valid");
+		m_Name->m_Colour = { 0.0f,1.0f,0.0f,1.0f };
+		m_Result->m_Colour = { 0.0f,1.0f,0.0f,1.0f };
 		break;
 	case INVALID:
 		text = AdvancedString(": invalid");
+		m_Name->m_Colour = { 1.0f,0.0f,0.0f,1.0f };
+		m_Result->m_Colour = { 1.0f,0.0f,0.0f,1.0f };
 		break;
 	case UNKOWN:
 		text = AdvancedString(": unkown");
+		m_Name->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
+		m_Result->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
 		break;
 	case UNTESTED:
 		text = AdvancedString(": untested");
+		m_Name->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
+		m_Result->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
 		break;
 	case BEINGTESTED:
 		text = AdvancedString(": begin tested");
+		m_Name->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
+		m_Result->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
 		break;
 	}
 	m_Result->SetText(text);
