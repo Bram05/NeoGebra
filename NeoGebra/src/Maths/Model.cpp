@@ -19,17 +19,10 @@ NEElement::NEElement(const std::vector<float>& identifiers, const Equation& def,
 			resNames.push_back(def.m_NumberedVarNames[0].toString() + std::to_string(i));
 		}
 
-<<<<<<< HEAD
 		/*if (!def.getSolution({identifiers}, {m_ID}, resNames)) {
 			Application::Get()->GetWindowUI()->DisplayError("Invalid element: Check the definition");
 			throw ErrorBoxException();
 		}*/
-=======
-		//if (!def.getSolution({ identifiers }, { m_ID }, resNames)) {
-		//	Application::Get()->GetWindowUI()->DisplayError("Invalid element: Check the definition");
-		//	throw ErrorBoxException();
-		//}
->>>>>>> 918347aa38f0176a961fdc519eab91e5cbbb4a0f
 	}
 
 	if (identifiers.size() != identNum) {
