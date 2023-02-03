@@ -67,6 +67,8 @@ private:
 
 	std::pair<bool, double> getVariable(const AdvancedString& key, std::vector<int> ids) const;
 
+	std::string defToSmtLib(const std::vector<float>& identifiers, int id, NEType t, const Model* model) const;
+
 	/**
 	* Extracts variable names stored at the beginning of the equation.
 	*
@@ -105,15 +107,14 @@ public:
 	* @param vars Map containing varnames and their values.
 	* @return Returns float with 1 or 0 (true or false).
 	*/
-	bool getSolution(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, std::vector<std::string>& resNames, z3::context* cPtr = nullptr, z3::solver* solverPtr = nullptr, const std::string& extraSMT = {}) const;
+	bool SolutionExists(const std::vector<float>& identifiers, int id, NEType t, const Model* model) const;
 	Equation diff(const AdvancedString& remainingVar) const;
 
 	static void replaceAll(AdvancedString& str, const AdvancedString& from, const AdvancedString& to);
 	static std::string getVarFunsSmt(NEType t, const Model& model, std::string& smt, std::vector<std::string>& sqrts, int amountOfVars = 1);
 
-	double getResult(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
+	double getResult(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}, const std::map<AdvancedString, float>& extraVars = {}) const;
 	bool isTrue(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
-	std::string toSmtLib(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, const std::vector<std::string>& resNames, const std::string& extraSMT = {}) const;
 	std::string toShader(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids = {}) const;
 
 	friend Model;

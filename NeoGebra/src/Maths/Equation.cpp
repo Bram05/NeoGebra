@@ -276,45 +276,44 @@ AdvancedString Equation::recDiff(const AdvancedString& s1, const AdvancedString&
 	return newS1;
 }
 
-bool Equation::getSolution(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, std::vector<std::string>& resNames, z3::context* cPtr, z3::solver* solverPtr, const std::string& extraSMT) const {
+bool Equation::SolutionExists(const std::vector<float>& identifiers, int id, NEType t, const Model* model) const {
 	//calculate vars
-	if (!solverPtr) {
-		z3::context c;
-		z3::solver solver(c);
-		cPtr = &c;
-		solverPtr = &solver;
-	}
+	z3::context c;
+	z3::solver solver(c);
 
-	std::string smtLibString = toSmtLib(identifiers, ids, resNames, extraSMT);
-	Z3_ast_vector test2 = Z3_parse_smtlib2_string(*cPtr, smtLibString.c_str(), 0, 0, 0, 0, 0, 0);
+	std::string smtLibString = defToSmtLib(identifiers, id, t, model);
+	Z3_ast_vector test2 = Z3_parse_smtlib2_string(c, smtLibString.c_str(), 0, 0, 0, 0, 0, 0);
 
-	if (Z3_ast_vector_size(*cPtr, test2) == 0) {
-		Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString:\n"+smtLibString);
+	if (Z3_ast_vector_size(c, test2) == 0) {
+		Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString");
 		throw ErrorBoxException();
 	}
 
-	for (int i{}; i < Z3_ast_vector_size(*cPtr, test2); ++i) {
-		z3::expr tmp(*cPtr, Z3_ast_vector_get(*cPtr, test2, i));
-		solverPtr->add(tmp);
+	for (int i{}; i < Z3_ast_vector_size(c, test2); ++i) {
+		z3::expr tmp(c, Z3_ast_vector_get(c, test2, i));
+		solver.add(tmp);
 	}
 
-	z3::params p(*cPtr);
+	z3::params p(c);
 	p.set(":timeout", z3TimeOut);
-	solverPtr->set(p);
+	solver.set(p);
 
 	//std::cout << *solverPtr << "\n";
-	//std::cout << solverPtr->to_smt2() << "\n\n::\n\n";
-	switch (solverPtr->check()) {
+	//std::cout << solverPtr->to_smt2() << "\n\n\n\n";
+	switch (solver.check()) {
 	case z3::sat: return true; 
 	case z3::unsat: return false;
 	case z3::unknown: 
-		Application::Get()->GetWindowUI()->DisplayError("Solver timeout: Add manual function for this action");
+		Application::Get()->GetWindowUI()->DisplayError("Solver timeout");
 	default: return false;
 	}
 }
 
-double Equation::getResult(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids) const {
+double Equation::getResult(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, const std::map<AdvancedString, float>& extraVars) const {
 	std::map<AdvancedString, float> vars = linkNumberedVars(identifiers);
+	for (auto it = extraVars.begin(); it != extraVars.end(); it++) {
+		vars[it->first] = it->second;
+	}
 	return recGetResult(m_EquationString, vars, ids);
 }
 
@@ -392,25 +391,35 @@ std::string Equation::getVarFunsSmt(NEType t, const Model& model, std::string& s
 	return funcDefsSmt;
 }
 
-std::string Equation::toSmtLib(const std::vector<std::vector<float>>& identifiers, std::vector<int> ids, const std::vector<std::string>& resNames, const std::string& extraSMT) const {
+std::string Equation::defToSmtLib(const std::vector<float>& identifiers, int id, NEType t, const Model* model) const {
 	std::set<std::string> toDefine;
 	std::vector<std::string> sqrts;
-	int definedSqrts = sqrts.size();
-	std::map<AdvancedString, float> vars = linkNumberedVars(identifiers);
-	std::string out = "(assert " + recToSmtLib(m_EquationString, vars, toDefine, sqrts, ids, true, false) + ")(check-sat)";
+	int definedSqrts = 0;
+	std::map<AdvancedString, float> vars = linkNumberedVars({ identifiers });
+	std::string out = "(assert " + recToSmtLib(m_EquationString, vars, toDefine, sqrts, { id }, true, false) + ")(check-sat)";
 
 	for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
 		out = "(assert " + sqrts[i] + ")" + out;
 	}
-	out = extraSMT + out;
+	definedSqrts = sqrts.size();
 
-	for (std::string s : resNames) {
-		toDefine.insert(s);
+	std::map<AdvancedString, float> tmpVarStorage;
+
+	for (const std::pair < AdvancedString, std::shared_ptr<Equation> >& var : (t == point ? model->m_Variables.first : model->m_Variables.second)) {
+		AdvancedString varName = m_NumberedVarNames[0] + "." + var.first;
+		float varDef = var.second->getResult({ identifiers }, { id }, tmpVarStorage);
+		tmpVarStorage[varName] = varDef;
+		auto loc = out.find(varName.toString());
+		while (loc != std::string::npos) {
+			out.replace(loc, varName.length(), std::to_string(varDef));
+			loc = out.find(varName.toString(), loc + 1 + varName.length());
+		}
 	}
 
 	for (std::string var : toDefine) {
 		out = "(declare-const " + var + " Real)" + out;
 	}
+
 	///
 	//  (define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))
 	//  (define-fun notReal ((a Real)) Real (ite (feq a 0) 1.0 0.0))

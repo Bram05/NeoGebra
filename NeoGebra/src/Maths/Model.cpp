@@ -14,15 +14,16 @@ NEElement::NEElement(const std::vector<float>& identifiers, const Equation& def,
 	: m_Identifiers{ identifiers }, m_Def{ def }, m_Type{ type }, m_Model{ model }, m_Colour{ colour }
 {
 	if (checkValidity) {
-		std::vector<std::string> resNames;
-		for (int i = 0; i < identNum; ++i) {
-			resNames.push_back(def.m_NumberedVarNames[0].toString() + std::to_string(i));
-		}
-
-		/*if (!def.getSolution({identifiers}, {m_ID}, resNames)) {
-			Application::Get()->GetWindowUI()->DisplayError("Invalid element: Check the definition");
+		if (!def.SolutionExists(identifiers, m_ID, type, model.get())) {
+			std::string identifierString;
+			identifierString += "( ";
+			for (float id : identifiers) {
+				identifierString += std::format("{:.2f}", id) + " ";
+			}
+			identifierString += ")";
+			Application::Get()->GetWindowUI()->DisplayError("Invalid element " + identifierString + ": Check the definition");
 			throw ErrorBoxException();
-		}*/
+		}
 	}
 
 	if (identifiers.size() != identNum) {
@@ -163,7 +164,6 @@ NEPoint Model::pointFromLines(const NELine& l1, const NELine& l2) {
 
 bool operator==(const NEElement& lhs, const NEElement& rhs) {
 	if (lhs.getModel() != rhs.getModel()) {
-		//Later isomorphism
 		return false;
 	}
 
@@ -175,21 +175,7 @@ bool operator==(const NEElement& lhs, const NEElement& rhs) {
 		return true;
 	}
 
-	// If (x, y) exists for one element that doesn't exist for the other, the elements are not the same
-	Equation constr1 = lhs.getDef() + !lhs.getDef();
-	Equation constr2 = !lhs.getDef() + lhs.getDef();
-	std::vector<std::string> resNames;
-	for (int i = 0; i < (lhs.getType() == line ? lhs.getModel()->m_PointIdentifiers : lhs.getModel()->m_LineIdentifiers); ++i) {
-		resNames.push_back(constr1.m_NumberedVarNames[0].toString() + std::to_string(i));
-		resNames.push_back(constr1.m_NumberedVarNames[1].toString() + std::to_string(i));
-	}
-	if (constr1.getSolution({ lhs.getIdentifiers(), rhs.getIdentifiers() }, { lhs.getID(), rhs.getID() }, resNames) or
-		constr2.getSolution({ lhs.getIdentifiers(), rhs.getIdentifiers() }, { lhs.getID(), rhs.getID() }, resNames)) {
-		return false;
-	}
-	else {
-		return true;
-	}
+	return false;
 }
 
 bool operator!=(const NEElement& lhs, const NEElement& rhs) { return !(lhs == rhs); }
