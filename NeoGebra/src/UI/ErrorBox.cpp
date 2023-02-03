@@ -9,9 +9,15 @@
 using namespace std::chrono_literals;
 constexpr std::chrono::duration showTime = 8s;
 
-static void RemoveText(ErrorBox* obj)
+static void RemoveText(ErrorBox* obj, bool* shouldStop)
 {
-	std::this_thread::sleep_for(showTime);
+	std::chrono::time_point begin = std::chrono::steady_clock::now();
+	while (std::chrono::steady_clock::now() - begin < showTime)
+	{
+		std::this_thread::sleep_for(5ms);
+		if (*shouldStop)
+			return;
+	}
 	obj->RemoveError();
 }
 
@@ -29,8 +35,16 @@ ErrorBox::ErrorBox(float leftX, float rightX, float topY, float bottomY)
 
 void ErrorBox::DisplayError(const AdvancedString& text)
 {
+	if (m_CountingThread)
+	{
+		*m_CountingThreadBool = true;
+		m_CountingThread->join();
+		delete m_CountingThread;
+		delete m_CountingThreadBool;
+	}
 	m_ErrorText->SetText(text);
-	std::thread(RemoveText, this).detach();
+	m_CountingThreadBool = new bool{false};
+	m_CountingThread = new std::thread(RemoveText, this, m_CountingThreadBool);
 }
 
 void ErrorBox::RemoveError()

@@ -20,6 +20,8 @@ private:
 	std::shared_ptr<Text> m_ErrorBoxText;
 	std::shared_ptr<Text> m_ErrorText;
 	std::vector<std::shared_ptr<Line>> m_Lines;
+	std::thread* m_CountingThread{nullptr};
+	bool* m_CountingThreadBool{nullptr};
 
 protected:
 	void RenderPass(Renderer* r) override;

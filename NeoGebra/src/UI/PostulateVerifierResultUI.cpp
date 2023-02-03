@@ -3,6 +3,7 @@
 #include "PostulateVerifierResultUI.h"
 
 #include "Application.h"
+#include "PostulateResult.h"
 
 static void CheckPostulates(void* obj)
 {
@@ -25,8 +26,9 @@ PostulateVerifierResultUI::~PostulateVerifierResultUI()
 
 void PostulateVerifierResultUI::VerifyPostulates()
 {
-	// Jeroen
-	std::cout << "Doing stuff\n";
+	std::shared_ptr<PostulateResult> id = std::make_shared<PostulateResult>(m_LeftX, m_RightX, m_TopY - 0.3f, m_TopY - 0.5f, AdvancedString("I-1"));
+	id->SetResult(VALID);
+	m_SubUIElements.emplace_back(id);
 }
 
 void PostulateVerifierResultUI::RenderPass(Renderer* r)

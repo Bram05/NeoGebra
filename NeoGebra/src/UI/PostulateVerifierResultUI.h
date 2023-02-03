@@ -6,7 +6,6 @@
 #include "Rendering/LineRenderer.h"
 #include "ButtonUI.h"
 
-// TODO: this needs to be implemented
 class PostulateVerifierResultUI : public UIElement
 {
 public:
