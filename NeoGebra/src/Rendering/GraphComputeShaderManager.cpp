@@ -5,10 +5,10 @@
 #include "Util.h"
 #include "Application.h"
 
-enum ShaderType
+/*enum ShaderType
 {
 	COMPUTE_SHADER1, COMPUTE_SHADER2, COMPUTE_SHADER3
-};
+};*/
 
 static unsigned int CompileShader(bool isFirst, const std::filesystem::path& path, const std::string& insertText);
 static unsigned int CompileShader(bool isFirst, const std::filesystem::path& path) { return CompileShader(isFirst, path, ""); }
@@ -44,14 +44,24 @@ GraphComputeShaderManager::GraphComputeShaderManager(const std::string& name, fl
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, mipmapWidth, mipmapHeight, 0, GL_RED, GL_FLOAT, NULL);
-		glBindImageTexture(0, val, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
-		glGenerateTextureMipmap(val);
+		//glBindImageTexture(0, val, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
 		m_IntermediateTextures2.push_back(val);
 
 		mipmapWidth = std::max(mipmapWidth / 2, 1);
 		mipmapHeight = std::max(mipmapHeight / 2, 1);
 		++level;
 	}
+	unsigned int val;
+	glGenTextures(1, &val);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, val);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, mipmapWidth, mipmapHeight, 0, GL_RED, GL_FLOAT, NULL);
+	//glBindImageTexture(0, val, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	m_IntermediateTextures2.push_back(val);
 }
 
 GraphComputeShaderManager::~GraphComputeShaderManager()
@@ -229,24 +239,40 @@ void GraphComputeShaderManager::RunComputeShaders(Graph* graph, float midCoordX,
 	t.Restart("Running compute shader3");
 	//int prevMipmapWidth = m_Width, prevMipmapHeight = m_Height;
 	int i = 0, mipmapWidth = m_Width / 2, mipmapHeight = m_Height / 2;
+	bool nextwidth = m_Width % 2, nextHeight = m_Height % 2;
 	glUseProgram(m_CompShader3);
 	for (; i < m_IntermediateTextures2.size()-1; ++i)
 	{
-		glBindImageTexture(0, m_IntermediateTextures2[i], 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
-		glBindImageTexture(1, m_IntermediateTextures2[i+1], 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+		glBindImageTexture(0, m_IntermediateTextures2[i], 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
+		glBindImageTexture(1, m_IntermediateTextures2[i+1], 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
 		//glUniform2i(1, prevMipmapWidth, prevMipmapHeight);
 		glUniform2i(0, mipmapWidth, mipmapHeight);
+		glUniform1i(1, nextwidth);
+		glUniform1i(2, nextHeight);
 		//glUniform1i(0, level);
 		glDispatchCompute(std::ceil(mipmapWidth / 8.0f), std::ceil(mipmapHeight / 8.0f), 1);
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
+		std::cout << "width: " << mipmapWidth << ", height: " << mipmapHeight << '\n';
+
+		nextwidth = mipmapWidth % 2;
+		nextHeight = mipmapHeight % 2;
 		mipmapWidth = std::max(mipmapWidth / 2, 1);
 		//prevMipmapWidth = std::max(prevMipmapWidth / 2, 1);
 		mipmapHeight = std::max(mipmapHeight / 2, 1);
 		//prevMipmapHeight = std::max(prevMipmapHeight / 2, 1);
 	}
+	if (mipmapWidth != 1 || mipmapHeight != 1)
+	{
+		std::cerr << "Sizes not 1\n";
+		Util::ExitDueToFailure();
+	}
 	glFinish();
 	t.Stop();
+
+	float* data = new float[1];
+	glGetTextureImage(m_IntermediateTextures2[i], 0, GL_RED, GL_FLOAT, 1*sizeof(float), data);
+	std::cout << data[0] << '\n';
 
 	t.Restart("Running compute shader4");
 	glUseProgram(m_CompShader4);

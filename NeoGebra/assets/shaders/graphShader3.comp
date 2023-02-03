@@ -8,6 +8,8 @@ layout(r32f, binding = 1) uniform image2D out_texture;
 //layout(location = 0) uniform int level;
 //layout(location = 1) uniform ivec2 u_PrevMipmapSize;
 layout(location = 0) uniform ivec2 u_MipmapSize;
+layout(location = 1) uniform int u_WidthMore;
+layout(location = 2) uniform int u_HeightMore;
 
 void main()
 {
@@ -15,9 +17,24 @@ void main()
 	if (pos.x >= u_MipmapSize.x || pos.y >= u_MipmapSize.y)
         return;
 	float biggest = -1.0;
-	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x + 1, 2 * pos.y + 1)).r);
+	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x + 1, 2 * pos.y + 1)).r); // TODO: should check if the size is one, then it may not be valid
 	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x    , 2 * pos.y + 1)).r);
 	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x + 1, 2 * pos.y    )).r);
 	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x    , 2 * pos.y    )).r);
+	if (pos.x == u_MipmapSize.x - 1 && u_WidthMore == 1)
+	{
+	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x + 2, 2 * pos.y    )).r);
+	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x + 2, 2 * pos.y + 1)).r);
+	}
+	else if (pos.y == u_MipmapSize.y - 1 && u_HeightMore == 1)
+	{
+	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x    , 2 * pos.y + 2)).r);
+	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x + 1, 2 * pos.y + 2)).r);
+	}
+	if (pos.x == u_MipmapSize.x - 1 && u_WidthMore == 1 && pos.y == u_MipmapSize.y - 1 && u_HeightMore == 1)
+	{
+	biggest = max(biggest, imageLoad(in_texture, ivec2(2 * pos.x + 2, 2 * pos.y + 2)).r);
+	}
+
     imageStore(out_texture, pos, vec4(biggest, 0.0,0.0,0.0));
 }
