@@ -12,7 +12,7 @@
 #include <GLFW/glfw3.h>
 #include "Util.h"
 #include "ExtrasWindowUI.h"
-#include "DistanceTestUI.h"
+#include "TestUI.h"
 
 static void TabButtonClickedStatic(void* obj, int value)
 {
@@ -269,7 +269,7 @@ EquationUI::EquationUI(float leftX, float rightX, float topY, float bottomY)
 	}
 
 	//m_SubUIElements.emplace_back(std::make_shared<Text>("Lines from points", leftX + 0.01f, rightX - 0.01f, currentHeight - 0.07f, 40.0f));
-	m_SubUIElements.emplace_back(std::make_shared<TabUI>(leftX, rightX, currentHeight, currentHeight - 0.08f, 0, UpdatePointsUIStatic, this, std::vector<AdvancedString>{AdvancedString("Create line"), AdvancedString("Distance")}));
+	m_SubUIElements.emplace_back(std::make_shared<TabUI>(leftX, rightX, currentHeight, currentHeight - 0.08f, 0, UpdatePointsUIStatic, this, std::vector<AdvancedString>{AdvancedString("Create line"), AdvancedString("Distance"), AdvancedString("Betweeness")}));
 	currentHeight -= 0.10f;
 
 	float tempHeight = currentHeight;
@@ -282,13 +282,22 @@ EquationUI::EquationUI(float leftX, float rightX, float topY, float bottomY)
 	}
 	m_LineFromPointsEnd = m_SubUIElements.size() - 1;
 
+	tempHeight = currentHeight;
 	m_DistanceBegin = m_SubUIElements.size();
 	for (int i{ 0 }; i < 4; ++i)
 	{
-		m_SubUIElements.emplace_back(std::make_shared<DistanceTestUI>(leftX + 0.01f, rightX - 0.01f, currentHeight, currentHeight - 0.07f, UpdateModelStatic, this), false);
-		currentHeight -= 0.1f;
+		m_SubUIElements.emplace_back(std::make_shared<TestUI>(leftX + 0.01f, rightX - 0.01f, tempHeight, tempHeight - 0.07f, UpdateModelStatic, this), false);
+		tempHeight -= 0.1f;
 	}
 	m_DistanceEnd = m_SubUIElements.size() - 1;
+
+	m_BetweennessBegin = m_SubUIElements.size();
+	for (int i{ 0 }; i < 4; ++i)
+	{
+		m_SubUIElements.emplace_back(std::make_shared<TestUI>(leftX + 0.01f, rightX - 0.01f, currentHeight, currentHeight - 0.07f, UpdateModelStatic, this), false);
+		currentHeight -= 0.1f;
+	}
+	m_BetweennessEnd = m_SubUIElements.size() - 1;
 
 	m_LinesIndexBegin = m_SubUIElements.size();
 	currentHeight = topY - 0.2f;
@@ -512,11 +521,11 @@ void EquationUI::UpdateGraphs()
 	}
 	for (int i{ m_DistanceBegin }; i <= m_DistanceEnd; ++i)
 	{
-		DistanceTestUI* field = (DistanceTestUI*)m_SubUIElements[i].element.get();
+		TestUI* field = (TestUI*)m_SubUIElements[i].element.get();
 		const AdvancedString& text = field->GetText();
 		if (text.empty())
 		{
-			field->RemoveDistance();
+			field->RemoveOutput();
 			continue;
 		}
 		auto it = text.toString().find(',');
@@ -529,11 +538,40 @@ void EquationUI::UpdateGraphs()
 			try {
 				const std::shared_ptr<NEPoint>& p1 = m_NEPoints[std::stoi(text.substr(0, it).toString()) - 1];
 				const std::shared_ptr<NEPoint>& p2 = m_NEPoints[std::stoi(text.substr(it + 1, text.size() - it - 1).toString()) - 1];
-				field->SetDistance(distance(*p1, *p2));
+				field->SetOutput(AdvancedString(std::to_string(distance(*p1, *p2))));
 			}
 			catch (const std::exception& e)
 			{
 				Application::Get()->GetWindowUI()->DisplayError("Failed to parse one of the 'line from points' declerations");
+			}
+		}
+	}
+	for (int i{ m_BetweennessBegin }; i <= m_BetweennessEnd; ++i)
+	{
+		TestUI* field = (TestUI*)m_SubUIElements[i].element.get();
+		const AdvancedString& text = field->GetText();
+		if (text.empty())
+		{
+			field->RemoveOutput();
+			continue;
+		}
+		auto first = text.toString().find(',');
+		auto end = text.toString().rfind(',');
+		if (first == std::string::npos || end == std::string::npos || first == end)
+		{
+			Application::Get()->GetWindowUI()->DisplayError("Betweenness: " + text.toString() + " does not contain two commas. You need to specify three points separated by commas.");
+		}
+		else
+		{
+			try {
+				const std::shared_ptr<NEPoint>& p1 = m_NEPoints[std::stoi(text.substr(0, first).toString()) - 1];
+				const std::shared_ptr<NEPoint>& p2 = m_NEPoints[std::stoi(text.substr(first + 1, end - first - 1).toString()) - 1];
+				const std::shared_ptr<NEPoint>& p3 = m_NEPoints[std::stoi(text.substr(end + 1, text.size() - end - 1).toString()) - 1];
+				field->SetOutput(isBetween(*p1, *p2, *p3) == true ? AdvancedString("true") : AdvancedString("false"));
+			}
+			catch (const std::exception& e)
+			{
+				Application::Get()->GetWindowUI()->DisplayError("Failed to parse one of the 'betweenness test' declerations");
 			}
 		}
 	}
@@ -647,7 +685,9 @@ void EquationUI::LoadFromActiveModel()
 	}
 
 	const AdvancedString& lineDef = model->GetLineDef().m_EquationString;
+	const AdvancedString& lineId = model->GetLineDef().m_NumberedVarNames[0];
 	const AdvancedString& pointDef = model->GetPointDef().m_EquationString;
+	const AdvancedString& pointId = model->GetPointDef().m_NumberedVarNames[0];
 	const AdvancedString& incidenceDef = model->GetIncidenceConstr().m_EquationString;
 	const AdvancedString& congruenceDef = model->GetDistanceDef().m_EquationString;
 	const AdvancedString& betweennessDef = model->GetBetweennessConstr().m_EquationString;
@@ -679,8 +719,8 @@ void EquationUI::LoadFromActiveModel()
 	((TextInputField*)(m_SubUIElements[m_LineDefInputField].element.get()))->SetText(lineDef);
 	((TextInputFieldWithDesc*)(m_SubUIElements[m_PointDefInputField - 1].element.get()))->SetText(AdvancedString(std::to_string(numPointIds)));
 	((TextInputFieldWithDesc*)(m_SubUIElements[m_LineDefInputField - 1].element.get()))->SetText(AdvancedString(std::to_string(numLineIds)));
-	//((TextInputField*)(m_SubUIElements[m_PointDefInputField - 3].element.get()))->SetText(; // use p as letter
-	//((TextInputField*)(m_SubUIElements[m_LineDefInputField - 3].element.get()))->GetText();
+	((TextInputField*)(m_SubUIElements[m_PointDefInputField - 3].element.get()))->SetText(pointId); // use p as letter
+	((TextInputField*)(m_SubUIElements[m_LineDefInputField - 3].element.get()))->SetText(lineId);
 	((TextInputField*)(m_SubUIElements[m_LineDefInputField + 1].element.get()))->SetText(incidenceDef);
 	((TextInputField*)(m_SubUIElements[m_LineDefInputField + 2].element.get()))->SetText(betweennessDef);
 	((TextInputFieldWithDesc*)(m_SubUIElements[m_LineDefInputField + 3].element.get()))->SetText(congruenceDef);
@@ -703,6 +743,10 @@ void EquationUI::UpdatePointsUI(int value)
 	for (int i{ m_DistanceBegin }; i <= m_DistanceEnd; ++i)
 	{
 		m_SubUIElements[i].shouldRender = value == 1 && m_ButtonValue == 0;
+	}
+	for (int i{m_BetweennessBegin}; i <= m_BetweennessEnd; i++)
+	{
+		m_SubUIElements[i].shouldRender = value == 2 && m_ButtonValue == 0;
 	}
 	m_PointsSwitchValue = value;
 }
