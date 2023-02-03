@@ -2,6 +2,11 @@
 #include "Model.h"
 #include "Equation.h"
 
+enum ParallelType
+{
+	ELLIPTIC, EUCLIDEAN, HYPERBOLIC
+};
+
 class PostulateVerifier
 {
 public:
@@ -15,4 +20,5 @@ public:
 	static bool C3(const Model& model);	
 
 	static bool DISTANCE(const Model& model);
+	static ParallelType PARALLEL(const Model& model);
 };

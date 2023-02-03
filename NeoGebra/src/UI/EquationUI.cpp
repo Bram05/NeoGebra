@@ -482,7 +482,7 @@ void EquationUI::UpdateGraphs()
 			continue;
 
 		std::vector<float> identifiers{ ParseInput(text) };
-		UserInput(m_NEPoints[i - m_PointsIndexBegin] = std::make_shared<NEPoint>(identifiers, Application::Get()->GetModel(), RGBColour{ 255, 0, 0, 255 }, false));
+		UserInput(m_NEPoints[i - m_PointsIndexBegin] = std::make_shared<NEPoint>(identifiers, Application::Get()->GetModel(), RGBColour{ 255, 0, 0, 255 }, true));
 	}
 
 	for (int i{ m_LinesIndexBegin }; i < m_LinesIndexBegin + NumInputFields; ++i)
@@ -492,7 +492,7 @@ void EquationUI::UpdateGraphs()
 			continue;
 
 		std::vector<float> identifiers{ ParseInput(text) };
-		UserInput(m_NELines[i - m_LinesIndexBegin] = std::make_shared<NELine>(identifiers, Application::Get()->GetModel(), RGBColour{ 255, 255, 0, 255 }, false));
+		UserInput(m_NELines[i - m_LinesIndexBegin] = std::make_shared<NELine>(identifiers, Application::Get()->GetModel(), RGBColour{ 255, 255, 0, 255 }, true));
 	}
 
 	for (int i{ m_LineFromPointsBegin }; i <= m_LineFromPointsEnd; ++i)
