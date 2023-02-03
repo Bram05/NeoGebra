@@ -201,7 +201,11 @@ static void ThreePointModel(void* obj)
 static void EmptyModel(void* obj)
 {
 	VarMap v;
-	Application::Get()->SetModel(v, 0, Equation(AdvancedString("")), 0, Equation(AdvancedString("")), Equation(AdvancedString("")), Equation(AdvancedString("")), Equation(AdvancedString("")), EquationVector(), EquationVector());
+	Equation EmptyEquation(std::vector<AdvancedString>{AdvancedString("")}, AdvancedString(""));
+	EquationVector EmptyEquationVector {
+		{}
+	};
+	Application::Get()->SetModel(v, 0, EmptyEquation, 0, EmptyEquation, EmptyEquation, EmptyEquation, EmptyEquation, EmptyEquationVector, EmptyEquationVector);
 	Application::Get()->GetWindowUI()->GetEquationUI()->LoadFromActiveModel();
 	Application::Get()->GetWindowUI()->GetEquationUI()->UpdateModel();
 }
