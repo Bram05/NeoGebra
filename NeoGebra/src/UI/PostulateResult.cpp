@@ -21,7 +21,7 @@ void PostulateResult::SetResult(PostulateResultValues result)
 	switch (result)
 	{
 	case VALID:
-		text = AdvancedString(": valid");
+		text = AdvancedString(": valid (:");
 		m_Name->m_Colour = { 0.0f,1.0f,0.0f,1.0f };
 		m_Result->m_Colour = { 0.0f,1.0f,0.0f,1.0f };
 		break;
@@ -41,7 +41,7 @@ void PostulateResult::SetResult(PostulateResultValues result)
 		m_Result->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
 		break;
 	case BEINGTESTED:
-		text = AdvancedString(": begin tested");
+		text = AdvancedString(": being tested");
 		m_Name->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
 		m_Result->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
 		break;

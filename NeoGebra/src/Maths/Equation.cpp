@@ -299,7 +299,7 @@ bool Equation::getSolution(const std::vector<std::vector<float>>& identifiers, s
 	}
 
 	z3::params p(*cPtr);
-	p.set(":timeout", 3000u);
+	p.set(":timeout", z3TimeOut);
 	solverPtr->set(p);
 
 	//std::cout << *solverPtr << "\n";

@@ -4,7 +4,7 @@
 
 enum ParallelType
 {
-	ELLIPTIC, EUCLIDEAN, HYPERBOLIC
+	NORESULT, ELLIPTIC, EUCLIDEAN, HYPERBOLIC
 };
 
 class PostulateVerifier

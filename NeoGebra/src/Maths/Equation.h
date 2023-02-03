@@ -8,6 +8,8 @@
 #define piConstant 3.14159265358979323846
 #define eConstant  2.71828182845904523536
 
+#define z3TimeOut 10000u
+
 enum NEType
 {
 	notype, point, line
