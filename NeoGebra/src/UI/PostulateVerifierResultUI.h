@@ -4,6 +4,7 @@
 
 #include "UIElement.h"
 #include "Rendering/LineRenderer.h"
+#include "PostulateResult.h"
 #include "ButtonUI.h"
 
 class PostulateVerifierResultUI : public UIElement
@@ -19,4 +20,6 @@ protected:
 
 private:
 	std::vector<std::shared_ptr<Line>> m_Lines;
+	std::shared_ptr<PostulateResult> m_I2, m_I3, m_B1, m_B2, m_B3, m_C3, m_Distance, m_Parallel;
+	int m_TimesTillVerify{-1};
 };

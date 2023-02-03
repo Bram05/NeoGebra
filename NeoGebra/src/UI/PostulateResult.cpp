@@ -4,7 +4,7 @@
 
 PostulateResult::PostulateResult(float leftX, float rightX, float topY, float bottomY, const AdvancedString& name)
 	: UIElement(leftX, rightX, topY, bottomY, "PostulateResult"), m_Name{std::make_shared<Text>(name, leftX, rightX, bottomY + 0.02f, 40.0f)},
-	m_Result{std::make_shared<Text>(": unkown", leftX + 0.1f,rightX, bottomY + 0.02f, 40.0f)}
+	m_Result{std::make_shared<Text>(": ---------", leftX + 0.1f,rightX, bottomY + 0.02f, 40.0f)}
 {
 }
 
@@ -21,17 +21,19 @@ void PostulateResult::SetResult(PostulateResultValues result)
 	switch (result)
 	{
 	case VALID:
-		text = AdvancedString(": valid😊");
+		text = AdvancedString(": valid");
 		break;
 	case INVALID:
+		text = AdvancedString(": invalid");
 		break;
 	case UNKOWN:
+		text = AdvancedString(": unkown");
 		break;
 	case UNTESTED:
+		text = AdvancedString(": untested");
 		break;
 	case BEINGTESTED:
-		break;
-	default:
+		text = AdvancedString(": begin tested");
 		break;
 	}
 	m_Result->SetText(text);
