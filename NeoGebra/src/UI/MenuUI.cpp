@@ -26,7 +26,7 @@ static void PoincareModel(void*)
 
 	EquationVector lineFromPoints{
 		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(-sqrt((((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))-p0)^2+(((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))-p1)^2)+sqrt((((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))-p0)^2+(((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))-p1)^2+1))/(sqrt(((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))^2+((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))^2))*((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))") },
-		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(-sqrt((((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))-p0)^2+(((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))-p1)^2)+sqrt((((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))-p0)^2+(((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))-p1)^2+1))/(sqrt(((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))^2+((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))^2))*(-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0)") } 
+		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(-sqrt((((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))-p0)^2+(((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))-p1)^2)+sqrt((((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))-p0)^2+(((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))-p1)^2+1))/(sqrt(((-2*p0^2*q1 - 2*p1^2*q1 + 2*p1*q0^2 + 2*p1*q1^2 + 2*p1 - 2*q1)/(-4*p0*q1 + 4*p1*q0))^2+((-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0))^2))*(-2*p0^2*q0 + 2*p0*q0^2 + 2*p0*q1^2 - 2*p1^2*q0 + 2*p0 - 2*q0)/(4*p0*q1 - 4*p1*q0)") }
 	};
 
 	EquationVector pointFromLines{
@@ -39,8 +39,6 @@ static void PoincareModel(void*)
 	Application::Get()->GetModel()->addExtraEquation(boundary);
 	Application::Get()->GetWindowUI()->GetEquationUI()->LoadFromActiveModel();
 	Application::Get()->GetWindowUI()->GetEquationUI()->UpdateModel();
-	//PostulateVerifier::PARALLEL(*Application::Get()->GetModel());
-
 }
 
 static void BeltramiKleinModel(void* obj) {
@@ -50,8 +48,8 @@ static void BeltramiKleinModel(void* obj) {
 	Equation BKincidence{ {AdvancedString("p"), AdvancedString("l")}, AdvancedString("p0*l0+l1*p1=l2") };
 	Equation BKdistanceDef{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("") };
 	Equation BKbetweennessDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q"), AdvancedString("r")}, AdvancedString("((p0 <= q0 & q0 <= r0) | (p0 >= q0 & q0 >= r0)) & ((p1 <= q1 & q1 <= r1) | (p1 >= q1 & q1 >= r1))"));
-	
-	EquationVector BKlineFromPoints{	
+
+	EquationVector BKlineFromPoints{
 		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("p1 != q1") },
 		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(p1 = q1)+(p1!=q1)*(q0-p0)/(p1-q1)")},
 		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(p1 = q1)*p1 + (p1!=q1)*(p1*q0-p0*q1)/(p1-q1)")}
@@ -74,9 +72,9 @@ static void HalfPlaneModel(void* obj)
 	VarMap variables;
 	Equation pointDef(std::vector<AdvancedString>{AdvancedString("p")}, AdvancedString("x=p0 & y=p1 & y>0"));
 	Equation lineDef(std::vector<AdvancedString>{AdvancedString("l")}, AdvancedString("y > 0 & ((x - l0)^2 + y^2 = l1 | (x = l0 & (l1 = 0))) & !(l1 < 0)"));
-	Equation incidenceDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("l")}, AdvancedString("p1 > 0 & ((p0 - l0)^2 + p1^2 = l1 | (p0 = l0 & (l1 = 0))) & !(l0 < 0)"));
+	Equation incidenceDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("l")}, AdvancedString("p1 > 0 & ((p0 - l0)^2 + p1^2 = l1 | (p0 = l0 & (l1 = 0))) & !(l1 < 0)"));
 	Equation distanceDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q")}, AdvancedString("2 * atanh(sqrt(((q0-p0)^2+(q1-p1)^2)/((q0-p0)^2 + (q1+p1)^2)))"));
-	Equation betweennessDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q"), AdvancedString("r")}, AdvancedString("((p0 < q0 & q0 < r0) | (p0 > q0 & q0 > r0)) | ((p0 = q0 & q0 = r0) & ((p1 < q1 & q1 < r1) | (p1 > q1 & q1 > r1)))"));
+	Equation betweennessDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q"), AdvancedString("r")}, AdvancedString("((p0 < q0 & q0 < r0) | (p0 > q0 & q0 > r0)) | ((p0 = q0 & q0 = r0) & ((p1 <= q1 & q1 <= r1) | (p1 >= q1 & q1 >= r1)))"));
 
 	EquationVector lineFromPoints{
 		{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("(!(p0 = q0) * (q0^2+q1^2-p0^2-p1^2)/(-2*p0+2*q0)) + ((p0 = q0) * q0)") },
@@ -90,7 +88,7 @@ static void HalfPlaneModel(void* obj)
 
 	Application::Get()->SetModel(variables, 2, pointDef, 2, lineDef, incidenceDef, distanceDef, betweennessDef, lineFromPoints, pointFromLines);
 	Equation boundary(AdvancedString("y = 0"));
-	Application::Get()->GetModel()->addExtraEquation(boundary, {255,0,0,255});
+	Application::Get()->GetModel()->addExtraEquation(boundary, { 255,0,0,255 });
 	Application::Get()->GetWindowUI()->GetEquationUI()->LoadFromActiveModel();
 	Application::Get()->GetWindowUI()->GetEquationUI()->UpdateModel();
 }
@@ -202,7 +200,7 @@ static void EmptyModel(void* obj)
 {
 	VarMap v;
 	Equation EmptyEquation(std::vector<AdvancedString>{AdvancedString("")}, AdvancedString(""));
-	EquationVector EmptyEquationVector {
+	EquationVector EmptyEquationVector{
 		{}
 	};
 	Application::Get()->SetModel(v, 0, EmptyEquation, 0, EmptyEquation, EmptyEquation, EmptyEquation, EmptyEquation, EmptyEquationVector, EmptyEquationVector);
@@ -221,7 +219,7 @@ MenuUI::MenuUI(float leftX, float rightX, float topY, float bottomY)
 	float buttonWidth = 0.24f;
 	float indent = 0.025f;
 
-	std::vector<void(*)(void*)> functions = { &EmptyModel, &EuclideanModel, &ProjectiveModel, &ReverseProjectiveModel, &PoincareModel, &BeltramiKleinModel, &HalfPlaneModel, &ThreePointModel};
+	std::vector<void(*)(void*)> functions = { &EmptyModel, &EuclideanModel, &ProjectiveModel, &ReverseProjectiveModel, &PoincareModel, &BeltramiKleinModel, &HalfPlaneModel, &ThreePointModel };
 	std::vector<AdvancedString> textList = { AdvancedString(L"New Model"), AdvancedString(L"Euclidean Model"), AdvancedString(L"Projective Model"), AdvancedString(L"Reverse Projective Model"), AdvancedString(L"Poincaré Model"), AdvancedString(L"Beltrami Klein Model"), AdvancedString(L"Half-Plane Model"), AdvancedString(L"Three-point Model") };
 	for (int i = 0; i < functions.size(); i++) {
 		m_SubUIElements.push_back({ std::make_shared<ButtonUI>(leftX + indent + i * buttonWidth, (leftX + i * buttonWidth + buttonWidth), topY - 0.01f, (topY - 0.09f), functions[i], this, textList[i]) });

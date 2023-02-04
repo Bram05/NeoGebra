@@ -11,45 +11,53 @@ static void CheckPostulates(void* obj)
 	((PostulateVerifierResultUI*)obj)->VerifyPostulates();
 }
 
-static void CheckPostuateI2(PostulateVerifierResultUI* ui)
+static void CheckPostuateI2(PostulateVerifierResultUI* ui, uint64_t count)
 {
 	PostulateVerifierValues output = PostulateVerifier::I2(*Application::Get()->GetModel());
-	ui->m_I2->SetResult(output);
+	if (count == ui->m_Count)
+		ui->m_I2->SetResult(output);
 }
-static void CheckPostuateI3(PostulateVerifierResultUI* ui)
+static void CheckPostuateI3(PostulateVerifierResultUI* ui, uint64_t count)
 {
 	PostulateVerifierValues output = PostulateVerifier::I3(*Application::Get()->GetModel());
-	ui->m_I3->SetResult(output);
+	if (count == ui->m_Count)
+		ui->m_I3->SetResult(output);
 }
-static void CheckPostuateB1(PostulateVerifierResultUI* ui)
+static void CheckPostuateB1(PostulateVerifierResultUI* ui, uint64_t count)
 {
 	PostulateVerifierValues output = PostulateVerifier::B1(*Application::Get()->GetModel());
-	ui->m_B1->SetResult(output);
+	if (count == ui->m_Count)
+		ui->m_B1->SetResult(output);
 }
-static void CheckPostuateB2(PostulateVerifierResultUI* ui)
+static void CheckPostuateB2(PostulateVerifierResultUI* ui, uint64_t count)
 {
 	PostulateVerifierValues output = PostulateVerifier::B2(*Application::Get()->GetModel());
-	ui->m_B2->SetResult(output);
+	if (count == ui->m_Count)
+		ui->m_B2->SetResult(output);
 }
-static void CheckPostuateB3(PostulateVerifierResultUI* ui)
+static void CheckPostuateB3(PostulateVerifierResultUI* ui, uint64_t count)
 {
 	PostulateVerifierValues output = PostulateVerifier::B3(*Application::Get()->GetModel());
-	ui->m_B3->SetResult(output);
+	if (count == ui->m_Count)
+		ui->m_B3->SetResult(output);
 }
-static void CheckPostuateC3(PostulateVerifierResultUI* ui)
+static void CheckPostuateC3(PostulateVerifierResultUI* ui, uint64_t count)
 {
 	PostulateVerifierValues output = PostulateVerifier::C3(*Application::Get()->GetModel());
-	ui->m_C3->SetResult(output);
+	if (count == ui->m_Count)
+		ui->m_C3->SetResult(output);
 }
-static void CheckPostuateDistance(PostulateVerifierResultUI* ui)
+static void CheckPostuateDistance(PostulateVerifierResultUI* ui, uint64_t count)
 {
 	PostulateVerifierValues output = PostulateVerifier::DISTANCE(*Application::Get()->GetModel());
-	ui->m_Distance->SetResult(output);
+	if (count == ui->m_Count)
+		ui->m_Distance->SetResult(output);
 }
-static void CheckPostuateParallel(PostulateVerifierResultUI* ui)
+static void CheckPostuateParallel(PostulateVerifierResultUI* ui, uint64_t count)
 {
 	ParallelType output = PostulateVerifier::PARALLEL(*Application::Get()->GetModel());
-	ui->m_Parallel->SetResult(output);
+	if (count == ui->m_Count)
+		ui->m_Parallel->SetResult(output);
 }
 
 PostulateVerifierResultUI::PostulateVerifierResultUI(float leftX, float rightX, float topY, float bottomY)
@@ -80,6 +88,7 @@ PostulateVerifierResultUI::~PostulateVerifierResultUI()
 
 void PostulateVerifierResultUI::VerifyPostulates()
 {
+	++m_Count;
 	m_I2->SetResult(BEINGTESTED);
 	m_I3->SetResult(BEINGTESTED);
 	m_B1->SetResult(BEINGTESTED);
@@ -89,14 +98,14 @@ void PostulateVerifierResultUI::VerifyPostulates()
 	m_Distance->SetResult(BEINGTESTED);
 	m_Parallel->SetResult(BEINGTESTED);
 
-	std::thread(CheckPostuateI2, this).detach();
-	std::thread(CheckPostuateI3, this).detach();
-	std::thread(CheckPostuateB1, this).detach();
-	std::thread(CheckPostuateB2, this).detach();
-	std::thread(CheckPostuateB3, this).detach();
-	std::thread(CheckPostuateC3, this).detach();
-	std::thread(CheckPostuateDistance, this).detach();
-	std::thread(CheckPostuateParallel, this).detach();
+	std::thread(CheckPostuateI2, this, m_Count).detach();
+	std::thread(CheckPostuateI3, this, m_Count).detach();
+	std::thread(CheckPostuateB1, this, m_Count).detach();
+	std::thread(CheckPostuateB2, this, m_Count).detach();
+	std::thread(CheckPostuateB3, this, m_Count).detach();
+	std::thread(CheckPostuateC3, this, m_Count).detach();
+	std::thread(CheckPostuateDistance, this, m_Count).detach();
+	std::thread(CheckPostuateParallel, this, m_Count).detach();
 }
 
 void PostulateVerifierResultUI::RenderPass(Renderer* r)
