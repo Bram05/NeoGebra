@@ -11,6 +11,47 @@ static void CheckPostulates(void* obj)
 	((PostulateVerifierResultUI*)obj)->VerifyPostulates();
 }
 
+static void CheckPostuateI2(PostulateVerifierResultUI* ui)
+{
+	PostulateVerifierValues output = PostulateVerifier::I2(*Application::Get()->GetModel());
+	ui->m_I2->SetResult(output);
+}
+static void CheckPostuateI3(PostulateVerifierResultUI* ui)
+{
+	PostulateVerifierValues output = PostulateVerifier::I3(*Application::Get()->GetModel());
+	ui->m_I3->SetResult(output);
+}
+static void CheckPostuateB1(PostulateVerifierResultUI* ui)
+{
+	PostulateVerifierValues output = PostulateVerifier::B1(*Application::Get()->GetModel());
+	ui->m_B1->SetResult(output);
+}
+static void CheckPostuateB2(PostulateVerifierResultUI* ui)
+{
+	PostulateVerifierValues output = PostulateVerifier::B2(*Application::Get()->GetModel());
+	ui->m_B2->SetResult(output);
+}
+static void CheckPostuateB3(PostulateVerifierResultUI* ui)
+{
+	PostulateVerifierValues output = PostulateVerifier::B3(*Application::Get()->GetModel());
+	ui->m_B3->SetResult(output);
+}
+static void CheckPostuateC3(PostulateVerifierResultUI* ui)
+{
+	PostulateVerifierValues output = PostulateVerifier::C3(*Application::Get()->GetModel());
+	ui->m_C3->SetResult(output);
+}
+static void CheckPostuateDistance(PostulateVerifierResultUI* ui)
+{
+	PostulateVerifierValues output = PostulateVerifier::DISTANCE(*Application::Get()->GetModel());
+	ui->m_Distance->SetResult(output);
+}
+static void CheckPostuateParallel(PostulateVerifierResultUI* ui)
+{
+	ParallelType output = PostulateVerifier::PARALLEL(*Application::Get()->GetModel());
+	ui->m_Parallel->SetResult(output);
+}
+
 PostulateVerifierResultUI::PostulateVerifierResultUI(float leftX, float rightX, float topY, float bottomY)
 	: UIElement(leftX, rightX, topY, bottomY, "PostulateVerifierResultUI")
 {
@@ -28,7 +69,9 @@ PostulateVerifierResultUI::PostulateVerifierResultUI(float leftX, float rightX, 
 	m_B3 = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, topY - 0.64f, topY - 0.71f, AdvancedString("B-3"));
 
 	m_C3 = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, topY - 0.77f, topY - 0.84f, AdvancedString("C-3"));
-	//m_I3, m_B1, m_B2, m_B3, m_C3, m_Distance, m_Parallel
+
+	m_Distance = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, topY - 0.90f, topY - 0.97f, AdvancedString("Distance"));
+	m_Parallel = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, topY - 1.03f, topY - 1.10f, AdvancedString("Parallel"));
 }
 
 PostulateVerifierResultUI::~PostulateVerifierResultUI()
@@ -43,24 +86,21 @@ void PostulateVerifierResultUI::VerifyPostulates()
 	m_B2->SetResult(BEINGTESTED);
 	m_B3->SetResult(BEINGTESTED);
 	m_C3->SetResult(BEINGTESTED);
-	m_TimesTillVerify = 1;
+	m_Distance->SetResult(BEINGTESTED);
+	m_Parallel->SetResult(BEINGTESTED);
+
+	std::thread(CheckPostuateI2, this).detach();
+	std::thread(CheckPostuateI3, this).detach();
+	std::thread(CheckPostuateB1, this).detach();
+	std::thread(CheckPostuateB2, this).detach();
+	std::thread(CheckPostuateB3, this).detach();
+	std::thread(CheckPostuateC3, this).detach();
+	std::thread(CheckPostuateDistance, this).detach();
+	std::thread(CheckPostuateParallel, this).detach();
 }
 
 void PostulateVerifierResultUI::RenderPass(Renderer* r)
 {
-	if (m_TimesTillVerify == 1)
-		m_TimesTillVerify = 0;
-	else if (m_TimesTillVerify == 0)
-	{
-		const Model& model = *Application::Get()->GetModel().get();
-		UserInput(m_I2->SetResult(PostulateVerifier::I2(model) ? VALID : INVALID));
-		UserInput(m_I3->SetResult(PostulateVerifier::I3(model) ? VALID : INVALID));
-		UserInput(m_B1->SetResult(PostulateVerifier::B1(model) ? VALID : INVALID));
-		UserInput(m_B2->SetResult(PostulateVerifier::B2(model) ? VALID : INVALID));
-		UserInput(m_B3->SetResult(PostulateVerifier::B3(model) ? VALID : INVALID));
-		UserInput(m_C3->SetResult(PostulateVerifier::C3(model) ? VALID : INVALID));
-		m_TimesTillVerify = -1;
-	}
 	for (std::shared_ptr<Line>& line : m_Lines)
 	{
 		r->AddToRenderQueue(line);
@@ -71,5 +111,7 @@ void PostulateVerifierResultUI::RenderPass(Renderer* r)
 	m_B2->RenderPass(r);
 	m_B3->RenderPass(r);
 	m_C3->RenderPass(r);
+	m_Distance->RenderPass(r);
+	m_Parallel->RenderPass(r);
 	UIElement::RenderPass(r);
 }

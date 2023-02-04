@@ -2,11 +2,7 @@
 
 #include "UIElement.h"
 #include "Rendering/TextRenderer.h"
-
-enum PostulateResultValues
-{
-	VALID, INVALID, UNKOWN, UNTESTED, BEINGTESTED
-};
+#include "Maths/PostulateVerifier.h"
 
 class PostulateResult : public UIElement
 {
@@ -16,7 +12,8 @@ public:
 
 	virtual void RenderPass(Renderer* r) override;
 
-	void SetResult(PostulateResultValues);
+	void SetResult(PostulateVerifierValues value);
+	void SetResult(ParallelType value);
 private:
 	std::shared_ptr<Text> m_Name, m_Result;
 };

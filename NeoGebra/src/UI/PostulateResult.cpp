@@ -1,5 +1,7 @@
 ﻿#include "PostulateResult.h"
 
+#include "Maths/PostulateVerifier.h"
+
 #include "Rendering/Renderer.h"
 
 PostulateResult::PostulateResult(float leftX, float rightX, float topY, float bottomY, const AdvancedString& name)
@@ -15,7 +17,7 @@ void PostulateResult::RenderPass(Renderer* r)
 	UIElement::RenderPass(r);
 }
 
-void PostulateResult::SetResult(PostulateResultValues result)
+void PostulateResult::SetResult(PostulateVerifierValues result)
 {
 	AdvancedString text;
 	switch (result)
@@ -44,6 +46,37 @@ void PostulateResult::SetResult(PostulateResultValues result)
 		text = AdvancedString(": being tested");
 		m_Name->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
 		m_Result->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
+		break;
+	}
+	m_Result->SetText(text);
+}
+
+void PostulateResult::SetResult(ParallelType value)
+{
+	AdvancedString text;
+	switch (value)
+	{
+	case NORESULT:
+		text = AdvancedString(": unkown");
+		m_Name->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
+		m_Result->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
+		break;
+	case ELLIPTIC:
+		text = AdvancedString(": elliptic");
+		m_Name->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
+		m_Result->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
+		break;
+	case EUCLIDEAN:
+		text = AdvancedString(": Euclidean");
+		m_Name->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
+		m_Result->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
+		break;
+	case HYPERBOLIC:
+		text = AdvancedString(": hyperbolic");
+		m_Name->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
+		m_Result->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
+		break;
+	default:
 		break;
 	}
 	m_Result->SetText(text);

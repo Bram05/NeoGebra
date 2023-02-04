@@ -18,7 +18,7 @@
 ///
 
 
-bool PostulateVerifier::I2(const Model& model) {
+PostulateVerifierValues PostulateVerifier::I2(const Model& model) {
 	///
 	/// Check if there exists a line, for which (not (exists (two distinct points)))
 	/// 
@@ -42,7 +42,7 @@ bool PostulateVerifier::I2(const Model& model) {
 	///		)
 	/// )
 	/// 
-	
+
 	// Generate code for z3
 	std::string smt{};
 	std::set<std::string> tmp;
@@ -86,7 +86,7 @@ bool PostulateVerifier::I2(const Model& model) {
 	incidenceA.replaceVarName(incidenceA.m_EquationString, model.m_IncidenceConstr.m_NumberedVarNames[0], model.m_PointDef.m_NumberedVarNames[0] + "a");
 	pointDefB.replaceVarName(pointDefB.m_EquationString, model.m_PointDef.m_NumberedVarNames[0], model.m_PointDef.m_NumberedVarNames[0] + "b");
 	incidenceB.replaceVarName(incidenceB.m_EquationString, model.m_IncidenceConstr.m_NumberedVarNames[0], model.m_PointDef.m_NumberedVarNames[0] + "b");
-	std::string ABsmt = "(and (and " + incidenceA.recToSmtLib(incidenceA.m_EquationString, tmp2, tmp, sqrts, {}, false, false) + " " + incidenceB.recToSmtLib(incidenceB.m_EquationString, tmp2, tmp, sqrts, {}, false, false) + + ") (and " + pointDefA.recToSmtLib(pointDefA.m_EquationString, tmp2, tmp, sqrts, {}, false, false) + " " + pointDefB.recToSmtLib(pointDefB.m_EquationString, tmp2, tmp, sqrts, {}, false, false) + "))";
+	std::string ABsmt = "(and (and " + incidenceA.recToSmtLib(incidenceA.m_EquationString, tmp2, tmp, sqrts, {}, false, false) + " " + incidenceB.recToSmtLib(incidenceB.m_EquationString, tmp2, tmp, sqrts, {}, false, false) + +") (and " + pointDefA.recToSmtLib(pointDefA.m_EquationString, tmp2, tmp, sqrts, {}, false, false) + " " + pointDefB.recToSmtLib(pointDefB.m_EquationString, tmp2, tmp, sqrts, {}, false, false) + "))";
 
 	for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
 		ABsmt = "(and " + sqrts[i] + " " + ABsmt + ")";
@@ -111,7 +111,7 @@ bool PostulateVerifier::I2(const Model& model) {
 	definedSqrts = sqrts.size();
 
 	smt += ") (and " + ABsmt + " ";
-	
+
 	// Points identifiers are not the same
 	std::string isNotTheSameSmt = "(feq " + pointVarName + "a0 " + pointVarName + "b0)";
 	for (int i = 1; i < model.m_PointIdentifiers; ++i) {
@@ -131,8 +131,8 @@ bool PostulateVerifier::I2(const Model& model) {
 	}
 
 	//  Standard functions (See top of document)
-	smt =  "(declare-fun sqrt (Real) Real)(declare-fun root3 (Real) Real)(declare-fun root4 (Real) Real)(assert (forall ((rootInp Real)) (> (sqrt rootInp) 0.0)))(assert (forall ((rootInp Real)) (> (root4 rootInp) 0.0)))(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))(define-fun notReal ((a Real)) Real (ite (feq a 0) 1.0 0.0)) (define-fun feqReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.0001) 1.0 0.0)) (define-fun gReal ((a Real)(b Real)) Real (ite (> a b) 1.0 0.0)) (define-fun geReal ((a Real)(b Real)) Real (ite (>= a b) 1.0 0.0)) (define-fun lReal ((a Real)(b Real)) Real (ite (< a b) 1.0 0.0)) (define-fun leReal ((a Real)(b Real)) Real (ite (<= a b) 1.0 0.0))" + smt;
-	
+	smt = "(declare-fun sqrt (Real) Real)(declare-fun root3 (Real) Real)(declare-fun root4 (Real) Real)(assert (forall ((rootInp Real)) (> (sqrt rootInp) 0.0)))(assert (forall ((rootInp Real)) (> (root4 rootInp) 0.0)))(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))(define-fun notReal ((a Real)) Real (ite (feq a 0) 1.0 0.0)) (define-fun feqReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.0001) 1.0 0.0)) (define-fun gReal ((a Real)(b Real)) Real (ite (> a b) 1.0 0.0)) (define-fun geReal ((a Real)(b Real)) Real (ite (>= a b) 1.0 0.0)) (define-fun lReal ((a Real)(b Real)) Real (ite (< a b) 1.0 0.0)) (define-fun leReal ((a Real)(b Real)) Real (ite (<= a b) 1.0 0.0))" + smt;
+
 	// Check if solution exists
 	z3::context c;
 	z3::solver solver(c);
@@ -140,7 +140,8 @@ bool PostulateVerifier::I2(const Model& model) {
 
 	if (Z3_ast_vector_size(c, test2) == 0) {
 		Application::Get()->GetWindowUI()->DisplayError("Error with smtLibString");
-		throw ErrorBoxException();
+		//throw ErrorBoxException();
+		return UNKOWN;
 	}
 
 	for (int i{}; i < Z3_ast_vector_size(c, test2); ++i) {
@@ -153,16 +154,17 @@ bool PostulateVerifier::I2(const Model& model) {
 	solver.set(p);
 
 	switch (solver.check()) {
-	case z3::sat: return false;
-	case z3::unsat: return true;
+	case z3::sat: return INVALID;
+	case z3::unsat: return VALID;
 	case z3::unknown: {
 		Application::Get()->GetWindowUI()->DisplayError("Unable to test I-2");
-		throw ErrorBoxException();
-		}
+		//throw ErrorBoxException();
+		return UNKOWN;
+	}
 	}
 }
 
-bool PostulateVerifier::I3(const Model& model) {
+PostulateVerifierValues PostulateVerifier::I3(const Model& model) {
 	///
 	/// Check if there exists a line, for which (not (exists (two distinct points)))
 	/// 
@@ -196,13 +198,13 @@ bool PostulateVerifier::I3(const Model& model) {
 	///		)
 	/// )
 	/// 
-	
+
 	// Generate code for z3
 	std::string smt{};
 	std::set<std::string> tmp;
 	std::vector<std::string> sqrts;
 	std::map<AdvancedString, float> tmp2;
-	
+
 	int definedSqrts = 0;
 
 	for (int pNameN = 0; pNameN < 3; ++pNameN) {
@@ -257,7 +259,7 @@ bool PostulateVerifier::I3(const Model& model) {
 	incidenceSmt = "(and " + model.m_LineDef.recToSmtLib(lineDefEquation, tmp2, tmp, sqrts, {}, false, false) + " " + incidenceSmt + ")";
 
 	// Line Vars, sqrts inside exists
-	smt = Equation::getVarFunsSmt(line, model, incidenceSmt, sqrts) + smt ;
+	smt = Equation::getVarFunsSmt(line, model, incidenceSmt, sqrts) + smt;
 
 	for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
 		incidenceSmt = "(and " + sqrts[i] + " " + incidenceSmt + ")";
@@ -313,16 +315,16 @@ bool PostulateVerifier::I3(const Model& model) {
 
 
 	switch (solver.check()) {
-	case z3::sat: return true;
-	case z3::unsat: return false;
+	case z3::sat: return VALID;
+	case z3::unsat: return INVALID;
 	case z3::unknown: {
 		Application::Get()->GetWindowUI()->DisplayError("I-3: Not 100 percent certain");
-		return false;
+		return INVALID;
 	}
 	}
 }
 
-bool PostulateVerifier::B1(const Model& model) {
+PostulateVerifierValues PostulateVerifier::B1(const Model& model) {
 	///	
 	///  (declare-const p0 Real)
 	///  ...
@@ -340,8 +342,8 @@ bool PostulateVerifier::B1(const Model& model) {
 	///  (assert [p*q*r])
 	///  (assert ![r*q*p])
 	/// 
-	
-	if (model.m_BetweennessConstr.m_EquationString == "") { return false; }
+
+	if (model.m_BetweennessConstr.m_EquationString == "") { return UNTESTED; }
 
 	// Generate code for z3
 	std::string smt{};
@@ -412,7 +414,7 @@ bool PostulateVerifier::B1(const Model& model) {
 		smt = "(assert " + sqrts[i] + ")" + smt;
 	}
 	definedSqrts = sqrts.size();
-	
+
 	//betweenness 2 (not r*q*p)
 	AdvancedString betweennessEquation2 = model.m_BetweennessConstr.m_EquationString;
 	for (int i = 2; i >= 0; --i) {
@@ -425,7 +427,7 @@ bool PostulateVerifier::B1(const Model& model) {
 	definedSqrts = sqrts.size();
 
 	//Add vars
-	smt  = Equation::getVarFunsSmt(line, model, smt, sqrts) + smt;
+	smt = Equation::getVarFunsSmt(line, model, smt, sqrts) + smt;
 	for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
 		smt = "(assert " + sqrts[i] + ")" + smt;
 	}
@@ -460,7 +462,7 @@ bool PostulateVerifier::B1(const Model& model) {
 
 	//  Standard functions (See top of document)
 	smt = "(declare-fun sqrt (Real) Real)(declare-fun root3 (Real) Real)(declare-fun root4 (Real) Real)(assert (forall ((rootInp Real)) (> (sqrt rootInp) 0.0)))(assert (forall ((rootInp Real)) (> (root4 rootInp) 0.0)))(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))(define-fun notReal ((a Real)) Real (ite (feq a 0) 1.0 0.0)) (define-fun feqReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.0001) 1.0 0.0)) (define-fun gReal ((a Real)(b Real)) Real (ite (> a b) 1.0 0.0)) (define-fun geReal ((a Real)(b Real)) Real (ite (>= a b) 1.0 0.0)) (define-fun lReal ((a Real)(b Real)) Real (ite (< a b) 1.0 0.0)) (define-fun leReal ((a Real)(b Real)) Real (ite (<= a b) 1.0 0.0))" + smt;
-	
+
 	// Check if solution exists
 	z3::context c;
 	z3::solver solver(c);
@@ -480,16 +482,16 @@ bool PostulateVerifier::B1(const Model& model) {
 	p.set(":timeout", z3TimeOut);
 
 	switch (solver.check()) {
-	case z3::sat: return false;
-	case z3::unsat: return true;
+	case z3::sat: return INVALID;
+	case z3::unsat: return VALID;
 	case z3::unknown: {
 		Application::Get()->GetWindowUI()->DisplayError("B-1: Not 100 percent certain");
-			return false;
+		return INVALID;
 	}
 	}
 }
 
-bool PostulateVerifier::B2(const Model& model) {
+PostulateVerifierValues PostulateVerifier::B2(const Model& model) {
 	///	
 	///  (declare-const p0 Real)
 	///  ...
@@ -533,8 +535,8 @@ bool PostulateVerifier::B2(const Model& model) {
 	///  )
 	/// 
 
-	if (model.m_BetweennessConstr.m_EquationString == "") { return false; }
-	return false;
+	if (model.m_BetweennessConstr.m_EquationString == "") { return UNTESTED; }
+	//return false;
 	// Generate code for z3
 	std::string smt{};
 	std::set<std::string> tmp;
@@ -695,16 +697,16 @@ bool PostulateVerifier::B2(const Model& model) {
 	p.set(":timeout", z3TimeOut);
 
 	switch (solver.check()) {
-	case z3::sat: return false;
-	case z3::unsat: return true;
+	case z3::sat: return INVALID;
+	case z3::unsat: return VALID;
 	case z3::unknown: {
 		Application::Get()->GetWindowUI()->DisplayError("B-2: Not 100 percent certain");
-		return true;
+		return VALID;
 	}
 	}
 }
 
-bool PostulateVerifier::B3(const Model& model) {
+PostulateVerifierValues PostulateVerifier::B3(const Model& model) {
 	///	
 	///  (declare-const p0 Real)
 	///  ...
@@ -730,7 +732,7 @@ bool PostulateVerifier::B3(const Model& model) {
 	///  (assert [p*r*q])
 	/// 
 
-	if (model.m_BetweennessConstr.m_EquationString == "") { return false; }
+	if (model.m_BetweennessConstr.m_EquationString == "") { return UNTESTED; }
 	//return false;
 	// Generate code for z3
 	std::string smt{};
@@ -870,16 +872,16 @@ bool PostulateVerifier::B3(const Model& model) {
 	p.set(":timeout", z3TimeOut);
 
 	switch (solver.check()) {
-	case z3::sat: return false;
-	case z3::unsat: return true;
+	case z3::sat: return INVALID;
+	case z3::unsat: return VALID;
 	case z3::unknown: {
 		Application::Get()->GetWindowUI()->DisplayError("B-3: Not 100 percent certain");
-		return true;
+		return VALID;
 	}
 	}
 }
 
-bool PostulateVerifier::C3(const Model& model) {
+PostulateVerifierValues PostulateVerifier::C3(const Model& model) {
 	///	
 	///  (declare-const p0 Real)
 	/// ...
@@ -926,10 +928,10 @@ bool PostulateVerifier::C3(const Model& model) {
 	/// (assert (= [d q r] [d q' r']))
 	/// (assert !(= [d p r] [d p' r']))
 	/// 
-	
-	if (model.m_DistanceDef.m_EquationString == "") { return false; }
 
-	return false;
+	if (model.m_DistanceDef.m_EquationString == "") { return UNTESTED; }
+
+	//return false;
 	// Generate code for z3
 	std::string smt{};
 	std::set<std::string> tmp;
@@ -956,8 +958,8 @@ bool PostulateVerifier::C3(const Model& model) {
 	// Sets of three points are not the same
 	for (int n = 0; n < 2; ++n) {
 		for (int p = 0; p < 3; ++p) {
-			std::string pointVarName1 = model.m_PointDef.m_NumberedVarNames[0].toString() + (char)((p == 1 ? 'b' : 'a')+3*n);
-			std::string pointVarName2 = model.m_PointDef.m_NumberedVarNames[0].toString() + (char)((p == 2 ? 'b' : 'c')+3*n);
+			std::string pointVarName1 = model.m_PointDef.m_NumberedVarNames[0].toString() + (char)((p == 1 ? 'b' : 'a') + 3 * n);
+			std::string pointVarName2 = model.m_PointDef.m_NumberedVarNames[0].toString() + (char)((p == 2 ? 'b' : 'c') + 3 * n);
 			std::string isNotTheSameSmt = "(feq " + pointVarName1 + "0 " + pointVarName2 + "0)";
 			for (int i = 1; i < model.m_PointIdentifiers; ++i) {
 				isNotTheSameSmt = "(and " + isNotTheSameSmt + " (feq " + pointVarName1 + std::to_string(i) + " " + pointVarName2 + std::to_string(i) + "))";
@@ -969,8 +971,8 @@ bool PostulateVerifier::C3(const Model& model) {
 	for (int n = 0; n < 2; ++n) {
 		//Line def
 		AdvancedString lineDefEquation = model.m_LineDef.m_EquationString;
-		model.m_LineDef.replaceVarName(lineDefEquation, AdvancedString("x"), AdvancedString("xl")+('a'+n));
-		model.m_LineDef.replaceVarName(lineDefEquation, AdvancedString("y"), AdvancedString("yl")+('a'+n));
+		model.m_LineDef.replaceVarName(lineDefEquation, AdvancedString("x"), AdvancedString("xl") + ('a' + n));
+		model.m_LineDef.replaceVarName(lineDefEquation, AdvancedString("y"), AdvancedString("yl") + ('a' + n));
 		model.m_LineDef.replaceVarName(lineDefEquation, model.m_LineDef.m_NumberedVarNames[0], model.m_LineDef.m_NumberedVarNames[0] + ('a' + n));
 		smt += "(assert " + model.m_LineDef.recToSmtLib(lineDefEquation, tmp2, tmp, sqrts, {}, true, false) + ")";
 	}
@@ -983,10 +985,10 @@ bool PostulateVerifier::C3(const Model& model) {
 	for (int n = 0; n < 2; ++n) {
 		for (int pNameN = 0; pNameN < 3; ++pNameN) {
 			//Incidence def
-			AdvancedString pName = model.m_PointDef.m_NumberedVarNames[0] + ('a' + pNameN + n*3);
+			AdvancedString pName = model.m_PointDef.m_NumberedVarNames[0] + ('a' + pNameN + n * 3);
 			AdvancedString incidenceEquation = model.m_IncidenceConstr.m_EquationString;
 			model.m_IncidenceConstr.replaceVarName(incidenceEquation, model.m_IncidenceConstr.m_NumberedVarNames[0], pName);
-			model.m_IncidenceConstr.replaceVarName(incidenceEquation, model.m_IncidenceConstr.m_NumberedVarNames[1], model.m_LineDef.m_NumberedVarNames[0] + ('a'+n));
+			model.m_IncidenceConstr.replaceVarName(incidenceEquation, model.m_IncidenceConstr.m_NumberedVarNames[1], model.m_LineDef.m_NumberedVarNames[0] + ('a' + n));
 			smt += "(assert " + model.m_IncidenceConstr.recToSmtLib(incidenceEquation, tmp2, tmp, sqrts, {}, true, false) + ")";
 			for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
 				smt = "(assert " + sqrts[i] + ")" + smt;
@@ -999,7 +1001,7 @@ bool PostulateVerifier::C3(const Model& model) {
 	for (int n = 0; n < 2; ++n) {
 		AdvancedString betweennessEquation = model.m_BetweennessConstr.m_EquationString;
 		for (int i = 0; i < 3; ++i) {
-			model.m_BetweennessConstr.replaceVarName(betweennessEquation, model.m_BetweennessConstr.m_NumberedVarNames[i], model.m_PointDef.m_NumberedVarNames[0] + ('a' + i + 3*n));
+			model.m_BetweennessConstr.replaceVarName(betweennessEquation, model.m_BetweennessConstr.m_NumberedVarNames[i], model.m_PointDef.m_NumberedVarNames[0] + ('a' + i + 3 * n));
 		}
 		smt += "(assert " + model.m_BetweennessConstr.recToSmtLib(betweennessEquation, tmp2, tmp, sqrts, {}, true, false) + ")";
 		for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
@@ -1013,8 +1015,8 @@ bool PostulateVerifier::C3(const Model& model) {
 		AdvancedString distanceEquation1 = model.m_DistanceDef.m_EquationString;
 		AdvancedString distanceEquation2 = model.m_DistanceDef.m_EquationString;
 		for (int i = 0; i < 2; ++i) {
-			model.m_DistanceDef.replaceVarName(distanceEquation1, model.m_DistanceDef.m_NumberedVarNames[i], model.m_PointDef.m_NumberedVarNames[0] + ('a'+i+n));
-			model.m_DistanceDef.replaceVarName(distanceEquation2, model.m_DistanceDef.m_NumberedVarNames[i], model.m_PointDef.m_NumberedVarNames[0] + ('d'+i+n));
+			model.m_DistanceDef.replaceVarName(distanceEquation1, model.m_DistanceDef.m_NumberedVarNames[i], model.m_PointDef.m_NumberedVarNames[0] + ('a' + i + n));
+			model.m_DistanceDef.replaceVarName(distanceEquation2, model.m_DistanceDef.m_NumberedVarNames[i], model.m_PointDef.m_NumberedVarNames[0] + ('d' + i + n));
 		}
 		smt += "(assert (feq " + model.m_DistanceDef.recToSmtLib(distanceEquation1, tmp2, tmp, sqrts, {}, false, false) + " " + model.m_DistanceDef.recToSmtLib(distanceEquation2, tmp2, tmp, sqrts, {}, false, false) + "))";
 		for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
@@ -1072,7 +1074,7 @@ bool PostulateVerifier::C3(const Model& model) {
 
 	for (int n = 0; n < 6; ++n) {
 		for (int i = 0; i < model.m_PointIdentifiers; ++i) {
-			smt = "(declare-const " + model.m_PointDef.m_NumberedVarNames[0].toString() + (char)('a'+n) + std::to_string(i) + " Real)" + smt;
+			smt = "(declare-const " + model.m_PointDef.m_NumberedVarNames[0].toString() + (char)('a' + n) + std::to_string(i) + " Real)" + smt;
 		}
 	}
 
@@ -1104,16 +1106,16 @@ bool PostulateVerifier::C3(const Model& model) {
 	p.set(":timeout", z3TimeOut);
 
 	switch (solver.check()) {
-	case z3::sat: return false;
-	case z3::unsat: return true;
+	case z3::sat: return INVALID;
+	case z3::unsat: return VALID;
 	case z3::unknown: {
 		Application::Get()->GetWindowUI()->DisplayError("C-3: Not 100 percent certain");
-		return true;
+		return VALID;
 	}
 	}
 }
 
-bool PostulateVerifier::DISTANCE(const Model& model) {
+PostulateVerifierValues PostulateVerifier::DISTANCE(const Model& model) {
 	///	
 	///  (declare-const p0 Real)
 	///  ...
@@ -1127,7 +1129,7 @@ bool PostulateVerifier::DISTANCE(const Model& model) {
 	///  (assert !(= [d p q] [d q p]))
 	/// 
 
-	if (model.m_DistanceDef.m_EquationString == "") { return false; }
+	if (model.m_DistanceDef.m_EquationString == "") { return UNTESTED; }
 
 	// Generate code for z3
 	std::string smt{};
@@ -1165,8 +1167,8 @@ bool PostulateVerifier::DISTANCE(const Model& model) {
 	AdvancedString distanceEquation1 = model.m_DistanceDef.m_EquationString;
 	AdvancedString distanceEquation2 = model.m_DistanceDef.m_EquationString;
 	for (int i = 0; i < 2; ++i) {
-		model.m_DistanceDef.replaceVarName(distanceEquation1, model.m_DistanceDef.m_NumberedVarNames[i], model.m_PointDef.m_NumberedVarNames[0] + ('a'+i));
-		model.m_DistanceDef.replaceVarName(distanceEquation2, model.m_DistanceDef.m_NumberedVarNames[i], model.m_PointDef.m_NumberedVarNames[0] + ('b'-i));
+		model.m_DistanceDef.replaceVarName(distanceEquation1, model.m_DistanceDef.m_NumberedVarNames[i], model.m_PointDef.m_NumberedVarNames[0] + ('a' + i));
+		model.m_DistanceDef.replaceVarName(distanceEquation2, model.m_DistanceDef.m_NumberedVarNames[i], model.m_PointDef.m_NumberedVarNames[0] + ('b' - i));
 	}
 	smt += "(assert (not (feq " + model.m_DistanceDef.recToSmtLib(distanceEquation1, tmp2, tmp, sqrts, {}, false, false) + " " + model.m_DistanceDef.recToSmtLib(distanceEquation2, tmp2, tmp, sqrts, {}, false, false) + ")))";
 	for (int i = sqrts.size() - 1; i >= definedSqrts; --i) {
@@ -1229,11 +1231,11 @@ bool PostulateVerifier::DISTANCE(const Model& model) {
 	p.set(":timeout", z3TimeOut);
 
 	switch (solver.check()) {
-	case z3::sat: return false;
-	case z3::unsat: return true;
+	case z3::sat: return INVALID;
+	case z3::unsat: return VALID;
 	case z3::unknown: {
 		Application::Get()->GetWindowUI()->DisplayError("DISTANCE: Not 100 percent certain");
-		return true;
+		return VALID;
 	}
 	}
 }
@@ -1443,7 +1445,7 @@ ParallelType PostulateVerifier::PARALLEL(const Model& model) {
 			Equation incidence = model.m_IncidenceConstr;
 
 			incidence.replaceVarName(incidence.m_EquationString, model.m_IncidenceConstr.m_NumberedVarNames[0], model.m_PointDef.m_NumberedVarNames[0]);
-			incidence.replaceVarName(incidence.m_EquationString, model.m_IncidenceConstr.m_NumberedVarNames[1], model.m_LineDef.m_NumberedVarNames[0] + ('b'+n));
+			incidence.replaceVarName(incidence.m_EquationString, model.m_IncidenceConstr.m_NumberedVarNames[1], model.m_LineDef.m_NumberedVarNames[0] + ('b' + n));
 			smt += "(assert " + incidence.recToSmtLib(incidence.m_EquationString, tmp2, tmp, sqrts, {}, false, false) + ")";
 		}
 
@@ -1516,7 +1518,7 @@ ParallelType PostulateVerifier::PARALLEL(const Model& model) {
 		}
 
 		smt += "(check-sat)";
-		
+
 		//  Standard functions (See top of document)
 		//  Also feqBiggerError function for line comparison, to prevent future rounding errors 
 		smt = "(define-fun feqBiggerError ((a Real)(b Real)) Bool (< (abs (- a b)) 0.1)) (define-fun feqBiggerErrorReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.1) 1.0 0.0))(declare-fun sqrt (Real) Real)(declare-fun root3 (Real) Real)(declare-fun root4 (Real) Real)(assert (forall ((rootInp Real)) (> (sqrt rootInp) 0.0)))(assert (forall ((rootInp Real)) (> (root4 rootInp) 0.0)))(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))(define-fun notReal ((a Real)) Real (ite (feq a 0) 1.0 0.0)) (define-fun feqReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.0001) 1.0 0.0)) (define-fun gReal ((a Real)(b Real)) Real (ite (> a b) 1.0 0.0)) (define-fun geReal ((a Real)(b Real)) Real (ite (>= a b) 1.0 0.0)) (define-fun lReal ((a Real)(b Real)) Real (ite (< a b) 1.0 0.0)) (define-fun leReal ((a Real)(b Real)) Real (ite (<= a b) 1.0 0.0))" + smt;

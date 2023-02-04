@@ -18,8 +18,7 @@ public:
 protected:
 	void RenderPass(Renderer* r) override;
 
-private:
+public:
 	std::vector<std::shared_ptr<Line>> m_Lines;
 	std::shared_ptr<PostulateResult> m_I2, m_I3, m_B1, m_B2, m_B3, m_C3, m_Distance, m_Parallel;
-	int m_TimesTillVerify{-1};
 };
