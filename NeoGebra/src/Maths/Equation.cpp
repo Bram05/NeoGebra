@@ -305,7 +305,7 @@ bool Equation::SolutionExists(const std::vector<float>& identifiers, int id, NET
 	case z3::unsat: return false;
 	case z3::unknown: 
 		Application::Get()->GetWindowUI()->DisplayError("Solver timeout");
-	default: return false;
+	default: return true;
 	}
 }
 

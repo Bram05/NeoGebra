@@ -70,8 +70,8 @@ static void BeltramiKleinModel(void* obj) {
 static void HalfPlaneModel(void* obj)
 {
 	VarMap variables;
-	Equation pointDef(std::vector<AdvancedString>{AdvancedString("p")}, AdvancedString("x=p0 & y=p1 & y>0"));
-	Equation lineDef(std::vector<AdvancedString>{AdvancedString("l")}, AdvancedString("y > 0 & ((x - l0)^2 + y^2 = l1 | (x = l0 & (l1 = 0))) & !(l1 < 0)"));
+	Equation pointDef(std::vector<AdvancedString>{AdvancedString("p")}, AdvancedString("x=p0 & y=p1 & p1 > 0 & y>0"));
+	Equation lineDef(std::vector<AdvancedString>{AdvancedString("l")}, AdvancedString("y > 0 & ((x - l0)^2 + y^2 = l1 | (x = l0 & (l1 = 0))) & (l1 >= 0)"));
 	Equation incidenceDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("l")}, AdvancedString("p1 > 0 & ((p0 - l0)^2 + p1^2 = l1 | (p0 = l0 & (l1 = 0))) & !(l1 < 0)"));
 	Equation distanceDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q")}, AdvancedString("2 * atanh(sqrt(((q0-p0)^2+(q1-p1)^2)/((q0-p0)^2 + (q1+p1)^2)))"));
 	Equation betweennessDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q"), AdvancedString("r")}, AdvancedString("((p0 < q0 & q0 < r0) | (p0 > q0 & q0 > r0)) | ((p0 = q0 & q0 = r0) & ((p1 <= q1 & q1 <= r1) | (p1 >= q1 & q1 >= r1)))"));
