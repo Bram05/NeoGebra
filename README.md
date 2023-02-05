@@ -1,6 +1,6 @@
 # NeoGebra
 
-NeoGebra is a tool tha can be used for creating, visualizing, understanding and verifying Euclidean and Non-Euclidean models.
+NeoGebra is a tool that can be used for creating, visualizing, understanding and verifying Euclidean and Non-Euclidean models.
 
 ## Screenshots
 
