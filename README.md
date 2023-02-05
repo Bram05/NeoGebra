@@ -28,6 +28,7 @@ NeoGebra is a program that can be used for creating, visualizing and verifying N
     - [Lines](#lines)
     - [Construct line from 2 points](#construct-line-from-2-points)
     - [Get point of intersection from 2 lines](#get-point-of-intersection-from-2-lines)
+  - [Postulate Verifier](#postulate-verifier)
   - [Custom models](#custom-models)
     - [Point definition](#point-definition)
     - [Lines definition](#lines-definition)
@@ -97,6 +98,20 @@ You can get the point in this way:
 > 1,2
 
 This will draw the point of intersection of both lines.
+
+## Postulate Verifier
+
+The right hand side of the screen is the postulate verifier section. The purpose of this is to verify your model in accordance with the non-euclidean incidence , betweennes , congruence, distance and parallel postulates. To start verifying the postulates, you can simply click on the `Verify Postulates` button on the top of the section. When you do so, each postulate will be verified in it's own thread. Here are the meanings of messages you might see:
+
+| Message                                     | Meaning                                     |
+| ------------------------------------------- | ------------------------------------------- |
+| being tested                                | busy testing postulate                      |
+| <span style="color:#29ff49">valid (:</span> | Postulate holds                             |
+| <span style="color:#ff0000">invalid </span> | Postulate does not hold                     |
+| unknown                                     | couldn't find a solution                    |
+| Parallel                                    | returns "hyperbolic / elliptic / euclidean" |
+
+> ⚠ Do not switch models when you're verifying postulates.
 
 ## Custom models
 
