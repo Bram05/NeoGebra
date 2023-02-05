@@ -65,6 +65,7 @@ Application::Application()
 	Util::Timer::Initialize("times.txt");
 	std::atexit(Util::Timer::Terminate);
 	Util::Timer t("Creating Application");
+
 	
 	VarMap v;
 	m_Model = std::make_shared<Model>(v, 0, Equation(AdvancedString("")), 0, Equation(AdvancedString("")), Equation(AdvancedString("")), EquationVector(), EquationVector());
