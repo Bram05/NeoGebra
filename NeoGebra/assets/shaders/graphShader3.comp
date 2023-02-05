@@ -13,6 +13,8 @@ layout(location = 2) uniform int u_HeightMore;
 
 void main()
 {
+	// imageStore(out_texture, ivec2(0,0), vec4(imageLoad(in_texture, ivec2(1,0)).r, 0,0,0));
+	// return;
     ivec2 pos = ivec2( gl_GlobalInvocationID.xy );
 	if (pos.x >= u_MipmapSize.x || pos.y >= u_MipmapSize.y)
         return;

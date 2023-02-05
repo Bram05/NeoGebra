@@ -212,9 +212,60 @@ unsigned int GraphComputeShaderManager::CreateOtherComputeShader(const std::stri
 
 void GraphComputeShaderManager::RunComputeShaders(Graph* graph, float midCoordX, float midCoordY, float unitLengthPixels) const
 {
-	glBindImageTexture(0, m_IntermediateTexture1, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
-	glBindImageTexture(1, m_IntermediateTextures2[0], 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	//glBindImageTexture(0, m_IntermediateTexture1, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	//glBindImageTexture(1, m_IntermediateTextures2[0], 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	float data[]{
+		19,2,
+		43,35
+	};
+	unsigned int texture1;
+	glGenTextures(1, &texture1);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture1);
 
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 2, 2, 0, GL_RED, GL_FLOAT, data);
+	glBindImageTexture(0, texture1, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	unsigned int texture2;
+	glGenTextures(1, &texture2);
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, 1, 1, 0, GL_RED, GL_FLOAT, NULL);
+	glBindImageTexture(0, texture2, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+
+
+
+
+	//glBindTexture(GL_TEXTURE_2D, texture1);
+	//unsigned int buffer;
+	//glGenBuffers(1, &buffer);
+	//glBindBuffer(GL_COPY_READ_BUFFER, buffer);
+	//glBufferData(GL_COPY_READ_BUFFER, sizeof(data), data, GL_STATIC_READ);
+	//glReadBuffer()
+	//glCopyTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 0, 0, 3, 3, 0);
+	//glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, 3, 3, 0, GL_RED, GL_FLOAT, data);
+
+	glUseProgram(m_CompShader3);
+	glBindImageTexture(0, texture1, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	glBindImageTexture(1, texture2, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
+	glUniform2i(0, 1, 1);
+	glUniform1i(1, 0);
+	glUniform1i(2, 0);
+	glDispatchCompute(1, 1, 1);
+	glMemoryBarrier(GL_ALL_BARRIER_BITS);
+
+	float* output = new float;
+	glGetTextureImage(texture2, 0, GL_RED, GL_FLOAT, 1 * sizeof(float), output);
+	std::cout << *output << '\n';
+
+	/*
 	Util::Timer t("Running compute shader1");
 	//Run 1st shader
 	glUseProgram(graph->m_CompShader1);
@@ -253,7 +304,7 @@ void GraphComputeShaderManager::RunComputeShaders(Graph* graph, float midCoordX,
 		glDispatchCompute(std::ceil(mipmapWidth / 8.0f), std::ceil(mipmapHeight / 8.0f), 1);
 		glMemoryBarrier(GL_ALL_BARRIER_BITS);
 
-		std::cout << "width: " << mipmapWidth << ", height: " << mipmapHeight << '\n';
+		//std::cout << "width: " << mipmapWidth << ", height: " << mipmapHeight << '\n';
 
 		nextwidth = mipmapWidth % 2;
 		nextHeight = mipmapHeight % 2;
@@ -281,7 +332,7 @@ void GraphComputeShaderManager::RunComputeShaders(Graph* graph, float midCoordX,
 	glBindImageTexture(2, graph->m_Texture, 0, GL_FALSE, 0, GL_READ_WRITE, GL_R32F);
 	glDispatchCompute(std::ceil(m_Width / 32.0f), std::ceil(m_Height / 32.0f), 1);
 	glFinish();
-	t.Stop();
+	t.Stop();*/
 }
 
 unsigned int GraphComputeShaderManager::CreateTexture() const
