@@ -14,7 +14,7 @@ void main()
 	if (abs(value) > 0.00001)
 	{
 		newValue = imageLoad(in_texture, pos).r / value;
-		if (newValue < 0.5)
+		if (newValue < 0.0)
 			newValue = 0.0;
 	}
 	else

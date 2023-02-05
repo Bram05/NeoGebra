@@ -126,7 +126,7 @@ static void ProjectiveModel(void* obj)
 	Equation pointDef(std::vector<AdvancedString>{AdvancedString("p")}, AdvancedString("(x=p0 & y=p1 & p2 = 0)|((p0 = 1| (p0 = 0 & p1 = 1)) & p2 = 1)"));
 	Equation lineDef(std::vector<AdvancedString>{AdvancedString("l")}, AdvancedString("(l0 * x + l1 * y = l2 & (l0 = 1| (l0 = 0 & l1 = 1)))|(l0=0&l1=0&l2=0)"));
 	Equation incidenceDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("l")}, AdvancedString("(!(l0 = 0 & l1 = 0) & p2 = 0 & l0 * p0 + l1 * p1 = l2)|(!(l0 = 0 & l1 = 0) & p2 = 1 & p0 = l0 & p1 = l1)|(p2 = 1 & l0 = 0 & l1 = 0)"));
-	Equation distanceDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q")}, AdvancedString("(p2=0&q2=0)*sqrt((p0 - q0)^2 + (p1 - q1)^2)+(p2=1|q2=1)*(1/0)"));
+	Equation distanceDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q")}, AdvancedString(""));
 	Equation betweennessDef(std::vector<AdvancedString>{AdvancedString("p"), AdvancedString("q"), AdvancedString("r")}, AdvancedString("p2=0&q2=0&((p0 <= q0 & q0 <= r0) | (p0 >= q0 & q0 >= r0)) & ((p1 <= q1 & q1 <= r1) | (p1 >= q1 & q1 >= r1))"));
 
 	EquationVector lineFromPoints{
