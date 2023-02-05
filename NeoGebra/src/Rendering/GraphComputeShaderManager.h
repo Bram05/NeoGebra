@@ -20,8 +20,9 @@ public:
 	void SetUniform(unsigned int loc, const std::array<float, 4>& vec) const;
 
 private:
-	unsigned int m_CompShader2;
-	unsigned int m_IntermediateTexture;
+	unsigned int m_CompShader2, m_CompShader3, m_CompShader4;
+	unsigned int m_IntermediateTexture1;
+	std::vector<unsigned int> m_IntermediateTextures2;
 	int m_MaxNumberOfTextureUnits;
 	int m_Width, m_Height; // Stored in pixels
 	std::string m_Name;

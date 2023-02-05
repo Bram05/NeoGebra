@@ -91,6 +91,7 @@ static void HalfPlaneModel(void* obj)
 	Application::Get()->GetModel()->addExtraEquation(boundary, { 255,0,0,255 });
 	Application::Get()->GetWindowUI()->GetEquationUI()->LoadFromActiveModel();
 	Application::Get()->GetWindowUI()->GetEquationUI()->UpdateModel();
+	//PostulateVerifier::I2(*Application::Get()->GetModel());
 }
 
 static void EuclideanModel(void* obj)

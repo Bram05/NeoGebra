@@ -29,6 +29,7 @@ public:
 	NEElement& getElement() const { return m_El; };
 	unsigned int m_CompShader1;
 	unsigned int m_Texture;
+	float m_Biggest;
 private:
 	RGBColour m_Colour;
 	NEElement& m_El;
