@@ -13,6 +13,7 @@
 #include "Util.h"
 #include "ExtrasWindowUI.h"
 #include "TestUI.h"
+#include "ToggleButtonUI.h"
 
 static void TabButtonClickedStatic(void* obj, int value)
 {
@@ -32,6 +33,13 @@ static void UpdateModelStatic(void* obj)
 static void UpdatePointsUIStatic(void* obj, int value)
 {
 	((EquationUI*)obj)->UpdatePointsUI(value);
+}
+
+static bool s_Verify{ false };
+
+static void ToggleVerify(void* obj, bool value)
+{
+	s_Verify = value;
 }
 
 struct SubWindow
@@ -115,6 +123,7 @@ static void ExtrasKeyCallback(int key, int scancode, int action, int mods) { Key
 static void ManagePointVariableWindow(EquationUI* base)
 {
 	// Technically Window creation and destruction must happen on the main thread, but this seems to work
+	// These windows will never be created at the same time anyways
 	g_PointWindow.window = new Window(WindowCreationOptions(800, 400, "Point Variables", PointMouseClickCallback, PointTextCallback, PointMouseMovedCallback, PointKeyCallback, PointResizeCallback));
 
 	// TODO: by doing this, we are reloading the font which is inefficient, but it needs a texture which has to be created on this thread
@@ -376,7 +385,8 @@ EquationUI::EquationUI(float leftX, float rightX, float topY, float bottomY)
 
 	m_SubUIElements.emplace_back(std::make_shared<KeyboardUI>(leftX, rightX, bottomY + 0.24f, bottomY));
 	m_SubUIElements.emplace_back(std::make_shared<TabUI>(leftX, rightX, topY - 0.05f, topY - 0.15f, m_ButtonValue, &TabButtonClickedStatic, this, std::vector<AdvancedString>{AdvancedString("points"), AdvancedString("lines"), AdvancedString("model")}));
-	m_SubUIElements.emplace_back(std::make_shared<ButtonUI>(leftX + 0.02f, rightX - 0.02f, bottomY + 0.4f, bottomY + 0.27f, UpdateGraphsStatic, this, "Update graphs"));
+	m_SubUIElements.emplace_back(std::make_shared<ToggleButtonUI>(leftX + 0.01f, leftX + 0.20f, bottomY + 0.36f, bottomY + 0.27f, s_Verify, AdvancedString("Verify elements"), ToggleVerify, this));
+	m_SubUIElements.emplace_back(std::make_shared<ButtonUI>(leftX + 0.24f, rightX - 0.05f, bottomY + 0.36f, bottomY + 0.27f, UpdateGraphsStatic, this, "Update graphs"));
 	m_UpdateGraphsButton = m_SubUIElements.size() - 1;
 
 	TabButtonClicked(m_ButtonValue);
@@ -423,6 +433,7 @@ void EquationUI::TabButtonClicked(int value)
 	{
 		m_SubUIElements[i].shouldRender = value == 2;
 	}
+	m_SubUIElements[m_UpdateGraphsButton-1].shouldRender = value == 0 || value == 1;
 	m_SubUIElements[m_UpdateGraphsButton].shouldRender = value == 0 || value == 1;
 }
 
@@ -482,7 +493,7 @@ void EquationUI::UpdateGraphs()
 			continue;
 
 		std::vector<float> identifiers{ ParseInput(text) };
-		UserInput(m_NEPoints[i - m_PointsIndexBegin] = std::make_shared<NEPoint>(identifiers, Application::Get()->GetModel(), RGBColour{ 0, 0, 200, 255 }, false));
+		UserInput(m_NEPoints[i - m_PointsIndexBegin] = std::make_shared<NEPoint>(identifiers, Application::Get()->GetModel(), RGBColour{ 0, 0, 200, 255 }, s_Verify));
 	}
 
 	for (int i{ m_LinesIndexBegin }; i < m_LinesIndexBegin + NumInputFields; ++i)
@@ -492,7 +503,7 @@ void EquationUI::UpdateGraphs()
 			continue;
 
 		std::vector<float> identifiers{ ParseInput(text) };
-		UserInput(m_NELines[i - m_LinesIndexBegin] = std::make_shared<NELine>(identifiers, Application::Get()->GetModel(), RGBColour{ 20, 20, 20, 255 }, false));
+		UserInput(m_NELines[i - m_LinesIndexBegin] = std::make_shared<NELine>(identifiers, Application::Get()->GetModel(), RGBColour{ 20, 20, 20, 255 }, s_Verify));
 	}
 
 	for (int i{ m_LineFromPointsBegin }; i <= m_LineFromPointsEnd; ++i)
@@ -744,7 +755,7 @@ void EquationUI::UpdatePointsUI(int value)
 	{
 		m_SubUIElements[i].shouldRender = value == 1 && m_ButtonValue == 0;
 	}
-	for (int i{m_BetweennessBegin}; i <= m_BetweennessEnd; i++)
+	for (int i{ m_BetweennessBegin }; i <= m_BetweennessEnd; i++)
 	{
 		m_SubUIElements[i].shouldRender = value == 2 && m_ButtonValue == 0;
 	}

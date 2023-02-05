@@ -5,12 +5,14 @@
 #include "UIElement.h"
 
 #include "Rendering/SquareRenderer.h"
+#include "Rendering/TextRenderer.h"
+#include "Maths/Equation.h"
 
 // A button that can be toggle to change some setting
 class ToggleButtonUI : public UIElement
 {
 public:
-	ToggleButtonUI(float leftX, float rightX, float topY, float bottomY, bool defaultValue, void(*callback)(void*,bool) = nullptr, void* obj = nullptr);
+	ToggleButtonUI(float leftX, float rightX, float topY, float bottomY, bool defaultValue, const AdvancedString& text, void(*callback)(void*,bool) = nullptr, void* obj = nullptr);
 	virtual ~ToggleButtonUI();
 
 	virtual void RenderPass(Renderer* r) override;
@@ -20,6 +22,7 @@ public:
 
 private:
 	std::shared_ptr<Square> m_Background;
+	std::shared_ptr<Text> m_Text;
 	void(*m_Callback)(void*,bool);
 	void* m_Obj;
 	bool m_IsOn;
