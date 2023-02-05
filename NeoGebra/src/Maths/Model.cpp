@@ -13,7 +13,7 @@ RGBColour::RGBColour(const RGBColour& c) : RGBColour(c.r, c.g, c.b, c.a) { }
 NEElement::NEElement(const std::vector<float>& identifiers, const Equation& def, const int identNum, NEType type, std::shared_ptr<Model> model, const RGBColour& colour, bool checkValidity)
 	: m_Identifiers{ identifiers }, m_Def{ def }, m_Type{ type }, m_Model{ model }, m_Colour{ colour }
 {
-	if (checkValidity) {
+	/*if (checkValidity) {
 		if (!def.SolutionExists(identifiers, m_ID, type, model.get())) {
 			std::string identifierString;
 			identifierString += "( ";
@@ -24,7 +24,7 @@ NEElement::NEElement(const std::vector<float>& identifiers, const Equation& def,
 			Application::Get()->GetWindowUI()->DisplayError("Invalid element " + identifierString + ": Check the definition");
 			throw ErrorBoxException();
 		}
-	}
+	}*/
 
 	if (identifiers.size() != identNum) {
 		std::string identifierString;
