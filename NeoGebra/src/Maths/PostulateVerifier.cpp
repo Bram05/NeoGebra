@@ -1395,7 +1395,7 @@ ParallelType PostulateVerifier::PARALLEL(const Model& model) {
 		}
 		// Get Z3 output
 		z3::model z3model = solver.get_model();
-		std::cout << z3model;
+
 		std::string pointVarName = model.m_PointDef.m_NumberedVarNames[0].toString();
 		std::string lineVarName = model.m_LineDef.m_NumberedVarNames[0].toString();
 		for (int i = 0; i < z3model.num_consts(); ++i) {
@@ -1521,7 +1521,7 @@ ParallelType PostulateVerifier::PARALLEL(const Model& model) {
 
 		//  Standard functions (See top of document)
 		//  Also feqBiggerError function for line comparison, to prevent future rounding errors 
-		smt = "(define-fun feqBiggerError ((a Real)(b Real)) Bool (< (abs (- a b)) 0.1)) (define-fun feqBiggerErrorReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.1) 1.0 0.0))(declare-fun sqrt (Real) Real)(declare-fun root3 (Real) Real)(declare-fun root4 (Real) Real)(assert (forall ((rootInp Real)) (> (sqrt rootInp) 0.0)))(assert (forall ((rootInp Real)) (> (root4 rootInp) 0.0)))(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))(define-fun notReal ((a Real)) Real (ite (feq a 0) 1.0 0.0)) (define-fun feqReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.0001) 1.0 0.0)) (define-fun gReal ((a Real)(b Real)) Real (ite (> a b) 1.0 0.0)) (define-fun geReal ((a Real)(b Real)) Real (ite (>= a b) 1.0 0.0)) (define-fun lReal ((a Real)(b Real)) Real (ite (< a b) 1.0 0.0)) (define-fun leReal ((a Real)(b Real)) Real (ite (<= a b) 1.0 0.0))" + smt;
+		smt = "(define-fun feqBiggerError ((a Real)(b Real)) Bool (< (abs (- a b)) 0.01)) (define-fun feqBiggerErrorReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.1) 1.0 0.0))(declare-fun sqrt (Real) Real)(declare-fun root3 (Real) Real)(declare-fun root4 (Real) Real)(assert (forall ((rootInp Real)) (> (sqrt rootInp) 0.0)))(assert (forall ((rootInp Real)) (> (root4 rootInp) 0.0)))(define-fun feq ((a Real)(b Real)) Bool (< (abs (- a b)) 0.0001))(define-fun notReal ((a Real)) Real (ite (feq a 0) 1.0 0.0)) (define-fun feqReal ((a Real)(b Real)) Real (ite (< (abs (- a b)) 0.0001) 1.0 0.0)) (define-fun gReal ((a Real)(b Real)) Real (ite (> a b) 1.0 0.0)) (define-fun geReal ((a Real)(b Real)) Real (ite (>= a b) 1.0 0.0)) (define-fun lReal ((a Real)(b Real)) Real (ite (< a b) 1.0 0.0)) (define-fun leReal ((a Real)(b Real)) Real (ite (<= a b) 1.0 0.0))" + smt;
 
 		// Check if solution exists
 		z3::context c;
