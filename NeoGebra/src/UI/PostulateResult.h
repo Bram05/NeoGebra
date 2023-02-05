@@ -8,6 +8,7 @@ class PostulateResult : public UIElement
 {
 public:
 	PostulateResult(float leftX, float rightX, float topY, float bottomY, const AdvancedString& name);
+	PostulateResult(float leftX, float rightX, float topY, float bottomY, const AdvancedString& name, PostulateVerifierValues value);
 	virtual ~PostulateResult() {}
 
 	virtual void RenderPass(Renderer* r) override;

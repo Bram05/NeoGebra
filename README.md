@@ -114,6 +114,8 @@ The right hand side of the screen is the postulate verifier section. With this y
 | <span style="color:#ff0000">invalid </span> | Postulate does not hold                     |
 | unknown                                     | Couldn't find a solution                    |
 | hyperbolic / elliptic / euclidean   | The result for the parallel postulate |
+| <span style="color:#29ff49">always valid :)</span> | Postulate will always be valid because of the way terms are defined in this program
+| never test | this postulate is currently not tested because it is too complex
 
 ## Custom models
 

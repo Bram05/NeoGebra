@@ -10,6 +10,12 @@ PostulateResult::PostulateResult(float leftX, float rightX, float topY, float bo
 {
 }
 
+PostulateResult::PostulateResult(float leftX, float rightX, float topY, float bottomY, const AdvancedString& name, PostulateVerifierValues value)
+	: PostulateResult(leftX, rightX, topY, bottomY, name)
+{
+	SetResult(value);
+}
+
 void PostulateResult::RenderPass(Renderer* r)
 {
 	r->AddToRenderQueue(m_Name);
@@ -46,6 +52,16 @@ void PostulateResult::SetResult(PostulateVerifierValues result)
 		text = AdvancedString(": being tested");
 		m_Name->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
 		m_Result->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
+		break;
+	case NEVERTESTED:
+		text = AdvancedString(": never tested");
+		m_Name->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
+		m_Result->m_Colour = { 0.0f,0.0f,0.0f,1.0f };
+		break;
+	case ALWAYSTRUE:
+		text = AdvancedString(": always true :)");
+		m_Name->m_Colour = { 0.0f,1.0f,0.0f,1.0f };
+		m_Result->m_Colour = { 0.0f,1.0f,0.0f,1.0f };
 		break;
 	}
 	m_Result->SetText(text);

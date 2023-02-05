@@ -69,17 +69,42 @@ PostulateVerifierResultUI::PostulateVerifierResultUI(float leftX, float rightX, 
 	m_Lines.push_back(std::make_shared<Line>(Point(rightX, bottomY), Point(leftX, bottomY))); // bottom
 	m_SubUIElements.emplace_back(std::make_shared<ButtonUI>(leftX + 0.04f, rightX - 0.04f, topY - 0.05f, topY - 0.25f, CheckPostulates, this, "Verify Posulates"));
 	//m_SubUIElements.emplace_back(std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, topY - 0.3f, topY - 0.5f, AdvancedString("I-3")));
-	m_I2 = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, topY - 0.3f, topY - 0.37f, AdvancedString("I-2"));
-	m_I3 = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, topY - 0.37f, topY - 0.44f, AdvancedString("I-3"));
+	float currentHeight = topY - 0.3f;
+	float diff = 0.07;
+	m_SubUIElements.emplace_back(std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, currentHeight, currentHeight-diff, AdvancedString("I-1"), ALWAYSTRUE));
+	currentHeight -= diff;
+	m_I2 = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, currentHeight, currentHeight - diff, AdvancedString("I-2"));
+	currentHeight -= diff;
+	m_I3 = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, currentHeight, currentHeight - diff, AdvancedString("I-3"));
+	currentHeight -= diff;
 
-	m_B1 = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, topY - 0.50f, topY - 0.57f, AdvancedString("B-1"));
-	m_B2 = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, topY - 0.57f, topY - 0.64f, AdvancedString("B-2"));
-	m_B3 = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, topY - 0.64f, topY - 0.71f, AdvancedString("B-3"));
+	m_B1 = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, currentHeight, currentHeight - diff, AdvancedString("B-1"));
+	currentHeight -= diff;
+	m_B2 = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, currentHeight, currentHeight - diff, AdvancedString("B-2"));
+	currentHeight -= diff;
+	m_B3 = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, currentHeight, currentHeight - diff, AdvancedString("B-3"));
+	currentHeight -= diff;
 
-	m_C3 = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, topY - 0.77f, topY - 0.84f, AdvancedString("C-3"));
+	m_SubUIElements.emplace_back(std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, currentHeight, currentHeight - diff, AdvancedString("B-4"), NEVERTESTED));
+	currentHeight -= diff;
 
-	m_Distance = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, topY - 0.90f, topY - 0.97f, AdvancedString("Distance"));
-	m_Parallel = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, topY - 1.03f, topY - 1.10f, AdvancedString("Parallel"));
+	m_SubUIElements.emplace_back(std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, currentHeight, currentHeight - diff, AdvancedString("C-1"), NEVERTESTED));
+	currentHeight -= diff;
+	m_SubUIElements.emplace_back(std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, currentHeight, currentHeight - diff, AdvancedString("C-2"), ALWAYSTRUE));
+	currentHeight -= diff;
+	m_C3 = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, currentHeight, currentHeight - diff, AdvancedString("C-3"));
+	currentHeight -= diff;
+	m_SubUIElements.emplace_back(std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, currentHeight, currentHeight - diff, AdvancedString("C-4"), NEVERTESTED));
+	currentHeight -= diff;
+	m_SubUIElements.emplace_back(std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, currentHeight, currentHeight - diff, AdvancedString("C-5"), NEVERTESTED));
+	currentHeight -= diff;
+	m_SubUIElements.emplace_back(std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, currentHeight, currentHeight - diff, AdvancedString("C-6"), NEVERTESTED));
+	currentHeight -= diff;
+
+	m_Distance = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, currentHeight, currentHeight - diff, AdvancedString("Distance"));
+	currentHeight -= diff;
+	m_Parallel = std::make_shared<PostulateResult>(leftX + 0.01f, rightX - 0.01f, currentHeight, currentHeight - diff, AdvancedString("Parallel"));
+	currentHeight -= diff;
 }
 
 PostulateVerifierResultUI::~PostulateVerifierResultUI()

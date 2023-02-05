@@ -9,7 +9,7 @@ enum ParallelType
 
 enum PostulateVerifierValues
 {
-	VALID, INVALID, UNKOWN, UNTESTED, BEINGTESTED
+	VALID, INVALID, UNKOWN, UNTESTED, BEINGTESTED, NEVERTESTED, ALWAYSTRUE
 };
 
 class PostulateVerifier
