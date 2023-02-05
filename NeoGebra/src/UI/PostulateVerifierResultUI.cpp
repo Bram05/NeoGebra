@@ -13,51 +13,51 @@ static void CheckPostulates(void* obj)
 
 static void CheckPostuateI2(PostulateVerifierResultUI* ui, uint64_t count)
 {
-	PostulateVerifierValues output = PostulateVerifier::I2(*Application::Get()->GetModel());
+	UserInput(PostulateVerifierValues output = PostulateVerifier::I2(*Application::Get()->GetModel());
 	if (count == ui->m_Count)
-		ui->m_I2->SetResult(output);
+		ui->m_I2->SetResult(output));
 }
 static void CheckPostuateI3(PostulateVerifierResultUI* ui, uint64_t count)
 {
-	PostulateVerifierValues output = PostulateVerifier::I3(*Application::Get()->GetModel());
+	UserInput(PostulateVerifierValues output = PostulateVerifier::I3(*Application::Get()->GetModel());
 	if (count == ui->m_Count)
-		ui->m_I3->SetResult(output);
+		ui->m_I3->SetResult(output));
 }
 static void CheckPostuateB1(PostulateVerifierResultUI* ui, uint64_t count)
 {
-	PostulateVerifierValues output = PostulateVerifier::B1(*Application::Get()->GetModel());
+	UserInput(PostulateVerifierValues output = PostulateVerifier::B1(*Application::Get()->GetModel());
 	if (count == ui->m_Count)
-		ui->m_B1->SetResult(output);
+		ui->m_B1->SetResult(output));
 }
 static void CheckPostuateB2(PostulateVerifierResultUI* ui, uint64_t count)
 {
-	PostulateVerifierValues output = PostulateVerifier::B2(*Application::Get()->GetModel());
+	UserInput(PostulateVerifierValues output = PostulateVerifier::B2(*Application::Get()->GetModel());
 	if (count == ui->m_Count)
-		ui->m_B2->SetResult(output);
+		ui->m_B2->SetResult(output));
 }
 static void CheckPostuateB3(PostulateVerifierResultUI* ui, uint64_t count)
 {
-	PostulateVerifierValues output = PostulateVerifier::B3(*Application::Get()->GetModel());
+	UserInput(PostulateVerifierValues output = PostulateVerifier::B3(*Application::Get()->GetModel());
 	if (count == ui->m_Count)
-		ui->m_B3->SetResult(output);
+		ui->m_B3->SetResult(output));
 }
 static void CheckPostuateC3(PostulateVerifierResultUI* ui, uint64_t count)
 {
-	PostulateVerifierValues output = PostulateVerifier::C3(*Application::Get()->GetModel());
+	UserInput(PostulateVerifierValues output = PostulateVerifier::C3(*Application::Get()->GetModel());
 	if (count == ui->m_Count)
-		ui->m_C3->SetResult(output);
+		ui->m_C3->SetResult(output));
 }
 static void CheckPostuateDistance(PostulateVerifierResultUI* ui, uint64_t count)
 {
-	PostulateVerifierValues output = PostulateVerifier::DISTANCE(*Application::Get()->GetModel());
+	UserInput(PostulateVerifierValues output = PostulateVerifier::DISTANCE(*Application::Get()->GetModel());
 	if (count == ui->m_Count)
-		ui->m_Distance->SetResult(output);
+		ui->m_Distance->SetResult(output));
 }
 static void CheckPostuateParallel(PostulateVerifierResultUI* ui, uint64_t count)
 {
-	ParallelType output = PostulateVerifier::PARALLEL(*Application::Get()->GetModel());
+	UserInput(ParallelType output = PostulateVerifier::PARALLEL(*Application::Get()->GetModel());
 	if (count == ui->m_Count)
-		ui->m_Parallel->SetResult(output);
+		ui->m_Parallel->SetResult(output));
 }
 
 PostulateVerifierResultUI::PostulateVerifierResultUI(float leftX, float rightX, float topY, float bottomY)
