@@ -9,5 +9,9 @@ layout(r32f, binding = 2) uniform image2D out_texture;
 void main()
 {
     ivec2 pos = ivec2( gl_GlobalInvocationID.xy );
-	imageStore(out_texture, pos, vec4(imageLoad(in_texture, pos).r / imageLoad(small_texture, ivec2(0,0)).r, 0.0,0.0,0.0));
+	float value = imageLoad(small_texture, ivec2(0,0)).r;
+	if (abs(value) > 0.00001)
+		imageStore(out_texture, pos, vec4(imageLoad(in_texture, pos).r / value, 0.0,0.0,0.0));
+	else
+		imageStore(out_texture, pos, vec4(0.0, 0.0,0.0,0.0));
 }
