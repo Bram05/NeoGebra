@@ -87,7 +87,6 @@ int roundFloat(float value) {
 void GraphUI::UpdateCoordinates()
 {
 	m_Texts.clear();
-
 	float pixelTopY = Util::ConvertToPixelCoordinate(m_TopY, false);
 	float pixelBottomY = Util::ConvertToPixelCoordinate(m_BottomY, false);
 	float pixelLeftX = Util::ConvertToPixelCoordinate(m_LeftX, true);
@@ -158,6 +157,7 @@ void GraphUI::UpdateCoordinates()
 			}
 		}
 	}
+
 	//second quadrant and third quadrant
 	for (int i = 0; i < (nearMidPixelX - pixelLeftX) / m_UnitLengthPixels; ++i) {
 		float x = Util::ConvertToOpenGLCoordinate(nearMidPixelX - i * m_UnitLengthPixels, true);
@@ -191,7 +191,6 @@ void GraphUI::UpdateCoordinates()
 				if (i == indexAxisY * -1) { continue; }
 				m_Texts.push_back(std::make_shared<Text>(std::to_string(roundFloat(indexAxisY * -1 - i)), x, x + 0.3, y - xTextOffset, 35.0f));
 				STXDrawn = true;
-				//std::cout << "4 | STX Drawn" << "\n";
 			}
 		}
 	}
