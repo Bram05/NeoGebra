@@ -23,7 +23,7 @@ void PostulateResult::SetResult(PostulateVerifierValues result)
 	switch (result)
 	{
 	case VALID:
-		text = AdvancedString(": valid (:");
+		text = AdvancedString(": valid :)");
 		m_Name->m_Colour = { 0.0f,1.0f,0.0f,1.0f };
 		m_Result->m_Colour = { 0.0f,1.0f,0.0f,1.0f };
 		break;
