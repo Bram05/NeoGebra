@@ -2,9 +2,6 @@
 // https://cmake.org/cmake/help/latest/command/target_precompile_headers.html
 
 // This file contains the constants used
-// It will be copied by CMake to the output directory as Constants.h that will then be included in the other files
-// During this copy CMake will set the correct path to the AssetsFolder
-// This is done to ensure that the executable can be copied to anywehere on the system and will still have access to the AssetsFolder
 #pragma once
 
 // Some constants
@@ -20,11 +17,11 @@ namespace Action
 
 // The absolute path to the assets folder
 // This will be set by cmake when the file is copied
-#cmakedefine AssetsFolder std::filesystem::path(R"(${AssetsFolder})")
+#define AssetsFolder std::filesystem::path("assets")
 
 #ifdef DEBUG
 // This defines that debug some info is printed
 #define PRINTINFO
 #endif
 // This defines if all the timers should be activated
-#define TIMING
+//#define TIMING

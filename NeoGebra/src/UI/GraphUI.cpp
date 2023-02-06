@@ -10,7 +10,7 @@
 GraphUI::GraphUI(float leftX, float rightX, float topY, float bottomY)
 	: UIElement(leftX, rightX, topY, bottomY, "GraphUI"), m_ComputeShaderManager("graphShader", rightX - leftX, topY - bottomY)
 {
-	m_MidCoordX = 0.0f, m_MidCoordY = 0.0f, m_UnitLengthPixels = 135.0f;
+	m_MidCoordX = 0.0f, m_MidCoordY = 0.0f, m_UnitLengthPixels = 400.0f;
 
 	UpdateLines();
 	UpdateGraphs();

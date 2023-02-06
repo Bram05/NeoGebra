@@ -1,7 +1,7 @@
 #include "Model.h"
 #include "Application.h"
 
-RGBColour::RGBColour() : RGBColour(0,0,0,0) {}
+RGBColour::RGBColour() : RGBColour(0, 0, 0, 0) {}
 
 RGBColour::RGBColour(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
 	: r{ r }, g{ g }, b{ b }, a{ a },
@@ -83,28 +83,28 @@ Model::Model(VarMap& variables,
 	m_LineFromPoints{ lineFromPoints },
 	m_PointFromLines{ pointFromLines }
 {
-	m_PointDef.linkVars(&m_SolvedVariables, {point});
-	m_LineDef.linkVars(&m_SolvedVariables, {line});
-	m_IncidenceConstr.linkVars(&m_SolvedVariables, {point, line });
-	m_DistanceDef.linkVars(&m_SolvedVariables, {point, point });
-	m_BetweennessConstr.linkVars(&m_SolvedVariables, {point, point, point});
+	m_PointDef.linkVars(&m_SolvedVariables, { point });
+	m_LineDef.linkVars(&m_SolvedVariables, { line });
+	m_IncidenceConstr.linkVars(&m_SolvedVariables, { point, line });
+	m_DistanceDef.linkVars(&m_SolvedVariables, { point, point });
+	m_BetweennessConstr.linkVars(&m_SolvedVariables, { point, point, point });
 	for (Equation& e : m_LineFromPoints) {
-		e.linkVars(&m_SolvedVariables, {point, point});
+		e.linkVars(&m_SolvedVariables, { point, point });
 	}
 	for (Equation& e : m_PointFromLines) {
 		e.linkVars(&m_SolvedVariables, { line, line });
 	}
 
 	for (std::pair < AdvancedString, std::shared_ptr<Equation>> p : m_Variables.first) {
-		p.second->linkVars(&m_SolvedVariables, {point});
+		p.second->linkVars(&m_SolvedVariables, { point });
 	}
 	for (std::pair < AdvancedString, std::shared_ptr<Equation>> p : m_Variables.second) {
-		p.second->linkVars(&m_SolvedVariables, {line});
+		p.second->linkVars(&m_SolvedVariables, { line });
 	}
 }
 
 Model::Model(const Model& m) :
-	m_Variables{m.m_Variables},
+	m_Variables{ m.m_Variables },
 	m_PointIdentifiers{ m.m_PointIdentifiers },
 	m_PointDef{ m.m_PointDef },
 	m_LineIdentifiers{ m.m_LineIdentifiers },
@@ -115,11 +115,11 @@ Model::Model(const Model& m) :
 	m_LineFromPoints{ m.m_LineFromPoints },
 	m_PointFromLines{ m.m_PointFromLines }
 {
-	m_PointDef.linkVars(&m_SolvedVariables, {point});
-	m_LineDef.linkVars(&m_SolvedVariables, {line});
-	m_IncidenceConstr.linkVars(&m_SolvedVariables, {point, line});
-	m_DistanceDef.linkVars(&m_SolvedVariables, {point, point});
-	m_BetweennessConstr.linkVars(&m_SolvedVariables, {point, point, point});
+	m_PointDef.linkVars(&m_SolvedVariables, { point });
+	m_LineDef.linkVars(&m_SolvedVariables, { line });
+	m_IncidenceConstr.linkVars(&m_SolvedVariables, { point, line });
+	m_DistanceDef.linkVars(&m_SolvedVariables, { point, point });
+	m_BetweennessConstr.linkVars(&m_SolvedVariables, { point, point, point });
 	for (Equation& e : m_LineFromPoints) {
 		e.linkVars(&m_SolvedVariables, { point, point });
 	}
@@ -144,9 +144,9 @@ void Model::addExtraEquation(Equation& eq, const RGBColour& colour) {
 NELine Model::lineFromPoints(const NEPoint& p1, const NEPoint& p2) {
 	std::vector<float> identifiers;
 	for (int i = 0; i < m_LineIdentifiers; ++i) {
-		identifiers.push_back(m_LineFromPoints[i].getResult({p1.getIdentifiers(), p2.getIdentifiers()}, { p1.getID(), p1.getID()}));
+		identifiers.push_back(m_LineFromPoints[i].getResult({ p1.getIdentifiers(), p2.getIdentifiers() }, { p1.getID(), p1.getID() }));
 	}
-	return NELine(identifiers, shared_from_this());
+	return NELine(identifiers, shared_from_this(), { 0,0,200,255 });
 }
 
 NEPoint Model::pointFromLines(const NELine& l1, const NELine& l2) {
@@ -159,7 +159,7 @@ NEPoint Model::pointFromLines(const NELine& l1, const NELine& l2) {
 		}
 		identifiers.push_back(identifier);
 	}
-	return NEPoint(identifiers, shared_from_this());
+	return NEPoint(identifiers, shared_from_this(), { 20,20,20,255 });
 }
 
 bool operator==(const NEElement& lhs, const NEElement& rhs) {
@@ -192,11 +192,11 @@ bool operator>>(const NEPoint& p, const NELine& l) {
 
 	//Custom condition
 	Equation eq = p.getModel()->m_IncidenceConstr;
-	return eq.isTrue({p.getIdentifiers(), l.getIdentifiers()}, { p.getID(), l.getID() });
+	return eq.isTrue({ p.getIdentifiers(), l.getIdentifiers() }, { p.getID(), l.getID() });
 }
 
 float distance(const NEPoint& p1, const NEPoint& p2) {
-	return p1.getModel()->m_DistanceDef.getResult({p1.getIdentifiers(), p2.getIdentifiers()}, { p1.getID(), p2.getID() });
+	return p1.getModel()->m_DistanceDef.getResult({ p1.getIdentifiers(), p2.getIdentifiers() }, { p1.getID(), p2.getID() });
 }
 
 bool isBetween(const NEPoint& p1, const NEPoint& p2, const NEPoint& p3) {
