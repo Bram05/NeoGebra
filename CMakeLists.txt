@@ -9,7 +9,8 @@ endfunction()
 
 # Libraries
 # I don't really know why this option in Z3 is forced to be DLL in Debug and static in Release but it has to be the same everywhere so we set it here
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:DebugDLL>")
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+set(Z3_BUILD_LIBZ3_MSVC_STATIC On)
 add_subdirectory ("Lib/glad")
 set (Z3_BUILD_LIBZ3_SHARED Off)
 set (Z3_ENABLE_EXAMPLE_TARGETS Off)
