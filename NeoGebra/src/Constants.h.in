@@ -27,4 +27,4 @@ namespace Action
 #define PRINTINFO
 #endif
 // This defines if all the timers should be activated
-#define TIMING
+//#define TIMING
