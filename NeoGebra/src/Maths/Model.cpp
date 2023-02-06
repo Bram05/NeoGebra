@@ -205,11 +205,32 @@ bool isBetween(const NEPoint& p1, const NEPoint& p2, const NEPoint& p3) {
 		return false;
 	}
 
-	//NELine l = p1.getModel()->newLine(p1, p2);
-	// ToDo: fix line from two point
+	std::vector<float> identifiers;
+	for (int i = 0; i < p1.getModel()->m_LineIdentifiers; ++i) {
+		identifiers.push_back(p1.getModel()->m_LineFromPoints[i].getResult({ p1.getIdentifiers(), p2.getIdentifiers() }, { p1.getID(), p1.getID() }));
+	}
+	NELine l(identifiers, p1.getModel());
+	Equation eq = p1.getModel()->m_IncidenceConstr;
+	if (!eq.isTrue({ p3.getIdentifiers(), l.getIdentifiers() }, { p3.getID(), l.getID() })) {
+		for (int i = 0; i < p1.getModel()->m_Elements.size(); ++i) {
+			NEElement e = p1.getModel()->m_Elements[i];
+			if (e.getID() == l.getID()) {
+				p1.getModel()->m_Elements.erase(p1.getModel()->m_Elements.begin() + i);
+				break;
+			}
+		}
+		return false;
+	}
+	for (int i = 0; i < p1.getModel()->m_Elements.size(); ++i) {
+		NEElement e = p1.getModel()->m_Elements[i];
+		if (e.getID() == l.getID()) {
+			p1.getModel()->m_Elements.erase(p1.getModel()->m_Elements.begin() + i);
+			break;
+		}
+	}
 
 	//Custom condition
-	Equation eq = p1.getModel()->m_BetweennessConstr;
-	return eq.isTrue({ p1.getIdentifiers(), p2.getIdentifiers(), p3.getIdentifiers() }, { p1.getID(), p2.getID(), p2.getID() });
+	Equation betweennessEq = p1.getModel()->m_BetweennessConstr;
+	return betweennessEq.isTrue({ p1.getIdentifiers(), p2.getIdentifiers(), p3.getIdentifiers() }, { p1.getID(), p2.getID(), p2.getID() });
 }
 

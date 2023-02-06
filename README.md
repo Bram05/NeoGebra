@@ -105,7 +105,7 @@ This will draw the point of intersection of both lines.<br>
 
 ## Postulate Verifier
 
-The right hand side of the screen is the postulate verifier section. With this you can verify your model in accordance with the non-euclidean incidence, betweennes, congruence, distance and parallel postulates. To start verifying the postulates, you can simply click on the `Verify Postulates` button on the top of the section. When you do so, each postulate will be verified concurrently. Here are the meanings of messages you might see:
+The right hand side of the screen is the postulate verifier section. With this you can verify your model in accordance with the non-Euclidean incidence, betweennes, congruence, distance and parallel postulates. To start verifying the postulates, you can simply click on the `Verify Postulates` button on the top of the section. When you do so, each postulate will be verified concurrently. Here are the meanings of messages you might see:
 
 | Message                                     | Meaning                                     |
 | ------------------------------------------- | ------------------------------------------- |
@@ -115,7 +115,7 @@ The right hand side of the screen is the postulate verifier section. With this y
 | unknown                                     | Couldn't find a solution                    |
 | hyperbolic / elliptic / euclidean   | The result for the parallel postulate |
 | <span style="color:#29ff49">always valid :)</span> | Postulate will always be valid because of the way terms are defined in this program
-| never test | this postulate is currently not tested because it is too complex
+| never tested | This postulate is currently not tested because it is too complex
 
 ## Custom models
 
@@ -123,10 +123,10 @@ In NeoGebra you have the ability to create your own models. This can be done by 
 
 ### Point definition
 
-What does a point mean in your model? Is it a euclidean point or do you have to convert it? Is your model infinite in the sense of euclidean geometry when you display it on a plane? Or are it's boundaries the unit circle like the Poincare model or the Beltrami-Klein model? You have full control of what you want a point to be: you could even make it to be the equation:
+What does a point mean in your model? Is it a Euclidean point or do you have to convert it? Is your model infinite in the sense of Euclidean geometry when you display it on a plane? Or are its boundaries the unit circle like the Poincare model or the Beltrami-Klein model? You have full control of what you want a point to be: you could even make it to be the equation:
 > x^3 + y^2 + y + x = 2
 
-A point could be identified by 1 or more identifiers and has it's boundaries set. For example all points within the unit circle could be defined as:
+A point could be identified by 1 or more identifiers and has its boundaries set. For example all points within the unit circle could be defined as:
 
 > x = p0 & y = p1 & x^2 + y^2 < 1
 
@@ -143,7 +143,7 @@ The last two input fields are for the rendered size of the points (or whatever y
 
 ### Lines definition
 
-What's the formula of a line in your model? It could be a straight euclidean line , or an arc of a circle of whose center is outside the unit circle for example. You will have to define the formula of a line using as many identifiers as you wish. A Euclidean line is usually defined as y = ax + b or ax + by = c. <br>This could be translated to:
+What's the formula of a line in your model? It could be a straight Euclidean line , or an arc of a circle of whose center is outside the unit circle for example. You will have to define the formula of a line using as many identifiers as you wish. A Euclidean line is usually defined as y = ax + b or ax + by = c. <br>This could be translated to:
 | y = ax + b | ax + by = c |
 |-------------|----------------------|
 | y = l0 \* x + l1 | l0 \* x + l1 \* y = l2 |
