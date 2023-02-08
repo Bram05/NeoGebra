@@ -43,7 +43,7 @@ static void PoincareModel(void*)
 
 static void BeltramiKleinModel(void* obj) {
 	VarMap variables;
-	Equation BKpointDef{ {AdvancedString("p")}, AdvancedString("x = p0 & y = p1 & p0^2 + p1^2 < 1 & x^2 + y^2 < 1 ") };
+	Equation BKpointDef{ {AdvancedString("p")}, AdvancedString("x = p0 & y = p1 & x^2 + y^2 < 1 ") };
 	Equation BKlineDef{ {AdvancedString("l")}, AdvancedString("l0 * x + l1 * y = l2 & (l0 = 1| (l0 = 0 & l1 = 1)) & x^2 + y^2 < 1") };
 	Equation BKincidence{ {AdvancedString("p"), AdvancedString("l")}, AdvancedString("p0*l0+l1*p1=l2") };
 	Equation BKdistanceDef{ {AdvancedString("p"), AdvancedString("q")}, AdvancedString("") };
